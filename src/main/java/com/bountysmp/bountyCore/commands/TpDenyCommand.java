@@ -19,7 +19,7 @@ public class TpDenyCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use this command.");
+            sender.sendMessage(plugin.getMessage("general.only-players"));
             return true;
         }
 
@@ -27,29 +27,29 @@ public class TpDenyCommand implements CommandExecutor {
 
         TeleportRequest request = plugin.getTeleportManager().getPendingRequest(player.getUniqueId());
         if (request == null) {
-            player.sendMessage(ChatColor.RED + "You have no pending teleport requests.");
+            player.sendMessage(plugin.getMessage("teleport.tpdeny-no-request"));
             return true;
         }
 
         if (request.isExpired()) {
             plugin.getTeleportManager().removePendingRequest(request);
-            player.sendMessage(ChatColor.RED + "That teleport request has expired.");
+            player.sendMessage(plugin.getMessage("teleport.tpdeny-expired"));
             return true;
         }
 
         // Player is the target, deny the requester
         if (!request.getTarget().equals(player.getUniqueId())) {
-            player.sendMessage(ChatColor.RED + "You have no pending teleport requests.");
+            player.sendMessage(plugin.getMessage("teleport.tpdeny-no-request"));
             return true;
         }
 
         Player requester = Bukkit.getPlayer(request.getRequester());
         plugin.getTeleportManager().removePendingRequest(request);
 
-        player.sendMessage(ChatColor.RED + "You denied the teleport request from " + ChatColor.YELLOW + (requester != null ? requester.getName() : "Unknown") + ChatColor.RED + ".");
+        player.sendMessage(plugin.getMessage("teleport.tpdeny-success", "player", (requester != null ? requester.getName() : "Unknown")));
 
         if (requester != null && requester.isOnline()) {
-            requester.sendMessage(ChatColor.RED + player.getName() + " denied your teleport request.");
+            requester.sendMessage(plugin.getMessage("teleport.tpdeny-notify", "player", player.getName()));
         }
 
         return true;

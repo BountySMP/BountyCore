@@ -17,14 +17,14 @@ public class SetHomeCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use this command.");
+            sender.sendMessage(plugin.getMessage("general.only-players"));
             return true;
         }
 
         Player player = (Player) sender;
 
         if (args.length == 0) {
-            player.sendMessage(ChatColor.RED + "Usage: /sethome <name>");
+            player.sendMessage(plugin.getMessage("homes.usage-sethome"));
             return true;
         }
 
@@ -47,11 +47,9 @@ public class SetHomeCommand implements CommandExecutor {
                 boolean success = plugin.getHomeManager().setHome(player, homeName, player.getLocation());
 
                 if (success) {
-                    player.sendMessage(ChatColor.GREEN + "Home " + ChatColor.YELLOW + homeName + ChatColor.GREEN + " has been set!");
+                    player.sendMessage(plugin.getMessage("homes.set-success", "home", homeName));
                 } else {
-                    int limit = plugin.getHomeManager().getHomeLimit(player);
-                    player.sendMessage(ChatColor.RED + "You have reached your home limit of " + limit + ".");
-                    player.sendMessage(ChatColor.RED + "Delete a home or upgrade your rank to set more homes.");
+                    player.sendMessage(plugin.getMessage("homes.set-limit-reached"));
                 }
             });
         });

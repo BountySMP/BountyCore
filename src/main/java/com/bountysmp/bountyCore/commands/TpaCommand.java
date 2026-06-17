@@ -23,7 +23,7 @@ public class TpaCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use this command.");
+            sender.sendMessage(plugin.getMessage("general.only-players"));
             return true;
         }
 
@@ -31,31 +31,31 @@ public class TpaCommand implements CommandExecutor, TabCompleter {
 
         if (plugin.getCombatTagManager().isTagged(player.getUniqueId())) {
             int seconds = plugin.getCombatTagManager().getRemainingSeconds(player.getUniqueId());
-            player.sendMessage(ChatColor.RED + "You are in combat! Wait " + ChatColor.YELLOW + seconds + ChatColor.RED + " seconds.");
+            player.sendMessage(plugin.getMessage("general.in-combat", "seconds", String.valueOf(seconds)));
             return true;
         }
 
         if (args.length == 0) {
-            player.sendMessage(ChatColor.RED + "Usage: /tpa <player>");
+            player.sendMessage(plugin.getMessage("teleport.tpa-usage"));
             return true;
         }
 
         Player target = Bukkit.getPlayer(args[0]);
         if (target == null) {
-            player.sendMessage(ChatColor.RED + "Player not found or offline.");
+            player.sendMessage(plugin.getMessage("general.player-not-found"));
             return true;
         }
 
         if (target.equals(player)) {
-            player.sendMessage(ChatColor.RED + "You cannot request to teleport to yourself.");
+            player.sendMessage(plugin.getMessage("teleport.tpa-self"));
             return true;
         }
 
         plugin.getTeleportManager().sendRequest(player, target, com.bountysmp.bountyCore.teleport.TeleportRequest.RequestType.TPA);
 
-        player.sendMessage(ChatColor.GREEN + "Teleport request sent to " + ChatColor.YELLOW + target.getName() + ChatColor.GREEN + ".");
-        target.sendMessage(ChatColor.YELLOW + player.getName() + ChatColor.GREEN + " has requested to teleport to you.");
-        target.sendMessage(ChatColor.GREEN + "Type " + ChatColor.YELLOW + "/tpaccept" + ChatColor.GREEN + " to accept or " + ChatColor.YELLOW + "/tpdeny" + ChatColor.GREEN + " to deny.");
+        player.sendMessage(plugin.getMessage("teleport.tpa-sent", "player", target.getName()));
+        target.sendMessage(plugin.getMessage("teleport.tpa-received", "player", player.getName()));
+        target.sendMessage(plugin.getMessage("teleport.tpa-accept-deny"));
 
         // Schedule expiration notification
         int expireSeconds = plugin.getConfig().getInt("teleport.tpa-expire-seconds", 60);
@@ -63,7 +63,7 @@ public class TpaCommand implements CommandExecutor, TabCompleter {
             TeleportRequest request = plugin.getTeleportManager().getPendingRequest(player.getUniqueId());
             if (request != null && request.isExpired()) {
                 plugin.getTeleportManager().removePendingRequest(request);
-                player.sendMessage(ChatColor.RED + "Your teleport request to " + ChatColor.YELLOW + target.getName() + ChatColor.RED + " has expired.");
+                player.sendMessage(plugin.getMessage("teleport.tpa-expired-sender", "player", target.getName()));
             }
         }, expireSeconds * 20L);
 

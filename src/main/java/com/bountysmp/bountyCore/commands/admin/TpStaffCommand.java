@@ -22,36 +22,36 @@ public class TpStaffCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("bounty.staff.tp")) {
-            sender.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+            sender.sendMessage(plugin.getMessage("general.no-permission"));
             return true;
         }
 
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use this command.");
+            sender.sendMessage(plugin.getMessage("general.only-players"));
             return true;
         }
 
         Player executor = (Player) sender;
 
         if (args.length == 0) {
-            sender.sendMessage(ChatColor.RED + "Usage: /tp <player>");
+            sender.sendMessage(plugin.getMessage("teleport.tp-usage"));
             return true;
         }
 
         Player target = Bukkit.getPlayer(args[0]);
 
         if (target == null) {
-            sender.sendMessage(ChatColor.RED + "Player not found or offline.");
+            sender.sendMessage(plugin.getMessage("general.player-not-found"));
             return true;
         }
 
         if (target.equals(executor)) {
-            sender.sendMessage(ChatColor.RED + "You cannot teleport to yourself.");
+            sender.sendMessage(plugin.getMessage("teleport.tp-self"));
             return true;
         }
 
         executor.teleport(target.getLocation());
-        sender.sendMessage(ChatColor.GREEN + "Teleported to " + ChatColor.YELLOW + target.getName() + ChatColor.GREEN + ".");
+        sender.sendMessage(plugin.getMessage("teleport.tp-success", "player", target.getName()));
 
         return true;
     }

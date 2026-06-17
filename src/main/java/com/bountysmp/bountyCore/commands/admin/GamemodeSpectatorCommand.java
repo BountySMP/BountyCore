@@ -19,32 +19,32 @@ public class GamemodeSpectatorCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("bounty.staff.gamemode")) {
-            sender.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+            sender.sendMessage(plugin.getMessage("general.no-permission"));
             return true;
         }
 
         Player target;
         if (args.length == 0) {
             if (!(sender instanceof Player)) {
-                sender.sendMessage(ChatColor.RED + "Console must specify a player.");
+                sender.sendMessage(plugin.getMessage("gamemode.gmsp-usage"));
                 return true;
             }
             target = (Player) sender;
         } else {
             target = Bukkit.getPlayer(args[0]);
             if (target == null) {
-                sender.sendMessage(ChatColor.RED + "Player not found.");
+                sender.sendMessage(plugin.getMessage("general.player-not-found-simple"));
                 return true;
             }
         }
 
         target.setGameMode(GameMode.SPECTATOR);
 
-        String prefix = getPlayerPrefix(target);
-        sender.sendMessage(ChatColor.GREEN + "You have set " + prefix + target.getName() + ChatColor.GREEN + " gamemode to " + ChatColor.YELLOW + "Spectator" + ChatColor.GREEN + "!");
-
-        if (!target.equals(sender)) {
-            target.sendMessage(ChatColor.GREEN + "Your gamemode has been set to " + ChatColor.YELLOW + "Spectator" + ChatColor.GREEN + ".");
+        if (target.equals(sender)) {
+            sender.sendMessage(plugin.getMessage("gamemode.gmsp-self"));
+        } else {
+            sender.sendMessage(plugin.getMessage("gamemode.gmsp-other", "player", target.getName()));
+            target.sendMessage(plugin.getMessage("gamemode.gmsp-notify"));
         }
 
         return true;

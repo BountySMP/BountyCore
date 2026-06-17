@@ -24,7 +24,7 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use this command.");
+            sender.sendMessage(plugin.getMessage("general.only-players"));
             return true;
         }
 
@@ -46,10 +46,7 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
             return handleViewBounty(player, args[0]);
         }
 
-        player.sendMessage(ChatColor.RED + "Usage:");
-        player.sendMessage(ChatColor.RED + "/bounty - Open bounty GUI");
-        player.sendMessage(ChatColor.RED + "/bounty set <player> <amount> - Place a bounty");
-        player.sendMessage(ChatColor.RED + "/bounty <player> - View a player's bounty");
+        player.sendMessage(plugin.getMessage("bounty.usage"));
         return true;
     }
 
@@ -57,12 +54,12 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
         Player target = Bukkit.getPlayer(targetName);
 
         if (target == null) {
-            player.sendMessage(ChatColor.RED + "Player not found or offline.");
+            player.sendMessage(plugin.getMessage("general.player-not-found"));
             return true;
         }
 
         if (target.equals(player)) {
-            player.sendMessage(ChatColor.RED + "You cannot place a bounty on yourself.");
+            player.sendMessage(plugin.getMessage("bounty.set-self"));
             return true;
         }
 
@@ -70,18 +67,18 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
         try {
             amount = Double.parseDouble(amountStr);
         } catch (NumberFormatException e) {
-            player.sendMessage(ChatColor.RED + "Invalid amount. Please enter a valid number.");
+            player.sendMessage(plugin.getMessage("general.invalid-amount"));
             return true;
         }
 
         double minimumAmount = plugin.getConfig().getDouble("bounty.minimum-amount", 10000);
         if (amount < minimumAmount) {
-            player.sendMessage(ChatColor.RED + "Minimum bounty amount is " + plugin.getEconomy().format(minimumAmount) + ".");
+            player.sendMessage(plugin.getMessage("bounty.set-minimum", "amount", plugin.getEconomy().format(minimumAmount)));
             return true;
         }
 
         if (!plugin.getEconomy().has(player, amount)) {
-            player.sendMessage(ChatColor.RED + "You don't have enough money.");
+            player.sendMessage(plugin.getMessage("bounty.set-insufficient"));
             return true;
         }
 
@@ -93,12 +90,12 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
 
         double totalBounty = plugin.getBountyManager().getBounty(target.getUniqueId());
 
-        player.sendMessage(ChatColor.GREEN + "You placed a bounty of " + ChatColor.GOLD + plugin.getEconomy().format(amount) + ChatColor.GREEN + " on " + ChatColor.YELLOW + target.getName() + ChatColor.GREEN + ".");
-        player.sendMessage(ChatColor.GREEN + "Their total bounty is now " + ChatColor.RED + plugin.getEconomy().format(totalBounty) + ChatColor.GREEN + ".");
+        player.sendMessage(plugin.getMessage("bounty.set-success", "amount", plugin.getEconomy().format(amount), "player", target.getName()));
+        player.sendMessage(plugin.getMessage("bounty.set-total", "amount", plugin.getEconomy().format(totalBounty)));
 
         // Notify target
-        target.sendMessage(ChatColor.RED + "A bounty has been placed on your head!");
-        target.sendMessage(ChatColor.RED + "Total bounty: " + ChatColor.GOLD + plugin.getEconomy().format(totalBounty));
+        target.sendMessage(plugin.getMessage("bounty.set-notify-target"));
+        target.sendMessage(plugin.getMessage("bounty.set-notify-total", "amount", plugin.getEconomy().format(totalBounty)));
 
         return true;
     }
@@ -107,16 +104,16 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
         OfflinePlayer target = Bukkit.getOfflinePlayer(targetName);
 
         if (!target.hasPlayedBefore() && !target.isOnline()) {
-            player.sendMessage(ChatColor.RED + "Player not found.");
+            player.sendMessage(plugin.getMessage("general.player-not-found-simple"));
             return true;
         }
 
         double bounty = plugin.getBountyManager().getBounty(target.getUniqueId());
 
         if (bounty <= 0) {
-            player.sendMessage(ChatColor.YELLOW + target.getName() + ChatColor.GRAY + " has no active bounty.");
+            player.sendMessage(plugin.getMessage("bounty.view-none", "player", target.getName()));
         } else {
-            player.sendMessage(ChatColor.YELLOW + target.getName() + ChatColor.GRAY + "'s bounty: " + ChatColor.RED + plugin.getEconomy().format(bounty));
+            player.sendMessage(plugin.getMessage("bounty.view-amount", "player", target.getName(), "amount", plugin.getEconomy().format(bounty)));
         }
 
         return true;

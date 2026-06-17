@@ -18,48 +18,51 @@ public class PsearchCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("bounty.staff.admin")) {
-            sender.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+            sender.sendMessage(plugin.getMessage("general.no-permission"));
             return true;
         }
 
-        if (args.length < 2) {
-            sender.sendMessage(ChatColor.RED + "Usage: /psearch <player> <query>");
+        if (args.length < 1) {
+            sender.sendMessage(plugin.getMessage("ranks.psearch-usage"));
             return true;
         }
 
-        OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
-        String query = args[1].toLowerCase();
+        String query = args[0].toLowerCase();
 
-        // Get all groups and permissions
-        List<String> groups = plugin.getRankManager().getGroups(target.getUniqueId());
-        List<String> permissions = plugin.getRankManager().getPermissions(target.getUniqueId());
+        // Get all online players with matching groups/permissions
+        List<String> matchingPlayers = new ArrayList<>();
 
-        // Search for matches
-        List<String> matches = new ArrayList<>();
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            List<String> groups = plugin.getRankManager().getGroups(player.getUniqueId());
+            List<String> permissions = plugin.getRankManager().getPermissions(player.getUniqueId());
 
-        for (String group : groups) {
-            if (group.toLowerCase().contains(query)) {
-                matches.add(group);
+            for (String group : groups) {
+                if (group.toLowerCase().contains(query)) {
+                    matchingPlayers.add(player.getName());
+                    break;
+                }
             }
-        }
 
-        for (String permission : permissions) {
-            if (permission.toLowerCase().contains(query)) {
-                matches.add(permission);
+            if (!matchingPlayers.contains(player.getName())) {
+                for (String permission : permissions) {
+                    if (permission.toLowerCase().contains(query)) {
+                        matchingPlayers.add(player.getName());
+                        break;
+                    }
+                }
             }
         }
 
         // Display results
-        if (matches.isEmpty()) {
-            sender.sendMessage(ChatColor.RED + "No permissions matching \"" + ChatColor.YELLOW + query + ChatColor.RED + "\" found for " + ChatColor.YELLOW + target.getName() + ChatColor.RED + ".");
-            return true;
-        }
+        sender.sendMessage(plugin.getMessage("ranks.psearch-header", "search", query));
 
-        sender.sendMessage(ChatColor.GOLD + "--- " + ChatColor.YELLOW + "Search: \"" + query + "\" for " + target.getName() + ChatColor.GOLD + " ---");
-        for (String match : matches) {
-            sender.sendMessage(ChatColor.GREEN + "- " + match);
+        if (matchingPlayers.isEmpty()) {
+            sender.sendMessage(plugin.getMessage("ranks.psearch-none", "search", query));
+        } else {
+            for (String playerName : matchingPlayers) {
+                sender.sendMessage(plugin.getMessage("ranks.psearch-result", "player", playerName));
+            }
         }
-        sender.sendMessage(ChatColor.GRAY + "Found " + ChatColor.YELLOW + matches.size() + ChatColor.GRAY + " match(es).");
 
         return true;
     }

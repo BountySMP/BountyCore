@@ -14,7 +14,7 @@ public class KickCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("bounty.staff.kick")) {
-            sender.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+            sender.sendMessage(plugin.getMessage("general.no-permission"));
             return true;
         }
         if (args.length == 0) {
@@ -23,7 +23,7 @@ public class KickCommand implements CommandExecutor, TabCompleter {
         }
         Player target = Bukkit.getPlayer(args[0]);
         if (target == null) {
-            sender.sendMessage(ChatColor.RED + "Player not found or offline.");
+            sender.sendMessage(plugin.getMessage("general.player-not-found"));
             return true;
         }
         StringBuilder reason = new StringBuilder();

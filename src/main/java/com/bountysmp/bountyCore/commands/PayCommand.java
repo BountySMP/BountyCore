@@ -23,25 +23,25 @@ public class PayCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use this command.");
+            sender.sendMessage(plugin.getMessage("general.only-players"));
             return true;
         }
 
         Player player = (Player) sender;
 
         if (args.length != 2) {
-            player.sendMessage(ChatColor.RED + "Usage: /pay <player> <amount>");
+            player.sendMessage(plugin.getMessage("economy.pay-usage"));
             return true;
         }
 
         Player target = Bukkit.getPlayer(args[0]);
         if (target == null) {
-            player.sendMessage(ChatColor.RED + "Player not found or offline.");
+            player.sendMessage(plugin.getMessage("general.player-not-found"));
             return true;
         }
 
         if (target.equals(player)) {
-            player.sendMessage(ChatColor.RED + "You cannot pay yourself.");
+            player.sendMessage(plugin.getMessage("economy.pay-self"));
             return true;
         }
 
@@ -49,35 +49,35 @@ public class PayCommand implements CommandExecutor, TabCompleter {
         try {
             amount = Double.parseDouble(args[1]);
         } catch (NumberFormatException e) {
-            player.sendMessage(ChatColor.RED + "Invalid amount. Please enter a valid number.");
+            player.sendMessage(plugin.getMessage("general.invalid-amount"));
             return true;
         }
 
         if (amount <= 0) {
-            player.sendMessage(ChatColor.RED + "Amount must be greater than zero.");
+            player.sendMessage(plugin.getMessage("general.amount-positive"));
             return true;
         }
 
         if (!plugin.getEconomy().has(player, amount)) {
-            player.sendMessage(ChatColor.RED + "You don't have enough money.");
+            player.sendMessage(plugin.getMessage("economy.pay-insufficient"));
             return true;
         }
 
         EconomyResponse withdraw = plugin.getEconomy().withdrawPlayer(player, amount);
         if (!withdraw.transactionSuccess()) {
-            player.sendMessage(ChatColor.RED + "Transaction failed: " + withdraw.errorMessage);
+            player.sendMessage(plugin.getMessage("economy.pay-failed", "error", withdraw.errorMessage));
             return true;
         }
 
         EconomyResponse deposit = plugin.getEconomy().depositPlayer(target, amount);
         if (!deposit.transactionSuccess()) {
             plugin.getEconomy().depositPlayer(player, amount);
-            player.sendMessage(ChatColor.RED + "Transaction failed: " + deposit.errorMessage);
+            player.sendMessage(plugin.getMessage("economy.pay-failed", "error", deposit.errorMessage));
             return true;
         }
 
-        player.sendMessage(ChatColor.GREEN + "You paid " + ChatColor.GOLD + target.getName() + ChatColor.GREEN + " " + plugin.getEconomy().format(amount));
-        target.sendMessage(ChatColor.GREEN + "You received " + plugin.getEconomy().format(amount) + ChatColor.GREEN + " from " + ChatColor.GOLD + player.getName());
+        player.sendMessage(plugin.getMessage("economy.pay-success-sender", "player", target.getName(), "amount", plugin.getEconomy().format(amount)));
+        target.sendMessage(plugin.getMessage("economy.pay-success-receiver", "amount", plugin.getEconomy().format(amount), "sender", player.getName()));
 
         return true;
     }

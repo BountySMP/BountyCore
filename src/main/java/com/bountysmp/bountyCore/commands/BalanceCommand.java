@@ -24,13 +24,13 @@ public class BalanceCommand implements CommandExecutor, TabCompleter {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0) {
             if (!(sender instanceof Player)) {
-                sender.sendMessage(ChatColor.RED + "Console must specify a player.");
+                sender.sendMessage(plugin.getMessage("economy.console-needs-player"));
                 return true;
             }
 
             Player player = (Player) sender;
             double balance = plugin.getEconomy().getBalance(player);
-            player.sendMessage(ChatColor.GOLD + "Your balance: " + ChatColor.GREEN + plugin.getEconomy().format(balance));
+            player.sendMessage(plugin.getMessage("economy.balance-self", "amount", plugin.getEconomy().format(balance)));
             return true;
         }
 
@@ -38,16 +38,16 @@ public class BalanceCommand implements CommandExecutor, TabCompleter {
             OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
 
             if (!target.hasPlayedBefore() && !target.isOnline()) {
-                sender.sendMessage(ChatColor.RED + "Player not found.");
+                sender.sendMessage(plugin.getMessage("general.player-not-found-simple"));
                 return true;
             }
 
             double balance = plugin.getEconomy().getBalance(target);
-            sender.sendMessage(ChatColor.GOLD + target.getName() + "'s balance: " + ChatColor.GREEN + plugin.getEconomy().format(balance));
+            sender.sendMessage(plugin.getMessage("economy.balance-other", "player", target.getName(), "amount", plugin.getEconomy().format(balance)));
             return true;
         }
 
-        sender.sendMessage(ChatColor.RED + "Usage: /balance [player]");
+        sender.sendMessage(plugin.getMessage("economy.balance-usage"));
         return true;
     }
 

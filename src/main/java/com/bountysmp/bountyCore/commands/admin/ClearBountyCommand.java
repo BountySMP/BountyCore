@@ -18,12 +18,12 @@ public class ClearBountyCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("bounty.staff.clearbounty")) {
-            sender.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+            sender.sendMessage(plugin.getMessage("general.no-permission"));
             return true;
         }
 
         if (args.length == 0) {
-            sender.sendMessage(ChatColor.RED + "Usage: /clearbounty <player>");
+            sender.sendMessage(plugin.getMessage("bounty.setbounty-usage"));
             return true;
         }
 
@@ -31,12 +31,12 @@ public class ClearBountyCommand implements CommandExecutor, TabCompleter {
         double bounty = plugin.getBountyManager().getBounty(target.getUniqueId());
 
         if (bounty <= 0) {
-            sender.sendMessage(ChatColor.RED + target.getName() + " has no bounty.");
+            sender.sendMessage(plugin.getMessage("bounty.clear-none", "player", target.getName()));
             return true;
         }
 
         plugin.getBountyManager().claimBounty(sender instanceof Player ? ((Player)sender).getUniqueId() : target.getUniqueId(), target.getUniqueId(), 0);
-        sender.sendMessage(ChatColor.GREEN + "Cleared bounty of " + ChatColor.GOLD + plugin.getEconomy().format(bounty) + ChatColor.GREEN + " from " + ChatColor.YELLOW + target.getName() + ChatColor.GREEN + ".");
+        sender.sendMessage(plugin.getMessage("bounty.clear-success", "player", target.getName()));
 
         return true;
     }

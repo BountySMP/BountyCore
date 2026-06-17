@@ -22,14 +22,14 @@ public class DelHomeCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use this command.");
+            sender.sendMessage(plugin.getMessage("general.only-players"));
             return true;
         }
 
         Player player = (Player) sender;
 
         if (args.length == 0) {
-            player.sendMessage(ChatColor.RED + "Usage: /delhome <name>");
+            player.sendMessage(plugin.getMessage("homes.usage-delhome"));
             return true;
         }
 
@@ -38,9 +38,9 @@ public class DelHomeCommand implements CommandExecutor, TabCompleter {
         boolean deleted = plugin.getHomeManager().deleteHome(player.getUniqueId(), homeName);
 
         if (deleted) {
-            player.sendMessage(ChatColor.GREEN + "Home " + ChatColor.YELLOW + homeName + ChatColor.GREEN + " has been deleted.");
+            player.sendMessage(plugin.getMessage("homes.delete-success", "home", homeName));
         } else {
-            player.sendMessage(ChatColor.RED + "Home not found.");
+            player.sendMessage(plugin.getMessage("homes.delete-not-found"));
         }
 
         return true;

@@ -17,12 +17,12 @@ public class GodCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("bounty.staff.god")) {
-            sender.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+            sender.sendMessage(plugin.getMessage("general.no-permission"));
             return true;
         }
 
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use this command.");
+            sender.sendMessage(plugin.getMessage("general.only-players"));
             return true;
         }
 
@@ -31,10 +31,10 @@ public class GodCommand implements CommandExecutor {
 
         if (isGod) {
             plugin.getVanishManager().setGodMode(player.getUniqueId(), false);
-            player.sendMessage(ChatColor.GREEN + "God mode disabled.");
+            player.sendMessage(plugin.getMessage("staff.god-disabled"));
         } else {
             plugin.getVanishManager().setGodMode(player.getUniqueId(), true);
-            player.sendMessage(ChatColor.GREEN + "God mode enabled.");
+            player.sendMessage(plugin.getMessage("staff.god-enabled"));
         }
 
         return true;

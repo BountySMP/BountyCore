@@ -18,12 +18,12 @@ public class SetBountyCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("bounty.staff.setbounty")) {
-            sender.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+            sender.sendMessage(plugin.getMessage("general.no-permission"));
             return true;
         }
 
         if (args.length < 2) {
-            sender.sendMessage(ChatColor.RED + "Usage: /setbounty <player> <amount>");
+            sender.sendMessage(plugin.getMessage("bounty.setbounty-usage"));
             return true;
         }
 
@@ -33,12 +33,12 @@ public class SetBountyCommand implements CommandExecutor, TabCompleter {
         try {
             amount = Double.parseDouble(args[1]);
         } catch (NumberFormatException e) {
-            sender.sendMessage(ChatColor.RED + "Invalid amount.");
+            sender.sendMessage(plugin.getMessage("general.invalid-amount"));
             return true;
         }
 
         if (amount < 0) {
-            sender.sendMessage(ChatColor.RED + "Amount must be positive.");
+            sender.sendMessage(plugin.getMessage("general.amount-positive"));
             return true;
         }
 
@@ -46,7 +46,7 @@ public class SetBountyCommand implements CommandExecutor, TabCompleter {
         plugin.getBountyManager().claimBounty(target.getUniqueId(), target.getUniqueId(), 0);
         plugin.getBountyManager().placeBounty(target.getUniqueId(), sender instanceof Player ? ((Player)sender).getUniqueId() : target.getUniqueId(), amount);
 
-        sender.sendMessage(ChatColor.GREEN + "Set " + ChatColor.YELLOW + target.getName() + ChatColor.GREEN + "'s bounty to " + ChatColor.GOLD + plugin.getEconomy().format(amount) + ChatColor.GREEN + ".");
+        sender.sendMessage(plugin.getMessage("bounty.setbounty-success", "player", target.getName(), "amount", plugin.getEconomy().format(amount)));
 
         return true;
     }

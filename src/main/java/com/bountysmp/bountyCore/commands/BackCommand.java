@@ -19,7 +19,7 @@ public class BackCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use this command.");
+            sender.sendMessage(plugin.getMessage("general.only-players"));
             return true;
         }
 
@@ -27,18 +27,18 @@ public class BackCommand implements CommandExecutor {
 
         if (plugin.getCombatTagManager().isTagged(player.getUniqueId())) {
             int seconds = plugin.getCombatTagManager().getRemainingSeconds(player.getUniqueId());
-            player.sendMessage(ChatColor.RED + "You are in combat! Wait " + ChatColor.YELLOW + seconds + ChatColor.RED + " seconds.");
+            player.sendMessage(plugin.getMessage("general.in-combat", "seconds", String.valueOf(seconds)));
             return true;
         }
 
         Location lastLocation = plugin.getTeleportManager().getLastLocation(player.getUniqueId());
         if (lastLocation == null) {
-            player.sendMessage(ChatColor.RED + "You have no previous location to return to.");
+            player.sendMessage(plugin.getMessage("teleport.back-no-location"));
             return true;
         }
 
         player.teleport(lastLocation);
-        player.sendMessage(ChatColor.GREEN + "Teleported to your last location!");
+        player.sendMessage(plugin.getMessage("teleport.back-success"));
 
         return true;
     }

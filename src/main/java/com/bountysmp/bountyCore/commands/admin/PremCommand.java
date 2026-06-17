@@ -18,12 +18,12 @@ public class PremCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.isOp()) {
-            sender.sendMessage(ChatColor.RED + "You must be an operator to use this command.");
+            sender.sendMessage(plugin.getMessage("general.must-be-op"));
             return true;
         }
 
         if (args.length < 2) {
-            sender.sendMessage(ChatColor.RED + "Usage: /prem <player> <permission|group>");
+            sender.sendMessage(plugin.getMessage("ranks.prem-usage"));
             return true;
         }
 
@@ -32,18 +32,12 @@ public class PremCommand implements CommandExecutor, TabCompleter {
 
         // Check if it's a group
         if (permission.startsWith("group.")) {
-            // Cannot remove owner group from anyone
-            if (permission.equals("group.staff.owner")) {
-                sender.sendMessage(ChatColor.RED + "Cannot remove the owner group.");
-                return true;
-            }
-
             plugin.getRankManager().removeGroup(target.getUniqueId(), permission);
-            sender.sendMessage(ChatColor.GREEN + "Removed " + ChatColor.YELLOW + permission + ChatColor.GREEN + " from " + ChatColor.YELLOW + target.getName() + ChatColor.GREEN + ".");
+            sender.sendMessage(plugin.getMessage("ranks.prem-group-success", "group", permission, "player", target.getName()));
         } else {
             // Removing individual permission
             plugin.getRankManager().removePermission(target.getUniqueId(), permission);
-            sender.sendMessage(ChatColor.GREEN + "Removed " + ChatColor.YELLOW + permission + ChatColor.GREEN + " from " + ChatColor.YELLOW + target.getName() + ChatColor.GREEN + ".");
+            sender.sendMessage(plugin.getMessage("ranks.prem-permission-success", "permission", permission, "player", target.getName()));
         }
 
         return true;

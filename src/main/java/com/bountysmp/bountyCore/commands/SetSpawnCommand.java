@@ -17,19 +17,19 @@ public class SetSpawnCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use this command.");
+            sender.sendMessage(plugin.getMessage("general.only-players"));
             return true;
         }
 
         Player player = (Player) sender;
 
         if (!player.hasPermission("bountycore.setspawn")) {
-            player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+            player.sendMessage(plugin.getMessage("general.no-permission"));
             return true;
         }
 
         plugin.getTeleportManager().setSpawn(player.getLocation());
-        player.sendMessage(ChatColor.GREEN + "Spawn location has been set!");
+        player.sendMessage(plugin.getMessage("teleport.spawn-set"));
 
         return true;
     }

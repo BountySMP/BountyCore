@@ -1,0 +1,16 @@
+# Tab List Configuration
+# All text supports & color codes
+# Use {staff_count} placeholder in footer to show online staff count
+
+header:
+  - "&aBountySMP"
+  - ""
+
+footer:
+  - ""
+  - "&7Online Staff: &a{staff_count}"
+  - ""
+
+# Permission prefix to check for staff count
+# Any player with a group starting with this prefix counts as staff
+staff-permission: "group.staff"

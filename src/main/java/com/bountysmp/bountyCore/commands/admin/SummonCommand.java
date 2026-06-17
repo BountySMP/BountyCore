@@ -17,17 +17,17 @@ public class SummonCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("bounty.staff.summon")) {
-            sender.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+            sender.sendMessage(plugin.getMessage("general.no-permission"));
             return true;
         }
 
         if (args.length == 0) {
-            sender.sendMessage(ChatColor.RED + "Usage: /s <player>");
+            sender.sendMessage(plugin.getMessage("teleport.summon-usage"));
             return true;
         }
 
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "This command can only be used by players.");
+            sender.sendMessage(plugin.getMessage("general.only-players"));
             return true;
         }
 
@@ -35,18 +35,18 @@ public class SummonCommand implements CommandExecutor, TabCompleter {
         Player target = Bukkit.getPlayer(args[0]);
 
         if (target == null) {
-            sender.sendMessage(ChatColor.RED + "Player not found.");
+            sender.sendMessage(plugin.getMessage("general.player-not-found-simple"));
             return true;
         }
 
         if (target.equals(staff)) {
-            sender.sendMessage(ChatColor.RED + "You cannot summon yourself.");
+            sender.sendMessage(plugin.getMessage("teleport.summon-self"));
             return true;
         }
 
         target.teleport(staff.getLocation());
-        sender.sendMessage(ChatColor.GREEN + "Summoned " + ChatColor.YELLOW + target.getName() + ChatColor.GREEN + " to your location.");
-        target.sendMessage(ChatColor.YELLOW + "You have been summoned by " + ChatColor.GREEN + staff.getName() + ChatColor.YELLOW + ".");
+        sender.sendMessage(plugin.getMessage("teleport.summon-success", "player", target.getName()));
+        target.sendMessage(plugin.getMessage("teleport.summon-notify", "player", staff.getName()));
 
         return true;
     }

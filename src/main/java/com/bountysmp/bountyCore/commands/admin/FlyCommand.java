@@ -17,25 +17,25 @@ public class FlyCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("bounty.staff.fly")) {
-            sender.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+            sender.sendMessage(plugin.getMessage("general.no-permission"));
             return true;
         }
 
         Player target;
         if (args.length == 0) {
             if (!(sender instanceof Player)) {
-                sender.sendMessage(ChatColor.RED + "Console must specify a player.");
+                sender.sendMessage(plugin.getMessage("staff.fly-usage"));
                 return true;
             }
             target = (Player) sender;
         } else {
             if (!sender.hasPermission("bounty.staff.fly.others")) {
-                sender.sendMessage(ChatColor.RED + "You don't have permission to toggle flight for other players.");
+                sender.sendMessage(plugin.getMessage("general.no-permission"));
                 return true;
             }
             target = Bukkit.getPlayer(args[0]);
             if (target == null) {
-                sender.sendMessage(ChatColor.RED + "Player not found.");
+                sender.sendMessage(plugin.getMessage("general.player-not-found-simple"));
                 return true;
             }
         }
@@ -45,14 +45,18 @@ public class FlyCommand implements CommandExecutor, TabCompleter {
         target.setFlying(canFly);
 
         if (canFly) {
-            sender.sendMessage(ChatColor.GREEN + "Flight enabled for " + ChatColor.YELLOW + target.getName() + ChatColor.GREEN + ".");
-            if (!target.equals(sender)) {
-                target.sendMessage(ChatColor.GREEN + "Flight has been enabled.");
+            if (target.equals(sender)) {
+                sender.sendMessage(plugin.getMessage("staff.fly-enabled-self"));
+            } else {
+                sender.sendMessage(plugin.getMessage("staff.fly-enabled-other", "player", target.getName()));
+                target.sendMessage(plugin.getMessage("staff.fly-notify-enabled"));
             }
         } else {
-            sender.sendMessage(ChatColor.GREEN + "Flight disabled for " + ChatColor.YELLOW + target.getName() + ChatColor.GREEN + ".");
-            if (!target.equals(sender)) {
-                target.sendMessage(ChatColor.GREEN + "Flight has been disabled.");
+            if (target.equals(sender)) {
+                sender.sendMessage(plugin.getMessage("staff.fly-disabled-self"));
+            } else {
+                sender.sendMessage(plugin.getMessage("staff.fly-disabled-other", "player", target.getName()));
+                target.sendMessage(plugin.getMessage("staff.fly-notify-disabled"));
             }
         }
 

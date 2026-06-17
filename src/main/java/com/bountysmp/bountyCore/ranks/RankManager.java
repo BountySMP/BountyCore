@@ -87,6 +87,7 @@ public class RankManager {
             playersConfig.set(player.toString() + ".groups", groups);
             savePlayers();
             refreshPermissions(player);
+            updateTabAndNametag(player);
         }
     }
 
@@ -96,6 +97,7 @@ public class RankManager {
             playersConfig.set(player.toString() + ".groups", groups);
             savePlayers();
             refreshPermissions(player);
+            updateTabAndNametag(player);
         }
     }
 
@@ -242,6 +244,19 @@ public class RankManager {
 
     public boolean groupExists(String groupName) {
         return groups.containsKey(groupName);
+    }
+
+    private void updateTabAndNametag(UUID player) {
+        Player onlinePlayer = Bukkit.getPlayer(player);
+        if (onlinePlayer != null && onlinePlayer.isOnline()) {
+            // Use a 1-tick delay to ensure permissions are fully injected
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                if (onlinePlayer.isOnline()) {
+                    plugin.getTabManager().updatePlayer(onlinePlayer);
+                    plugin.getNametagManager().updatePlayer(onlinePlayer);
+                }
+            }, 1L);
+        }
     }
 
     public static class RankGroup {

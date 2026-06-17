@@ -24,12 +24,16 @@ import com.bountysmp.bountyCore.listeners.GUIListener;
 import com.bountysmp.bountyCore.listeners.MuteListener;
 import com.bountysmp.bountyCore.listeners.PlayerListener;
 import com.bountysmp.bountyCore.listeners.RankListener;
+import com.bountysmp.bountyCore.listeners.TabListener;
 import com.bountysmp.bountyCore.listeners.TeleportWarmupListener;
 import com.bountysmp.bountyCore.listeners.VanishListener;
 import com.bountysmp.bountyCore.messaging.MessagingManager;
+import com.bountysmp.bountyCore.tab.NametagManager;
+import com.bountysmp.bountyCore.tab.TabManager;
 import com.bountysmp.bountyCore.teleport.CombatTagManager;
 import com.bountysmp.bountyCore.teleport.TeleportManager;
 import net.milkbowl.vault.economy.Economy;
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.ServicePriority;
@@ -42,6 +46,8 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 
 public final class BountyCore extends JavaPlugin {
+
+    private static BountyCore instance;
 
     private EconomyStorage economyStorage;
     private BountyCoreEconomy economy;
@@ -57,11 +63,14 @@ public final class BountyCore extends JavaPlugin {
     private VanishManager vanishManager;
     private EnderChestManager enderChestManager;
     private GameModeManager gameModeManager;
+    private TabManager tabManager;
+    private NametagManager nametagManager;
     private RandomTpCommand randomTpCommand;
     private FileConfiguration messagesConfig;
 
     @Override
     public void onEnable() {
+        instance = this;
         saveDefaultConfig();
         loadMessagesConfig();
 
@@ -81,6 +90,7 @@ public final class BountyCore extends JavaPlugin {
         setupVanish();
         setupEnderChest();
         setupGameMode();
+        setupTabAndNametags();
         registerCommands();
         registerListeners();
 
@@ -107,6 +117,10 @@ public final class BountyCore extends JavaPlugin {
 
         if (gameModeManager != null) {
             gameModeManager.close();
+        }
+
+        if (nametagManager != null) {
+            nametagManager.shutdown();
         }
 
         getLogger().info("BountyCore has been disabled!");
@@ -203,6 +217,17 @@ public final class BountyCore extends JavaPlugin {
     private void setupGameMode() {
         gameModeManager = new GameModeManager(this);
         getLogger().info("GameMode manager initialized!");
+    }
+
+    private void setupTabAndNametags() {
+        tabManager = new TabManager(this);
+        nametagManager = new NametagManager(this);
+
+        // Update all online players on enable
+        tabManager.updateAll();
+        nametagManager.updateAll();
+
+        getLogger().info("Tab and nametag systems initialized!");
     }
 
     private void loadMessagesConfig() {
@@ -360,6 +385,11 @@ public final class BountyCore extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new RankListener(this), this);
         getServer().getPluginManager().registerEvents(new VanishListener(this), this);
         getServer().getPluginManager().registerEvents(new EnderChestListener(this, enderChestManager), this);
+        getServer().getPluginManager().registerEvents(new TabListener(this), this);
+    }
+
+    public static BountyCore getInstance() {
+        return instance;
     }
 
     public BountyCoreEconomy getEconomy() {
@@ -388,6 +418,25 @@ public final class BountyCore extends JavaPlugin {
 
     public FileConfiguration getMessagesConfig() {
         return messagesConfig;
+    }
+
+    public String getMessage(String path, Object... replacements) {
+        String message = messagesConfig.getString(path);
+        if (message == null) {
+            return "§cMessage not found: " + path;
+        }
+
+        // Replace color codes
+        message = ChatColor.translateAlternateColorCodes('&', message);
+
+        // Replace placeholders in pairs (key, value)
+        for (int i = 0; i < replacements.length - 1; i += 2) {
+            String placeholder = "{" + replacements[i] + "}";
+            String value = String.valueOf(replacements[i + 1]);
+            message = message.replace(placeholder, value);
+        }
+
+        return message;
     }
 
     public BountyManager getBountyManager() {
@@ -420,5 +469,13 @@ public final class BountyCore extends JavaPlugin {
 
     public RandomTpCommand getRandomTpCommand() {
         return randomTpCommand;
+    }
+
+    public TabManager getTabManager() {
+        return tabManager;
+    }
+
+    public NametagManager getNametagManager() {
+        return nametagManager;
     }
 }

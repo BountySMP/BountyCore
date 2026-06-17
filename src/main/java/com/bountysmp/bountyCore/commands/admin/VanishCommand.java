@@ -17,12 +17,12 @@ public class VanishCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("bounty.staff.vanish")) {
-            sender.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+            sender.sendMessage(plugin.getMessage("general.no-permission"));
             return true;
         }
 
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use this command.");
+            sender.sendMessage(plugin.getMessage("general.only-players"));
             return true;
         }
 
@@ -31,10 +31,10 @@ public class VanishCommand implements CommandExecutor {
 
         if (isVanished) {
             plugin.getVanishManager().setVanished(player, false);
-            player.sendMessage(ChatColor.GREEN + "You are now visible.");
+            player.sendMessage(plugin.getMessage("staff.vanish-disabled"));
         } else {
             plugin.getVanishManager().setVanished(player, true);
-            player.sendMessage(ChatColor.GREEN + "You are now vanished.");
+            player.sendMessage(plugin.getMessage("staff.vanish-enabled"));
         }
 
         return true;

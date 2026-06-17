@@ -10,15 +10,132 @@
 # {victim} - Victim name
 # {banned_by} - Who issued the ban
 # {muted_by} - Who issued the mute
+# {home} - Home name
+# {seconds} - Combat tag seconds
+# {group} - Group/rank name
+# {permission} - Permission node
 
+# General messages
+general:
+  only-players: "§cOnly players can use this command."
+  no-permission: "§cYou don't have permission to use this command."
+  must-be-op: "§cYou must be an operator to use this command."
+  player-not-found: "§cPlayer not found or offline."
+  player-not-found-simple: "§cPlayer not found."
+  invalid-amount: "§cInvalid amount. Please enter a valid number."
+  amount-positive: "§cAmount must be greater than zero."
+  cannot-target-self: "§cYou cannot target yourself."
+  in-combat: "§cYou are in combat! Wait §e{seconds}§c seconds."
+
+# Economy messages
+economy:
+  balance-self: "§6Your balance: §e{amount}"
+  balance-other: "§6{player}'s balance: §e{amount}"
+  balance-usage: "§cUsage: /balance [player]"
+  console-needs-player: "§cConsole must specify a player."
+
+  pay-usage: "§cUsage: /pay <player> <amount>"
+  pay-self: "§cYou cannot pay yourself."
+  pay-insufficient: "§cYou don't have enough money."
+  pay-success-sender: "§aYou paid §e{player} §a{amount}§a."
+  pay-success-receiver: "§aYou received §e{amount} §afrom §e{sender}§a."
+  pay-failed: "§cTransaction failed: {error}"
+
+  eco-usage: "§cUsage: /eco <give|take|set|reset> <player> <amount>"
+  eco-give: "§aGave §e{amount} §ato §e{player}§a."
+  eco-take: "§aTook §e{amount} §afrom §e{player}§a."
+  eco-set: "§aSet §e{player}§a's balance to §e{amount}§a."
+  eco-reset: "§aReset §e{player}§a's balance."
+
+# Home messages
+homes:
+  usage-sethome: "§cUsage: /sethome <name>"
+  usage-delhome: "§cUsage: /delhome <name>"
+  set-success: "§aHome §e{home}§a has been set!"
+  set-limit-reached: "§cYou have reached your home limit."
+  delete-success: "§aHome §e{home}§a has been deleted."
+  delete-not-found: "§cHome not found."
+  teleport-warmup: "§aTeleporting to §e{home}§a in §e{seconds}§a seconds... Don't move!"
+  no-homes: "§cYou have no homes set."
+
+# Teleport messages
+teleport:
+  spawn-not-set: "§cSpawn has not been set yet."
+  spawn-set: "§aSpawn location has been set!"
+  spawn-warmup: "§aTeleporting in §e{seconds}§a seconds... Don't move!"
+
+  tpa-usage: "§cUsage: /tpa <player>"
+  tpa-self: "§cYou cannot request to teleport to yourself."
+  tpa-sent: "§aTeleport request sent to §e{player}§a."
+  tpa-received: "§a{player} §ahas requested to teleport to you."
+  tpa-accept-deny: "§aType §e/tpaccept §ato accept or §e/tpdeny §ato deny."
+  tpa-expired-sender: "§cYour teleport request to §e{player}§c has expired."
+  tpa-expired-receiver: "§c{player}§c's teleport request has expired."
+
+  tpahere-usage: "§cUsage: /tpahere <player>"
+  tpahere-self: "§cYou cannot request a player to teleport to yourself."
+  tpahere-sent: "§aTeleport request sent to §e{player}§a."
+  tpahere-received: "§a{player} §ahas requested you to teleport to them."
+
+  tpaccept-no-request: "§cYou have no pending teleport requests."
+  tpaccept-expired: "§cThat teleport request has expired."
+  tpaccept-success: "§aTeleport request accepted!"
+  tpaccept-in-combat-target: "§c{player}§c is in combat and cannot teleport right now."
+
+  tpdeny-no-request: "§cYou have no pending teleport requests."
+  tpdeny-expired: "§cThat teleport request has expired."
+  tpdeny-success: "§cYou denied the teleport request from §e{player}§c."
+  tpdeny-notify: "§c{player} §cdenied your teleport request."
+
+  back-no-location: "§cYou have no previous location to return to."
+  back-success: "§aTeleported to your last location!"
+
+  tp-usage: "§cUsage: /tp <player>"
+  tp-self: "§cYou cannot teleport to yourself."
+  tp-success: "§aTeleported to §e{player}§a."
+
+  tphere-usage: "§cUsage: /tphere <player>"
+  tphere-success: "§aTeleported §e{player} §ato you."
+
+  summon-usage: "§cUsage: /s <player>"
+  summon-self: "§cYou cannot summon yourself."
+  summon-success: "§aSummoned §e{player}§a."
+  summon-notify: "§aYou have been summoned by §e{player}§a."
+
+  warmup-cancelled: "§cTeleport cancelled! You moved."
+  warmup-expired: "§cTeleport request has expired."
+
+# Messaging
 msg:
   format-sender: "§7[§fYou §7→ §f{player}§7] §f{message}"
   format-receiver: "§7[§f{sender} §7→ §fYou§7] §f{message}"
   not-online: "§c{player} is not online."
   no-reply-target: "§cYou have no one to reply to."
+  cannot-message-self: "§cYou cannot message yourself."
+  usage: "§cUsage: /msg <player> <message>"
+  reply-usage: "§cUsage: /r <message>"
 
+# Bounty messages
 bounty:
   claim-broadcast: "§6§l[BOUNTY] §e{killer} §7has claimed §e{victim}§7's bounty for §c{amount}§7!"
+  usage: |-
+    §cUsage:
+    §c/bounty - Open bounty GUI
+    §c/bounty set <player> <amount> - Place a bounty
+    §c/bounty <player> - View a player's bounty
+  set-self: "§cYou cannot place a bounty on yourself."
+  set-minimum: "§cMinimum bounty amount is §e{amount}§c."
+  set-insufficient: "§cYou don't have enough money."
+  set-success: "§aYou placed a bounty of §e{amount} §aon §e{player}§a."
+  set-total: "§aTheir total bounty is now §e{amount}§a."
+  set-notify-target: "§cA bounty has been placed on your head!"
+  set-notify-total: "§cTotal bounty: §e{amount}"
+  view-none: "§7{player} §7has no active bounty."
+  view-amount: "§7{player}§7's bounty: §e{amount}"
+  clear-success: "§aCleared §e{player}§a's bounty."
+  clear-none: "§c{player} has no active bounty."
+  setbounty-usage: "§cUsage: /setbounty <player> <amount>"
+  setbounty-success: "§aSet §e{player}§a's bounty to §e{amount}§a."
 
 # Ban Messages
 ban:
@@ -97,6 +214,62 @@ mute:
 kick:
   message: "§c{reason}"
   staff-kicked: "§aKicked §e{player} §afor: {reason}"
+
+# Rank/Permission messages
+ranks:
+  padd-usage: "§cUsage: /padd <player> <permission|group>"
+  padd-group-success: "§aAdded §e{group} §ato §e{player}§a."
+  padd-permission-success: "§aAdded §e{permission} §ato §e{player}§a."
+  padd-group-not-exist: "§cGroup {group} does not exist."
+
+  prem-usage: "§cUsage: /prem <player> <permission|group>"
+  prem-group-success: "§aRemoved §e{group} §afrom §e{player}§a."
+  prem-permission-success: "§aRemoved §e{permission} §afrom §e{player}§a."
+
+  pinfo-usage: "§cUsage: /pinfo <player>"
+  pinfo-header: "§6=== §e{player}§6's Info §6==="
+  pinfo-groups: "§6Groups: §e{groups}"
+  pinfo-permissions: "§6Permissions: §e{permissions}"
+  pinfo-no-groups: "§7None"
+  pinfo-no-permissions: "§7None"
+
+  psearch-usage: "§cUsage: /psearch <group|permission>"
+  psearch-header: "§6=== Players with §e{search}§6 ==="
+  psearch-result: "§7- §e{player}"
+  psearch-none: "§7No players found with {search}."
+
+# Gamemode messages
+gamemode:
+  gms-usage: "§cUsage: /gms [player]"
+  gms-self: "§aYour gamemode has been set to §eSurvival§a."
+  gms-other: "§aSet §e{player}§a's gamemode to §eSurvival§a."
+  gms-notify: "§aYour gamemode has been set to §eSurvival§a."
+
+  gmc-usage: "§cUsage: /gmc [player]"
+  gmc-self: "§aYour gamemode has been set to §eCreative§a."
+  gmc-other: "§aSet §e{player}§a's gamemode to §eCreative§a."
+  gmc-notify: "§aYour gamemode has been set to §eCreative§a."
+
+  gmsp-usage: "§cUsage: /gmsp [player]"
+  gmsp-self: "§aYour gamemode has been set to §eSpectator§a."
+  gmsp-other: "§aSet §e{player}§a's gamemode to §eSpectator§a."
+  gmsp-notify: "§aYour gamemode has been set to §eSpectator§a."
+
+# Staff commands
+staff:
+  fly-usage: "§cUsage: /fly [player]"
+  fly-enabled-self: "§aFly mode enabled."
+  fly-disabled-self: "§cFly mode disabled."
+  fly-enabled-other: "§aEnabled fly mode for §e{player}§a."
+  fly-disabled-other: "§cDisabled fly mode for §e{player}§a."
+  fly-notify-enabled: "§aFly mode has been enabled."
+  fly-notify-disabled: "§cFly mode has been disabled."
+
+  god-enabled: "§aGod mode enabled."
+  god-disabled: "§cGod mode disabled."
+
+  vanish-enabled: "§aYou are now vanished."
+  vanish-disabled: "§aYou are now visible."
 
 # Disabled command message
 disabled-command: "§cThis command is disabled."

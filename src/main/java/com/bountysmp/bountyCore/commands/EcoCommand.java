@@ -23,25 +23,25 @@ public class EcoCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("bounty.staff.eco")) {
-            sender.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+            sender.sendMessage(plugin.getMessage("general.no-permission"));
             return true;
         }
 
         if (args.length < 3) {
-            sender.sendMessage(ChatColor.RED + "Usage: /eco <give|take|set> <player> <amount>");
+            sender.sendMessage(plugin.getMessage("economy.eco-usage"));
             return true;
         }
 
         String action = args[0].toLowerCase();
         if (!action.equals("give") && !action.equals("take") && !action.equals("set")) {
-            sender.sendMessage(ChatColor.RED + "Usage: /eco <give|take|set> <player> <amount>");
+            sender.sendMessage(plugin.getMessage("economy.eco-usage"));
             return true;
         }
 
         OfflinePlayer target = Bukkit.getOfflinePlayer(args[1]);
 
         if (!target.hasPlayedBefore() && !target.isOnline()) {
-            sender.sendMessage(ChatColor.RED + "Player not found.");
+            sender.sendMessage(plugin.getMessage("general.player-not-found-simple"));
             return true;
         }
 
@@ -49,27 +49,27 @@ public class EcoCommand implements CommandExecutor, TabCompleter {
         try {
             amount = Double.parseDouble(args[2]);
         } catch (NumberFormatException e) {
-            sender.sendMessage(ChatColor.RED + "Invalid amount. Please enter a valid number.");
+            sender.sendMessage(plugin.getMessage("general.invalid-amount"));
             return true;
         }
 
         if (amount <= 0) {
-            sender.sendMessage(ChatColor.RED + "Amount must be greater than zero.");
+            sender.sendMessage(plugin.getMessage("general.amount-positive"));
             return true;
         }
 
         switch (action) {
             case "give":
                 plugin.getEconomy().depositPlayer(target, amount);
-                sender.sendMessage(ChatColor.GREEN + "Gave " + ChatColor.GOLD + plugin.getEconomy().format(amount) + ChatColor.GREEN + " to " + ChatColor.YELLOW + target.getName() + ChatColor.GREEN + ".");
+                sender.sendMessage(plugin.getMessage("economy.eco-give", "amount", plugin.getEconomy().format(amount), "player", target.getName()));
                 break;
             case "take":
                 if (plugin.getEconomy().getBalance(target) < amount) {
-                    sender.sendMessage(ChatColor.RED + target.getName() + " doesn't have that much money.");
+                    sender.sendMessage(plugin.getMessage("economy.pay-insufficient"));
                     return true;
                 }
                 plugin.getEconomy().withdrawPlayer(target, amount);
-                sender.sendMessage(ChatColor.GREEN + "Took " + ChatColor.GOLD + plugin.getEconomy().format(amount) + ChatColor.GREEN + " from " + ChatColor.YELLOW + target.getName() + ChatColor.GREEN + ".");
+                sender.sendMessage(plugin.getMessage("economy.eco-take", "amount", plugin.getEconomy().format(amount), "player", target.getName()));
                 break;
             case "set":
                 double currentBalance = plugin.getEconomy().getBalance(target);
@@ -77,7 +77,7 @@ public class EcoCommand implements CommandExecutor, TabCompleter {
                     plugin.getEconomy().withdrawPlayer(target, currentBalance);
                 }
                 plugin.getEconomy().depositPlayer(target, amount);
-                sender.sendMessage(ChatColor.GREEN + "Set " + ChatColor.YELLOW + target.getName() + ChatColor.GREEN + "'s balance to " + ChatColor.GOLD + plugin.getEconomy().format(amount) + ChatColor.GREEN + ".");
+                sender.sendMessage(plugin.getMessage("economy.eco-set", "player", target.getName(), "amount", plugin.getEconomy().format(amount)));
                 break;
         }
 

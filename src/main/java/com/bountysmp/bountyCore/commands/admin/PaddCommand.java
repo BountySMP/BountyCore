@@ -18,12 +18,12 @@ public class PaddCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.isOp()) {
-            sender.sendMessage(ChatColor.RED + "You must be an operator to use this command.");
+            sender.sendMessage(plugin.getMessage("general.must-be-op"));
             return true;
         }
 
         if (args.length < 2) {
-            sender.sendMessage(ChatColor.RED + "Usage: /padd <player> <permission|group>");
+            sender.sendMessage(plugin.getMessage("ranks.padd-usage"));
             return true;
         }
 
@@ -32,34 +32,18 @@ public class PaddCommand implements CommandExecutor, TabCompleter {
 
         // Check if it's a group
         if (permission.startsWith("group.")) {
-            // Check if trying to add owner group
-            if (permission.equals("group.staff.owner")) {
-                // Only allow if sender is owner or has bypass-all
-                if (sender instanceof Player) {
-                    Player player = (Player) sender;
-                    List<String> senderGroups = plugin.getRankManager().getGroups(player.getUniqueId());
-                    boolean hasOwner = senderGroups.contains("group.staff.owner");
-                    boolean hasBypass = plugin.getRankManager().hasBypassAll(player.getUniqueId());
-
-                    if (!hasOwner && !hasBypass) {
-                        sender.sendMessage(ChatColor.RED + "Only owners can grant the owner group.");
-                        return true;
-                    }
-                }
-            }
-
             // Check if group exists
             if (!plugin.getRankManager().groupExists(permission)) {
-                sender.sendMessage(ChatColor.RED + "Group " + permission + " does not exist.");
+                sender.sendMessage(plugin.getMessage("ranks.padd-group-not-exist", "group", permission));
                 return true;
             }
 
             plugin.getRankManager().addGroup(target.getUniqueId(), permission);
-            sender.sendMessage(ChatColor.GREEN + "Added " + ChatColor.YELLOW + permission + ChatColor.GREEN + " to " + ChatColor.YELLOW + target.getName() + ChatColor.GREEN + ".");
+            sender.sendMessage(plugin.getMessage("ranks.padd-group-success", "group", permission, "player", target.getName()));
         } else {
             // Adding individual permission
             plugin.getRankManager().addPermission(target.getUniqueId(), permission);
-            sender.sendMessage(ChatColor.GREEN + "Added " + ChatColor.YELLOW + permission + ChatColor.GREEN + " to " + ChatColor.YELLOW + target.getName() + ChatColor.GREEN + ".");
+            sender.sendMessage(plugin.getMessage("ranks.padd-permission-success", "permission", permission, "player", target.getName()));
         }
 
         return true;

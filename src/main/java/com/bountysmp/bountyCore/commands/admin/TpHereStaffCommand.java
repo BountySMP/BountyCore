@@ -22,31 +22,30 @@ public class TpHereStaffCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("bounty.staff.tphere")) {
-            sender.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+            sender.sendMessage(plugin.getMessage("general.no-permission"));
             return true;
         }
 
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use this command.");
+            sender.sendMessage(plugin.getMessage("general.only-players"));
             return true;
         }
 
         Player executor = (Player) sender;
 
         if (args.length == 0) {
-            sender.sendMessage(ChatColor.RED + "Usage: /tphere <player>");
+            sender.sendMessage(plugin.getMessage("teleport.tphere-usage"));
             return true;
         }
 
         Player target = Bukkit.getPlayer(args[0]);
         if (target == null) {
-            sender.sendMessage(ChatColor.RED + "Player not found or offline.");
+            sender.sendMessage(plugin.getMessage("general.player-not-found"));
             return true;
         }
 
         target.teleport(executor.getLocation());
-        sender.sendMessage(ChatColor.GREEN + "Teleported " + ChatColor.YELLOW + target.getName() + ChatColor.GREEN + " to you.");
-        target.sendMessage(ChatColor.YELLOW + "You were teleported to " + executor.getName() + ".");
+        sender.sendMessage(plugin.getMessage("teleport.tphere-success", "player", target.getName()));
 
         return true;
     }

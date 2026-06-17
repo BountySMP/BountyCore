@@ -24,7 +24,7 @@ public class MsgCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use this command.");
+            sender.sendMessage(plugin.getMessage("general.only-players"));
             return true;
         }
 
@@ -52,7 +52,7 @@ public class MsgCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length < 2) {
-            player.sendMessage(ChatColor.RED + "Usage: /msg <player> <message>");
+            player.sendMessage(plugin.getMessage("msg.usage"));
             return true;
         }
 
@@ -60,16 +60,12 @@ public class MsgCommand implements CommandExecutor, TabCompleter {
         Player target = Bukkit.getPlayer(targetName);
 
         if (target == null) {
-            FileConfiguration config = plugin.getMessagesConfig();
-            String message = config.getString("msg.not-online", "Â§c{player} is not online.");
-            message = ChatColor.translateAlternateColorCodes('&', message);
-            message = message.replace("{player}", targetName);
-            player.sendMessage(message);
+            player.sendMessage(plugin.getMessage("msg.not-online", "player", targetName));
             return true;
         }
 
         if (target.equals(player)) {
-            player.sendMessage(ChatColor.RED + "You cannot message yourself.");
+            player.sendMessage(plugin.getMessage("msg.cannot-message-self"));
             return true;
         }
 
@@ -83,21 +79,11 @@ public class MsgCommand implements CommandExecutor, TabCompleter {
         }
         String message = messageBuilder.toString();
 
-        FileConfiguration config = plugin.getMessagesConfig();
-
         // Format sender message
-        String senderFormat = config.getString("msg.format-sender", "Â§7[Â§fYou Â§7â†’ Â§f{player}Â§7] Â§f{message}");
-        senderFormat = ChatColor.translateAlternateColorCodes('&', senderFormat);
-        senderFormat = senderFormat.replace("{player}", target.getName());
-        senderFormat = senderFormat.replace("{message}", message);
-        player.sendMessage(senderFormat);
+        player.sendMessage(plugin.getMessage("msg.format-sender", "player", target.getName(), "message", message));
 
         // Format receiver message
-        String receiverFormat = config.getString("msg.format-receiver", "Â§7[Â§f{sender} Â§7â†’ Â§fYouÂ§7] Â§f{message}");
-        receiverFormat = ChatColor.translateAlternateColorCodes('&', receiverFormat);
-        receiverFormat = receiverFormat.replace("{sender}", player.getName());
-        receiverFormat = receiverFormat.replace("{message}", message);
-        target.sendMessage(receiverFormat);
+        target.sendMessage(plugin.getMessage("msg.format-receiver", "sender", player.getName(), "message", message));
 
         // Set reply targets for both players
         plugin.getMessagingManager().setReplyTarget(player.getUniqueId(), target.getUniqueId());

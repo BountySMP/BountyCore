@@ -98,3 +98,5 @@ groups:
         # Basic player permissions - economy, homes, teleports, messaging, bounty
         - "bounty.basic"
         - "bountycore.homes.1"
+        - "headhunter.basic"
+        - "bountycore.randomtp"

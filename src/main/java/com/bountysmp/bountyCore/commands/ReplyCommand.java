@@ -21,35 +21,28 @@ public class ReplyCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use this command.");
+            sender.sendMessage(plugin.getMessage("general.only-players"));
             return true;
         }
 
         Player player = (Player) sender;
 
         if (args.length < 1) {
-            player.sendMessage(ChatColor.RED + "Usage: /r <message>");
+            player.sendMessage(plugin.getMessage("msg.reply-usage"));
             return true;
         }
 
         UUID targetUUID = plugin.getMessagingManager().getReplyTarget(player.getUniqueId());
 
         if (targetUUID == null) {
-            FileConfiguration config = plugin.getMessagesConfig();
-            String message = config.getString("msg.no-reply-target", "Â§cYou have no one to reply to.");
-            message = ChatColor.translateAlternateColorCodes('&', message);
-            player.sendMessage(message);
+            player.sendMessage(plugin.getMessage("msg.no-reply-target"));
             return true;
         }
 
         Player target = Bukkit.getPlayer(targetUUID);
 
         if (target == null || !target.isOnline()) {
-            FileConfiguration config = plugin.getMessagesConfig();
-            String message = config.getString("msg.not-online", "Â§c{player} is not online.");
-            message = ChatColor.translateAlternateColorCodes('&', message);
-            message = message.replace("{player}", "That player");
-            player.sendMessage(message);
+            player.sendMessage(plugin.getMessage("msg.not-online", "player", "That player"));
             plugin.getMessagingManager().removeReplyTarget(player.getUniqueId());
             return true;
         }
@@ -64,21 +57,11 @@ public class ReplyCommand implements CommandExecutor {
         }
         String message = messageBuilder.toString();
 
-        FileConfiguration config = plugin.getMessagesConfig();
-
         // Format sender message
-        String senderFormat = config.getString("msg.format-sender", "Â§7[Â§fYou Â§7â†’ Â§f{player}Â§7] Â§f{message}");
-        senderFormat = ChatColor.translateAlternateColorCodes('&', senderFormat);
-        senderFormat = senderFormat.replace("{player}", target.getName());
-        senderFormat = senderFormat.replace("{message}", message);
-        player.sendMessage(senderFormat);
+        player.sendMessage(plugin.getMessage("msg.format-sender", "player", target.getName(), "message", message));
 
         // Format receiver message
-        String receiverFormat = config.getString("msg.format-receiver", "Â§7[Â§f{sender} Â§7â†’ Â§fYouÂ§7] Â§f{message}");
-        receiverFormat = ChatColor.translateAlternateColorCodes('&', receiverFormat);
-        receiverFormat = receiverFormat.replace("{sender}", player.getName());
-        receiverFormat = receiverFormat.replace("{message}", message);
-        target.sendMessage(receiverFormat);
+        target.sendMessage(plugin.getMessage("msg.format-receiver", "sender", player.getName(), "message", message));
 
         // Update reply targets for both players
         plugin.getMessagingManager().setReplyTarget(player.getUniqueId(), target.getUniqueId());

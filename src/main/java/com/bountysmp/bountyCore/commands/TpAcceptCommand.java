@@ -20,7 +20,7 @@ public class TpAcceptCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use this command.");
+            sender.sendMessage(plugin.getMessage("general.only-players"));
             return true;
         }
 
@@ -28,40 +28,40 @@ public class TpAcceptCommand implements CommandExecutor {
 
         if (plugin.getCombatTagManager().isTagged(player.getUniqueId())) {
             int seconds = plugin.getCombatTagManager().getRemainingSeconds(player.getUniqueId());
-            player.sendMessage(ChatColor.RED + "You are in combat! Wait " + ChatColor.YELLOW + seconds + ChatColor.RED + " seconds.");
+            player.sendMessage(plugin.getMessage("general.in-combat", "seconds", String.valueOf(seconds)));
             return true;
         }
 
         TeleportRequest request = plugin.getTeleportManager().getPendingRequest(player.getUniqueId());
         if (request == null) {
-            player.sendMessage(ChatColor.RED + "You have no pending teleport requests.");
+            player.sendMessage(plugin.getMessage("teleport.tpaccept-no-request"));
             return true;
         }
 
         if (request.isExpired()) {
             plugin.getTeleportManager().removePendingRequest(request);
-            player.sendMessage(ChatColor.RED + "That teleport request has expired.");
+            player.sendMessage(plugin.getMessage("teleport.tpaccept-expired"));
             return true;
         }
 
         // Player is the target, requester is teleporting to them
         if (!request.getTarget().equals(player.getUniqueId())) {
-            player.sendMessage(ChatColor.RED + "You have no pending teleport requests.");
+            player.sendMessage(plugin.getMessage("teleport.tpaccept-no-request"));
             return true;
         }
 
         Player requester = Bukkit.getPlayer(request.getRequester());
         if (requester == null || !requester.isOnline()) {
             plugin.getTeleportManager().removePendingRequest(request);
-            player.sendMessage(ChatColor.RED + "That player is no longer online.");
+            player.sendMessage(plugin.getMessage("general.player-not-found"));
             return true;
         }
 
         // Check if requester is in combat
         if (plugin.getCombatTagManager().isTagged(requester.getUniqueId())) {
             int seconds = plugin.getCombatTagManager().getRemainingSeconds(requester.getUniqueId());
-            player.sendMessage(ChatColor.RED + "That player is in combat!");
-            requester.sendMessage(ChatColor.RED + "You are in combat! Wait " + ChatColor.YELLOW + seconds + ChatColor.RED + " seconds.");
+            player.sendMessage(plugin.getMessage("teleport.tpaccept-in-combat-target", "player", requester.getName()));
+            requester.sendMessage(plugin.getMessage("general.in-combat", "seconds", String.valueOf(seconds)));
             plugin.getTeleportManager().removePendingRequest(request);
             return true;
         }
@@ -73,7 +73,7 @@ public class TpAcceptCommand implements CommandExecutor {
         // Handle based on request type
         if (request.getType() == TeleportRequest.RequestType.TPA) {
             // TPA: requester teleports to player (accepter)
-            player.sendMessage(ChatColor.GREEN + "You accepted the teleport request from " + ChatColor.YELLOW + requester.getName() + ChatColor.GREEN + ".");
+            player.sendMessage(plugin.getMessage("teleport.tpaccept-success"));
 
             // Bypass-all players have instant teleport
             int requesterWarmup = warmupSeconds;
@@ -82,7 +82,7 @@ public class TpAcceptCommand implements CommandExecutor {
             }
 
             if (requesterWarmup > 0) {
-                requester.sendMessage(ChatColor.GREEN + "Teleporting in " + requesterWarmup + " seconds... Don't move!");
+                requester.sendMessage(plugin.getMessage("teleport.spawn-warmup", "seconds", String.valueOf(requesterWarmup)));
             }
 
             // Save last location before teleport
@@ -92,7 +92,7 @@ public class TpAcceptCommand implements CommandExecutor {
 
         } else {
             // TPAHERE: player (accepter) teleports to requester
-            player.sendMessage(ChatColor.GREEN + "You accepted the teleport request from " + ChatColor.YELLOW + requester.getName() + ChatColor.GREEN + ".");
+            player.sendMessage(plugin.getMessage("teleport.tpaccept-success"));
 
             // Bypass-all players have instant teleport
             int playerWarmup = warmupSeconds;
@@ -101,7 +101,7 @@ public class TpAcceptCommand implements CommandExecutor {
             }
 
             if (playerWarmup > 0) {
-                player.sendMessage(ChatColor.GREEN + "Teleporting in " + playerWarmup + " seconds... Don't move!");
+                player.sendMessage(plugin.getMessage("teleport.spawn-warmup", "seconds", String.valueOf(playerWarmup)));
             }
 
             // Save last location before teleport

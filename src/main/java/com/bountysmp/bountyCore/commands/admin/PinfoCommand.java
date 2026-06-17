@@ -18,12 +18,12 @@ public class PinfoCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("bounty.staff.admin")) {
-            sender.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+            sender.sendMessage(plugin.getMessage("general.no-permission"));
             return true;
         }
 
         if (args.length == 0) {
-            sender.sendMessage(ChatColor.RED + "Usage: /pinfo <player>");
+            sender.sendMessage(plugin.getMessage("ranks.pinfo-usage"));
             return true;
         }
 
@@ -33,33 +33,14 @@ public class PinfoCommand implements CommandExecutor, TabCompleter {
         List<String> groups = plugin.getRankManager().getGroups(target.getUniqueId());
         List<String> permissions = plugin.getRankManager().getPermissions(target.getUniqueId());
 
-        if (groups.isEmpty() && permissions.isEmpty()) {
-            sender.sendMessage(ChatColor.RED + "Player " + ChatColor.YELLOW + target.getName() + ChatColor.RED + " has no permissions or groups assigned.");
-            return true;
-        }
-
         // Format output
-        sender.sendMessage(ChatColor.GOLD + "--- " + ChatColor.YELLOW + target.getName() + ChatColor.GOLD + " Permissions ---");
+        sender.sendMessage(plugin.getMessage("ranks.pinfo-header", "player", target.getName()));
 
-        sender.sendMessage(ChatColor.GRAY + "Groups:");
-        if (groups.isEmpty()) {
-            sender.sendMessage(ChatColor.GRAY + "  None");
-        } else {
-            for (String group : groups) {
-                sender.sendMessage(ChatColor.GREEN + "- " + group);
-            }
-        }
+        String groupsList = groups.isEmpty() ? plugin.getMessage("ranks.pinfo-no-groups") : String.join(", ", groups);
+        sender.sendMessage(plugin.getMessage("ranks.pinfo-groups", "groups", groupsList));
 
-        sender.sendMessage(ChatColor.GRAY + "Permissions:");
-        if (permissions.isEmpty()) {
-            sender.sendMessage(ChatColor.GRAY + "  None");
-        } else {
-            for (String permission : permissions) {
-                sender.sendMessage(ChatColor.GREEN + "- " + permission);
-            }
-        }
-
-        sender.sendMessage(ChatColor.GOLD + "------------------------");
+        String permissionsList = permissions.isEmpty() ? plugin.getMessage("ranks.pinfo-no-permissions") : String.join(", ", permissions);
+        sender.sendMessage(plugin.getMessage("ranks.pinfo-permissions", "permissions", permissionsList));
 
         return true;
     }

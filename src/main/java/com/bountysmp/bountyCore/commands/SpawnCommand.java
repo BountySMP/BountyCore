@@ -19,7 +19,7 @@ public class SpawnCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "Only players can use this command.");
+            sender.sendMessage(plugin.getMessage("general.only-players"));
             return true;
         }
 
@@ -27,17 +27,17 @@ public class SpawnCommand implements CommandExecutor {
 
         if (plugin.getCombatTagManager().isTagged(player.getUniqueId())) {
             int seconds = plugin.getCombatTagManager().getRemainingSeconds(player.getUniqueId());
-            player.sendMessage(ChatColor.RED + "You are in combat! Wait " + ChatColor.YELLOW + seconds + ChatColor.RED + " seconds.");
+            player.sendMessage(plugin.getMessage("general.in-combat", "seconds", seconds));
             return true;
         }
 
         Location spawn = plugin.getTeleportManager().getSpawn();
         if (spawn == null) {
-            player.sendMessage(ChatColor.RED + "Spawn has not been set yet.");
+            player.sendMessage(plugin.getMessage("teleport.spawn-not-set"));
             return true;
         }
 
-        int warmupSeconds = plugin.getConfig().getInt("teleport.spawn-warmup-seconds", 3);
+        int warmupSeconds = plugin.getConfig().getInt("teleport.spawn-warmup-seconds", 5);
 
         // Bypass-all players have instant teleport
         if (plugin.getRankManager().hasBypassAll(player.getUniqueId())) {
@@ -45,7 +45,7 @@ public class SpawnCommand implements CommandExecutor {
         }
 
         if (warmupSeconds > 0) {
-            player.sendMessage(ChatColor.GREEN + "Teleporting in " + warmupSeconds + " seconds... Don't move!");
+            player.sendMessage(plugin.getMessage("teleport.spawn-warmup", "seconds", warmupSeconds));
         }
 
         // Save last location before teleport
