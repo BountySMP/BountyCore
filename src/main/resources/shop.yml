@@ -1,0 +1,138 @@
+categories:
+  tools:
+    name: "&eTools"
+    icon: DIAMOND_PICKAXE
+    slot: 10
+    items:
+      diamond_pickaxe:
+        material: DIAMOND_PICKAXE
+        name: "&bDiamond Pickaxe"
+        lore:
+          - "&7A sturdy mining tool"
+        buy-price: 500.0
+        sell-price: 250.0
+        slot: 0
+      diamond_axe:
+        material: DIAMOND_AXE
+        name: "&bDiamond Axe"
+        lore:
+          - "&7For chopping wood"
+        buy-price: 450.0
+        sell-price: 225.0
+        slot: 1
+      diamond_shovel:
+        material: DIAMOND_SHOVEL
+        name: "&bDiamond Shovel"
+        lore:
+          - "&7For digging"
+        buy-price: 400.0
+        sell-price: 200.0
+        slot: 2
+      diamond_hoe:
+        material: DIAMOND_HOE
+        name: "&bDiamond Hoe"
+        lore:
+          - "&7For farming"
+        buy-price: 350.0
+        sell-price: 175.0
+        slot: 3
+  food:
+    name: "&6Food"
+    icon: COOKED_BEEF
+    slot: 12
+    items:
+      cooked_beef:
+        material: COOKED_BEEF
+        name: "&6Cooked Beef"
+        lore:
+          - "&7Delicious and filling"
+        buy-price: 5.0
+        sell-price: 2.0
+        amount: 16
+        slot: 0
+      golden_apple:
+        material: GOLDEN_APPLE
+        name: "&eGolden Apple"
+        lore:
+          - "&7Provides regeneration"
+        buy-price: 50.0
+        sell-price: 25.0
+        slot: 1
+      bread:
+        material: BREAD
+        name: "&fBread"
+        lore:
+          - "&7Basic food item"
+        buy-price: 3.0
+        sell-price: 1.0
+        amount: 16
+        slot: 2
+  blocks:
+    name: "&aBlocks"
+    icon: STONE
+    slot: 14
+    items:
+      stone:
+        material: STONE
+        name: "&7Stone"
+        buy-price: 1.0
+        sell-price: 0.5
+        amount: 64
+        slot: 0
+      oak_planks:
+        material: OAK_PLANKS
+        name: "&eOak Planks"
+        buy-price: 2.0
+        sell-price: 1.0
+        amount: 64
+        slot: 1
+      cobblestone:
+        material: COBBLESTONE
+        name: "&8Cobblestone"
+        buy-price: 0.5
+        sell-price: 0.25
+        amount: 64
+        slot: 2
+      glass:
+        material: GLASS
+        name: "&fGlass"
+        buy-price: 5.0
+        sell-price: 2.5
+        amount: 64
+        slot: 3
+  combat:
+    name: "&cCombat"
+    icon: DIAMOND_SWORD
+    slot: 16
+    items:
+      diamond_sword:
+        material: DIAMOND_SWORD
+        name: "&bDiamond Sword"
+        lore:
+          - "&7A powerful weapon"
+        buy-price: 600.0
+        sell-price: 300.0
+        slot: 0
+      bow:
+        material: BOW
+        name: "&eBow"
+        lore:
+          - "&7Ranged weapon"
+        buy-price: 100.0
+        sell-price: 50.0
+        slot: 1
+      arrow:
+        material: ARROW
+        name: "&fArrow"
+        buy-price: 1.0
+        sell-price: 0.5
+        amount: 64
+        slot: 2
+      shield:
+        material: SHIELD
+        name: "&7Shield"
+        lore:
+          - "&7Blocks attacks"
+        buy-price: 80.0
+        sell-price: 40.0
+        slot: 3

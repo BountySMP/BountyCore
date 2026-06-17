@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 public class CombatListener implements Listener {
@@ -26,6 +27,20 @@ public class CombatListener implements Listener {
         // Tag both players in PvP combat
         plugin.getCombatTagManager().tagPlayer(victim);
         plugin.getCombatTagManager().tagPlayer(attacker);
+    }
+
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        Player victim = event.getEntity();
+
+        if (plugin.getPlayerStatsManager() != null) {
+            plugin.getPlayerStatsManager().addDeath(victim.getUniqueId());
+        }
+
+        Player killer = victim.getKiller();
+        if (killer != null && plugin.getPlayerStatsManager() != null) {
+            plugin.getPlayerStatsManager().addKill(killer.getUniqueId());
+        }
     }
 
     @EventHandler

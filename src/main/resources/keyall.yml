@@ -1,0 +1,27 @@
+# KeyAll Configuration
+
+# CrazyCrates integration
+# Command template: use {player} for player name, {key} for key name
+command-template: "crate give physical {key} 1 {player}"
+
+# Available keys (requires CrazyCrates)
+keys:
+  vote:
+    display-name: "&eVote Key"
+    crate-name: "Vote"
+  rare:
+    display-name: "&bRare Key"
+    crate-name: "Rare"
+  epic:
+    display-name: "&dEpic Key"
+    crate-name: "Epic"
+  legendary:
+    display-name: "&6Legendary Key"
+    crate-name: "Legendary"
+
+# Messages
+messages:
+  usage: "&cUsage: /keyall <key-type> <amount>"
+  invalid-key: "&cInvalid key type! Available: vote, rare, epic, legendary"
+  success: "&aGave &e{amount}x {key} &ato all online players!"
+  received: "&aYou received &e{amount}x {key}&a!"

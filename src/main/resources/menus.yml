@@ -1,0 +1,123 @@
+# Menu configurations for Info and Rules GUIs
+
+info:
+  title: "&6&lServer Information"
+  size: 27
+  items:
+    welcome:
+      slot: 10
+      material: BOOK
+      name: "&e&lWelcome!"
+      lore:
+        - "&7Welcome to our server!"
+        - ""
+        - "&7This is a survival server"
+        - "&7with custom features and"
+        - "&7an active community."
+        - ""
+        - "&aEnjoy your stay!"
+    discord:
+      slot: 12
+      material: ENDER_EYE
+      name: "&9&lDiscord"
+      lore:
+        - "&7Join our Discord server!"
+        - ""
+        - "&bdiscord.gg/yourserver"
+        - ""
+        - "&7Chat with players and"
+        - "&7get support from staff."
+    website:
+      slot: 14
+      material: PAPER
+      name: "&a&lWebsite"
+      lore:
+        - "&7Visit our website!"
+        - ""
+        - "&ewww.yourserver.com"
+        - ""
+        - "&7View stats, shop, and more!"
+    store:
+      slot: 16
+      material: EMERALD
+      name: "&2&lStore"
+      lore:
+        - "&7Support the server!"
+        - ""
+        - "&astore.yourserver.com"
+        - ""
+        - "&7Purchase ranks, keys,"
+        - "&7and other perks!"
+
+rules:
+  title: "&c&lServer Rules"
+  size: 27
+  items:
+    rule1:
+      slot: 10
+      material: RED_STAINED_GLASS_PANE
+      name: "&c&lNo Hacking"
+      lore:
+        - "&7Using hacked clients or"
+        - "&7unfair modifications is"
+        - "&7strictly prohibited."
+        - ""
+        - "&cPermanent ban on first offense"
+    rule2:
+      slot: 11
+      material: ORANGE_STAINED_GLASS_PANE
+      name: "&6&lNo Griefing"
+      lore:
+        - "&7Do not destroy or modify"
+        - "&7other players' builds"
+        - "&7without permission."
+        - ""
+        - "&67-30 day ban depending on severity"
+    rule3:
+      slot: 12
+      material: YELLOW_STAINED_GLASS_PANE
+      name: "&e&lBe Respectful"
+      lore:
+        - "&7Treat all players with"
+        - "&7respect. No harassment,"
+        - "&7racism, or toxicity."
+        - ""
+        - "&eMute or ban depending on offense"
+    rule4:
+      slot: 13
+      material: LIME_STAINED_GLASS_PANE
+      name: "&a&lNo Spam"
+      lore:
+        - "&7Do not spam chat with"
+        - "&7repeated messages or"
+        - "&7excessive caps."
+        - ""
+        - "&aWarning then mute"
+    rule5:
+      slot: 14
+      material: LIGHT_BLUE_STAINED_GLASS_PANE
+      name: "&b&lNo Advertising"
+      lore:
+        - "&7Do not advertise other"
+        - "&7servers or services."
+        - ""
+        - "&bPermanent ban"
+    rule6:
+      slot: 15
+      material: BLUE_STAINED_GLASS_PANE
+      name: "&9&lNo Bug Exploitation"
+      lore:
+        - "&7Report bugs to staff."
+        - "&7Do not abuse or exploit"
+        - "&7game mechanics or bugs."
+        - ""
+        - "&9Ban depending on severity"
+    rule7:
+      slot: 16
+      material: PURPLE_STAINED_GLASS_PANE
+      name: "&5&lFollow Staff Instructions"
+      lore:
+        - "&7Always listen to and"
+        - "&7cooperate with staff members."
+        - ""
+        - "&5Failure to comply = punishment"

@@ -274,4 +274,8 @@ public class BountyCoreEconomy implements Economy {
     public List<String> getBanks() {
         return Collections.emptyList();
     }
+
+    public EconomyStorage getStorage() {
+        return storage;
+    }
 }

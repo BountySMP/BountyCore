@@ -1,0 +1,92 @@
+# Sell system configuration
+# Configure item categories and their sell multipliers
+
+# Default sell multiplier if item category not found
+default-multiplier: 1.0
+
+# Category-based sell prices
+categories:
+  ores:
+    multiplier: 2.0
+    items:
+      - COAL_ORE
+      - IRON_ORE
+      - GOLD_ORE
+      - DIAMOND_ORE
+      - EMERALD_ORE
+      - LAPIS_ORE
+      - REDSTONE_ORE
+      - COPPER_ORE
+      - DEEPSLATE_COAL_ORE
+      - DEEPSLATE_IRON_ORE
+      - DEEPSLATE_GOLD_ORE
+      - DEEPSLATE_DIAMOND_ORE
+      - DEEPSLATE_EMERALD_ORE
+      - DEEPSLATE_LAPIS_ORE
+      - DEEPSLATE_REDSTONE_ORE
+      - DEEPSLATE_COPPER_ORE
+      - NETHER_GOLD_ORE
+      - NETHER_QUARTZ_ORE
+      - ANCIENT_DEBRIS
+
+  ingots:
+    multiplier: 3.0
+    items:
+      - IRON_INGOT
+      - GOLD_INGOT
+      - COPPER_INGOT
+      - NETHERITE_INGOT
+
+  gems:
+    multiplier: 5.0
+    items:
+      - DIAMOND
+      - EMERALD
+      - AMETHYST_SHARD
+
+  crops:
+    multiplier: 0.5
+    items:
+      - WHEAT
+      - CARROT
+      - POTATO
+      - BEETROOT
+      - MELON_SLICE
+      - PUMPKIN
+      - SUGAR_CANE
+      - BAMBOO
+      - SWEET_BERRIES
+      - GLOW_BERRIES
+
+  mob_drops:
+    multiplier: 1.5
+    items:
+      - ROTTEN_FLESH
+      - BONE
+      - STRING
+      - SPIDER_EYE
+      - GUNPOWDER
+      - ENDER_PEARL
+      - BLAZE_ROD
+      - GHAST_TEAR
+      - PRISMARINE_SHARD
+      - PRISMARINE_CRYSTALS
+      - PHANTOM_MEMBRANE
+
+  blocks:
+    multiplier: 0.3
+    items:
+      - STONE
+      - COBBLESTONE
+      - DIRT
+      - SAND
+      - GRAVEL
+      - GRANITE
+      - DIORITE
+      - ANDESITE
+      - NETHERRACK
+      - END_STONE
+
+# Track sell history
+track-history: true
+history-limit: 100

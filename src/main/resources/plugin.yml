@@ -2,7 +2,7 @@ name: BountyCore
 version: '1.0.0'
 main: com.bountysmp.bountyCore.BountyCore
 api-version: '1.21'
-softdepend: [Vault]
+softdepend: [Vault, PlaceholderAPI, CrazyCrates]
 
 commands:
   balance:
@@ -122,6 +122,51 @@ commands:
   randomtp:
     description: Opens random teleport GUI
     aliases: [rtp]
+  ah:
+    description: Open auction house
+    usage: /ah [return|search <query>]
+    aliases: [auction, auctionhouse]
+  orders:
+    description: Manage buy orders
+  team:
+    description: Team management
+    usage: /team [create|invite|accept|deny|leave|kick|disband|info|list|chat]
+    aliases: [teams]
+  settings:
+    description: Open settings menu
+    aliases: [options]
+  shop:
+    description: Open server shop
+  sell:
+    description: Sell items
+    usage: /sell [hand|all]
+  booster:
+    description: Check your active sell booster
+  sellbooster:
+    description: Give a sell booster to a player
+    usage: /sellbooster <player> <multiplier> <duration>
+  warp:
+    description: Teleport to a warp or open warp GUI
+    usage: /warp [name]
+  warpmanager:
+    description: Manage server warps
+    usage: /warpmanager <create|delete|list|seticon>
+    aliases: [warpmgr]
+  profile:
+    description: View a player's profile
+    usage: /profile <player>
+  clearlag:
+    description: Clear lag entities
+    usage: /clearlag [reload]
+  statswipe:
+    description: Open stats wipe GUI
+  keyall:
+    description: Give keys to all online players
+    usage: /keyall <crate> <amount>
+  info:
+    description: Open server info menu
+  rules:
+    description: Open server rules menu
 
 permissions:
   bounty.basic:
@@ -149,6 +194,25 @@ permissions:
       bounty.bounty: true
       # Random TP command
       bounty.randomtp: true
+      # Auction House
+      bounty.ah: true
+      # Orders
+      bounty.orders: true
+      # Team
+      bounty.team: true
+      # Settings
+      bounty.settings: true
+      # Shop
+      bounty.shop: true
+      # Sell
+      bounty.sell: true
+      # Warp commands
+      bounty.warp: true
+      # Info/Rules commands
+      bounty.info: true
+      bounty.rules: true
+      # Booster command
+      bounty.booster: true
   bountycore.homes.1:
     description: Allows 1 home
     default: true
@@ -179,6 +243,21 @@ permissions:
   bountycore.homes.50:
     description: Allows 50 homes
     default: false
+  bountycore.ah.15:
+    description: Allows 15 auction listings
+    default: true
+  bountycore.ah.20:
+    description: Allows 20 auction listings
+    default: false
+  bountycore.ah.25:
+    description: Allows 25 auction listings
+    default: false
+  bountycore.ah.30:
+    description: Allows 30 auction listings
+    default: false
+  bountycore.fastcrystal:
+    description: Allows fast crystal placement and breaking
+    default: true
   bountycore.setspawn:
     description: Allows setting the server spawn
     default: false
@@ -239,6 +318,29 @@ permissions:
   bounty.staff.gamemode:
     description: Allows changing gamemode
     default: op
+  bounty.staff.helper:
+    description: Helper staff permissions
+    default: op
+    children:
+      bounty.staff.profile: true
+  bounty.staff.profile:
+    description: Allows viewing player profiles
+    default: op
+  bounty.staff.sellbooster:
+    description: Allows giving sell boosters
+    default: op
+  bounty.staff.warpmanager:
+    description: Allows managing warps
+    default: op
+  bounty.staff.clearlag:
+    description: Allows using clearlag commands
+    default: op
+  bounty.staff.statswipe:
+    description: Allows wiping server stats
+    default: op
+  bounty.staff.keyall:
+    description: Allows giving keys to all players
+    default: op
   bounty.staff.admin:
     description: Grants all staff permissions
     default: op
@@ -261,3 +363,9 @@ permissions:
       bounty.staff.fly: true
       bounty.staff.fly.others: true
       bounty.staff.gamemode: true
+      bounty.staff.sellbooster: true
+      bounty.staff.warpmanager: true
+      bounty.staff.clearlag: true
+      bounty.staff.statswipe: true
+      bounty.staff.keyall: true
+      bounty.staff.helper: true

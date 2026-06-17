@@ -1,0 +1,31 @@
+# ClearLag Configuration
+
+# Enable auto-clear
+auto-clear:
+  enabled: true
+  interval-minutes: 10
+
+# Warnings before clearing (in seconds)
+warnings:
+  - 60
+  - 30
+  - 10
+  - 5
+
+# Entity types to clear
+clear-entities:
+  items: true
+  arrows: true
+  experience-orbs: false
+  minecarts: false
+  boats: false
+
+# Excluded worlds (items won't be cleared in these worlds)
+excluded-worlds:
+  - creative_world
+  - spawn
+
+# Messages
+messages:
+  warning: "&e[ClearLag] &7Ground items will be cleared in &c{time}&7 seconds!"
+  cleared: "&e[ClearLag] &7Cleared &c{count}&7 entities from the ground!"

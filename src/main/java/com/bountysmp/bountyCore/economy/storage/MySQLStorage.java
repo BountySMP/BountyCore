@@ -126,4 +126,8 @@ public class MySQLStorage implements EconomyStorage {
             dataSource.close();
         }
     }
+
+    public HikariDataSource getDataSource() {
+        return dataSource;
+    }
 }

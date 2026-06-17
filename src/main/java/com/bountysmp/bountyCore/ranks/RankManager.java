@@ -246,6 +246,22 @@ public class RankManager {
         return groups.containsKey(groupName);
     }
 
+    public RankGroup getRank(UUID player) {
+        List<String> playerGroups = getGroups(player);
+        RankGroup highestRank = null;
+        int highestWeight = -1;
+
+        for (String groupName : playerGroups) {
+            RankGroup group = groups.get(groupName);
+            if (group != null && group.getWeight() > highestWeight) {
+                highestWeight = group.getWeight();
+                highestRank = group;
+            }
+        }
+
+        return highestRank;
+    }
+
     private void updateTabAndNametag(UUID player) {
         Player onlinePlayer = Bukkit.getPlayer(player);
         if (onlinePlayer != null && onlinePlayer.isOnline()) {
@@ -304,6 +320,10 @@ public class RankManager {
 
         public List<String> getPermissions() {
             return permissions;
+        }
+
+        public String getDisplayName() {
+            return prefix;
         }
     }
 }
