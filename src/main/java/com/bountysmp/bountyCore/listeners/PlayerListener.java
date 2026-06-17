@@ -27,6 +27,7 @@ public class PlayerListener implements Listener {
 
         plugin.getEconomy().createPlayerAccount(player);
         plugin.getHomeManager().loadHomes(player.getUniqueId());
+        plugin.getGameModeManager().handlePlayerJoin(player);
 
         // Auto-op if player has bounty.autoop permission
         // Wait 3 ticks to ensure permissions are fully injected by RankListener
@@ -41,6 +42,8 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
+
+        plugin.getGameModeManager().handlePlayerQuit(player);
 
         // Remove auto-op on quit
         if (autoOppedPlayers.remove(player.getUniqueId())) {

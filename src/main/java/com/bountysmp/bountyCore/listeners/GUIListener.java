@@ -48,6 +48,16 @@ public class GUIListener implements Listener {
             if (session != null) {
                 session.getGui().handleClick(event.getSlot());
             }
+        } else if (title.equals("Random Teleport")) {
+            event.setCancelled(true);
+
+            if (event.getClickedInventory() != event.getView().getTopInventory()) {
+                return;
+            }
+
+            if (plugin.getRandomTpCommand() != null) {
+                plugin.getRandomTpCommand().getRandomTeleportGUI().handleClick(player, event.getSlot());
+            }
         }
     }
 

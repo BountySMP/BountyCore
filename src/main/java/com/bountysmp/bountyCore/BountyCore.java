@@ -4,6 +4,8 @@ import com.bountysmp.bountyCore.ban.BanManager;
 import com.bountysmp.bountyCore.bounty.BountyManager;
 import com.bountysmp.bountyCore.commands.*;
 import com.bountysmp.bountyCore.commands.admin.*;
+import com.bountysmp.bountyCore.enderchest.EnderChestManager;
+import com.bountysmp.bountyCore.gamemode.GameModeManager;
 import com.bountysmp.bountyCore.mute.MuteManager;
 import com.bountysmp.bountyCore.ranks.RankManager;
 import com.bountysmp.bountyCore.vanish.VanishManager;
@@ -17,6 +19,7 @@ import com.bountysmp.bountyCore.listeners.BanListener;
 import com.bountysmp.bountyCore.listeners.BountyListener;
 import com.bountysmp.bountyCore.listeners.CombatListener;
 import com.bountysmp.bountyCore.listeners.DisabledCommandListener;
+import com.bountysmp.bountyCore.listeners.EnderChestListener;
 import com.bountysmp.bountyCore.listeners.GUIListener;
 import com.bountysmp.bountyCore.listeners.MuteListener;
 import com.bountysmp.bountyCore.listeners.PlayerListener;
@@ -52,6 +55,9 @@ public final class BountyCore extends JavaPlugin {
     private BanManager banManager;
     private RankManager rankManager;
     private VanishManager vanishManager;
+    private EnderChestManager enderChestManager;
+    private GameModeManager gameModeManager;
+    private RandomTpCommand randomTpCommand;
     private FileConfiguration messagesConfig;
 
     @Override
@@ -73,6 +79,8 @@ public final class BountyCore extends JavaPlugin {
         setupBan();
         setupRanks();
         setupVanish();
+        setupEnderChest();
+        setupGameMode();
         registerCommands();
         registerListeners();
 
@@ -91,6 +99,14 @@ public final class BountyCore extends JavaPlugin {
 
         if (vanishManager != null) {
             vanishManager.shutdown();
+        }
+
+        if (enderChestManager != null) {
+            enderChestManager.close();
+        }
+
+        if (gameModeManager != null) {
+            gameModeManager.close();
         }
 
         getLogger().info("BountyCore has been disabled!");
@@ -177,6 +193,16 @@ public final class BountyCore extends JavaPlugin {
     private void setupVanish() {
         vanishManager = new VanishManager(this);
         getLogger().info("Vanish system initialized!");
+    }
+
+    private void setupEnderChest() {
+        enderChestManager = new EnderChestManager(this);
+        getLogger().info("EnderChest system initialized!");
+    }
+
+    private void setupGameMode() {
+        gameModeManager = new GameModeManager(this);
+        getLogger().info("GameMode manager initialized!");
     }
 
     private void loadMessagesConfig() {
@@ -316,6 +342,10 @@ public final class BountyCore extends JavaPlugin {
         GamemodeSpectatorCommand gmspCmd = new GamemodeSpectatorCommand(this);
         getCommand("gmsp").setExecutor(gmspCmd);
         getCommand("gmsp").setTabCompleter(gmspCmd);
+
+        randomTpCommand = new RandomTpCommand(this);
+        getCommand("randomtp").setExecutor(randomTpCommand);
+        getCommand("rtp").setExecutor(randomTpCommand);
     }
 
     private void registerListeners() {
@@ -329,6 +359,7 @@ public final class BountyCore extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new BanListener(this), this);
         getServer().getPluginManager().registerEvents(new RankListener(this), this);
         getServer().getPluginManager().registerEvents(new VanishListener(this), this);
+        getServer().getPluginManager().registerEvents(new EnderChestListener(this, enderChestManager), this);
     }
 
     public BountyCoreEconomy getEconomy() {
@@ -377,5 +408,17 @@ public final class BountyCore extends JavaPlugin {
 
     public VanishManager getVanishManager() {
         return vanishManager;
+    }
+
+    public EnderChestManager getEnderChestManager() {
+        return enderChestManager;
+    }
+
+    public GameModeManager getGameModeManager() {
+        return gameModeManager;
+    }
+
+    public RandomTpCommand getRandomTpCommand() {
+        return randomTpCommand;
     }
 }

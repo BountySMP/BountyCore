@@ -119,6 +119,9 @@ commands:
   gmsp:
     description: Set gamemode to spectator
     usage: /gmsp [player]
+  randomtp:
+    description: Opens random teleport GUI
+    aliases: [rtp]
 
 permissions:
   bounty.basic:
@@ -144,6 +147,8 @@ permissions:
       bounty.reply: true
       # Bounty commands
       bounty.bounty: true
+      # Random TP command
+      bounty.randomtp: true
   bountycore.homes.1:
     description: Allows 1 home
     default: true

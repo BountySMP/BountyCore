@@ -44,6 +44,11 @@ teleport:
   # Kill players who log out while combat tagged
   combat-log-kill: true
 
+# Random Teleport Settings
+randomtp:
+  # Cooldown in seconds (900 = 15 minutes)
+  cooldown-seconds: 900
+
 # Bounty Settings
 bounty:
   # Minimum bounty amount that can be placed
