@@ -1,0 +1,63 @@
+# BountyCore Configuration
+
+# Economy Settings
+economy:
+  currency-name: "Coin"
+  currency-plural: "Coins"
+  currency-symbol: "$"
+  starting-balance: 1000.0
+
+  # Storage type: FLATFILE or MYSQL
+  storage-type: FLATFILE
+
+  # MySQL settings (only used if storage-type is MYSQL)
+  mysql:
+    host: "localhost"
+    port: 3306
+    database: "bountycore"
+    username: "root"
+    password: ""
+    pool-size: 10
+
+# Homes Settings
+homes:
+  # Default home limit for players without a permission node
+  default-home-limit: 1
+
+  # Warmup time in seconds before teleporting to a home
+  home-warmup-seconds: 5
+
+# Teleportation Settings
+teleport:
+  # TPA warmup time in seconds
+  tpa-warmup-seconds: 5
+
+  # Spawn warmup time in seconds
+  spawn-warmup-seconds: 3
+
+  # TPA request expiration time in seconds
+  tpa-expire-seconds: 60
+
+  # Combat tag duration in seconds
+  combat-tag-seconds: 15
+
+  # Kill players who log out while combat tagged
+  combat-log-kill: true
+
+# Bounty Settings
+bounty:
+  # Minimum bounty amount that can be placed
+  minimum-amount: 10000
+
+# Disabled Commands
+# Commands listed here will be blocked for ALL players (including ops)
+# Console is NOT blocked - only player commands
+# Commands are case insensitive
+disabled-commands:
+  - reload
+  - bukkit:reload
+  - plugins
+  - pl
+  - tps
+  - version
+  - ver

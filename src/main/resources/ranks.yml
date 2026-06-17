@@ -1,0 +1,100 @@
+# Ranks Configuration
+# Groups are organized by category: staff, donator, default
+# Weight determines priority (higher = more important)
+# bypass-all: true means player bypasses all limits (combat tag, warmups, home limits, etc.)
+
+groups:
+  staff:
+    owner:
+      prefix: "§4[Owner] §f"
+      chat-color: "§f"
+      weight: 100
+      bypass-all: true
+      permissions:
+        - "*"
+    manager:
+      prefix: "§5[Manager] §f"
+      chat-color: "§f"
+      weight: 95
+      bypass-all: true
+      permissions:
+        - "bounty.staff.admin"
+    dev:
+      prefix: "§b[Dev] §f"
+      chat-color: "§f"
+      weight: 93
+      bypass-all: true
+      permissions:
+        - "bounty.staff.admin"
+        - "bountycore.homes.50"
+    sradmin:
+      prefix: "§c[Sr.Admin] §f"
+      chat-color: "§f"
+      weight: 92
+      permissions:
+        - "bounty.staff.admin"
+        - "bountycore.homes.30"
+    admin:
+      prefix: "§c[Admin] §f"
+      chat-color: "§f"
+      weight: 90
+      permissions:
+        - "bounty.staff.admin"
+        - "bountycore.homes.25"
+    srmod:
+      prefix: "§9[Sr.Mod] §f"
+      chat-color: "§f"
+      weight: 85
+      permissions:
+        - "bounty.staff.kick"
+        - "bounty.staff.mute"
+        - "bounty.staff.tempmute"
+        - "bounty.staff.unmute"
+        - "bounty.staff.ban"
+        - "bounty.staff.tempban"
+        - "bounty.staff.unban"
+        - "bountycore.homes.20"
+    mod:
+      prefix: "§9[Mod] §f"
+      chat-color: "§f"
+      weight: 80
+      permissions:
+        - "bounty.staff.kick"
+        - "bounty.staff.mute"
+        - "bounty.staff.tempmute"
+        - "bounty.staff.unmute"
+        - "bountycore.homes.15"
+    helper:
+      prefix: "§a[Helper] §f"
+      chat-color: "§f"
+      weight: 70
+      permissions:
+        - "bounty.staff.kick"
+        - "bounty.staff.mute"
+        - "bounty.staff.tempmute"
+        - "bountycore.homes.10"
+  donator:
+    bountyplus:
+      prefix: "§e[Bounty+] §f"
+      chat-color: "§f"
+      weight: 20
+      permissions:
+        - "bounty.donator.bounty"
+        - "bounty.donator.bountyplus"
+        - "bountycore.homes.10"
+    bounty:
+      prefix: "§6[Bounty] §f"
+      chat-color: "§f"
+      weight: 10
+      permissions:
+        - "bounty.donator.bounty"
+        - "bountycore.homes.5"
+  default:
+    member:
+      prefix: "§7"
+      chat-color: "§f"
+      weight: 0
+      permissions:
+        # Basic player permissions - economy, homes, teleports, messaging, bounty
+        - "bounty.basic"
+        - "bountycore.homes.1"

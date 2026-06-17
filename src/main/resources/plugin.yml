@@ -1,0 +1,258 @@
+name: BountyCore
+version: '1.0.0'
+main: com.bountysmp.bountyCore.BountyCore
+api-version: '1.21'
+softdepend: [Vault]
+
+commands:
+  balance:
+    description: Check your balance
+    aliases: [bal, money]
+  pay:
+    description: Pay another player
+    usage: /pay <player> <amount>
+  home:
+    description: Open the homes GUI
+    aliases: [homes]
+  sethome:
+    description: Set a home at your current location
+    usage: /sethome <name>
+  delhome:
+    description: Delete a home
+    usage: /delhome <name>
+    aliases: [deletehome, removehome]
+  tpa:
+    description: Request to teleport to another player
+    usage: /tpa <player>
+  tpahere:
+    description: Request another player to teleport to you
+    usage: /tpahere <player>
+  tpaccept:
+    description: Accept a teleport request
+    aliases: [tpyes]
+  tpdeny:
+    description: Deny a teleport request
+    aliases: [tpno]
+  spawn:
+    description: Teleport to spawn
+  setspawn:
+    description: Set the server spawn point
+  back:
+    description: Teleport to your last location
+  msg:
+    description: Send a private message to a player
+    usage: /msg <player> <message>
+    aliases: [tell, whisper, w, m]
+  r:
+    description: Reply to the last player who messaged you
+    usage: /r <message>
+    aliases: [reply]
+  bounty:
+    description: View and manage bounties
+    usage: /bounty [set <player> <amount>|<player>]
+  eco:
+    description: Economy admin commands
+    usage: /eco give <player> <amount>
+  tp:
+    description: Teleport to a player
+    usage: /tp <player>
+  tphere:
+    description: Teleport a player to you
+    usage: /tphere <player>
+  kick:
+    description: Kick a player
+    usage: /kick <player> [reason]
+  ban:
+    description: Permanently ban a player
+    usage: /ban <player> [reason]
+  tempban:
+    description: Temporarily ban a player
+    usage: /tempban <player> <duration> <reason>
+  unban:
+    description: Unban a player
+    usage: /unban <player>
+  mute:
+    description: Mute a player
+    usage: /mute <player> [reason]
+  tempmute:
+    description: Temporarily mute a player
+    usage: /tempmute <player> <duration> [reason]
+  unmute:
+    description: Unmute a player
+    usage: /unmute <player>
+  s:
+    description: Summon a player to you
+    usage: /s <player>
+  clearbounty:
+    description: Clear a player's bounty
+    usage: /clearbounty <player>
+  setbounty:
+    description: Set a player's bounty
+    usage: /setbounty <player> <amount>
+  padd:
+    description: Add a permission or group to a player
+    usage: /padd <player> <permission|group>
+  prem:
+    description: Remove a permission or group from a player
+    usage: /prem <player> <permission|group>
+  pinfo:
+    description: Show all permissions and groups for a player
+    usage: /pinfo <player>
+  psearch:
+    description: Search a player's permissions and groups
+    usage: /psearch <player> <query>
+  vanish:
+    description: Toggle vanish mode
+    aliases: [v]
+  god:
+    description: Toggle god mode
+    aliases: [godmode]
+  fly:
+    description: Toggle flight mode
+    usage: /fly [player]
+  gms:
+    description: Set gamemode to survival
+    usage: /gms [player]
+  gmc:
+    description: Set gamemode to creative
+    usage: /gmc [player]
+  gmsp:
+    description: Set gamemode to spectator
+    usage: /gmsp [player]
+
+permissions:
+  bounty.basic:
+    description: Grants all basic player permissions (economy, homes, teleports, messaging, bounty)
+    default: true
+    children:
+      # Economy commands
+      bounty.balance: true
+      bounty.pay: true
+      # Home commands
+      bounty.home: true
+      bounty.sethome: true
+      bounty.delhome: true
+      # Teleport commands
+      bounty.spawn: true
+      bounty.back: true
+      bounty.tpa: true
+      bounty.tpahere: true
+      bounty.tpaccept: true
+      bounty.tpdeny: true
+      # Messaging commands
+      bounty.msg: true
+      bounty.reply: true
+      # Bounty commands
+      bounty.bounty: true
+  bountycore.homes.1:
+    description: Allows 1 home
+    default: true
+  bountycore.homes.2:
+    description: Allows 2 homes
+    default: false
+  bountycore.homes.3:
+    description: Allows 3 homes
+    default: false
+  bountycore.homes.5:
+    description: Allows 5 homes
+    default: false
+  bountycore.homes.10:
+    description: Allows 10 homes
+    default: false
+  bountycore.homes.15:
+    description: Allows 15 homes
+    default: false
+  bountycore.homes.20:
+    description: Allows 20 homes
+    default: false
+  bountycore.homes.25:
+    description: Allows 25 homes
+    default: false
+  bountycore.homes.30:
+    description: Allows 30 homes
+    default: false
+  bountycore.homes.50:
+    description: Allows 50 homes
+    default: false
+  bountycore.setspawn:
+    description: Allows setting the server spawn
+    default: false
+  bountycore.eco:
+    description: Allows using economy admin commands
+    default: op
+  bounty.staff.tp:
+    description: Allows teleporting to players
+    default: op
+  bounty.staff.tphere:
+    description: Allows teleporting players to you
+    default: op
+  bounty.staff.summon:
+    description: Allows instantly summoning players
+    default: op
+  bounty.staff.kick:
+    description: Allows kicking players
+    default: op
+  bounty.staff.ban:
+    description: Allows permanently banning players
+    default: op
+  bounty.staff.tempban:
+    description: Allows temporarily banning players
+    default: op
+  bounty.staff.unban:
+    description: Allows unbanning players
+    default: op
+  bounty.staff.mute:
+    description: Allows muting players
+    default: op
+  bounty.staff.tempmute:
+    description: Allows temporarily muting players
+    default: op
+  bounty.staff.unmute:
+    description: Allows unmuting players
+    default: op
+  bounty.staff.clearbounty:
+    description: Allows clearing player bounties
+    default: op
+  bounty.staff.setbounty:
+    description: Allows setting player bounties
+    default: op
+  bounty.staff.eco:
+    description: Allows using economy admin commands
+    default: op
+  bounty.staff.vanish:
+    description: Allows using vanish mode
+    default: op
+  bounty.staff.god:
+    description: Allows using god mode
+    default: op
+  bounty.staff.fly:
+    description: Allows toggling flight mode
+    default: op
+  bounty.staff.fly.others:
+    description: Allows toggling flight for other players
+    default: op
+  bounty.staff.gamemode:
+    description: Allows changing gamemode
+    default: op
+  bounty.staff.admin:
+    description: Grants all staff permissions
+    default: op
+    children:
+      bounty.staff.tp: true
+      bounty.staff.tphere: true
+      bounty.staff.summon: true
+      bounty.staff.kick: true
+      bounty.staff.ban: true
+      bounty.staff.tempban: true
+      bounty.staff.unban: true
+      bounty.staff.mute: true
+      bounty.staff.tempmute: true
+      bounty.staff.unmute: true
+      bounty.staff.clearbounty: true
+      bounty.staff.setbounty: true
+      bounty.staff.eco: true
+      bounty.staff.vanish: true
+      bounty.staff.god: true
+      bounty.staff.fly: true
+      bounty.staff.fly.others: true
+      bounty.staff.gamemode: true

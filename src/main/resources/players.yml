@@ -1,0 +1,7 @@
+# Player Permissions and Groups
+# UUID:
+#   groups:
+#     - group.staff.owner
+#     - group.donator.vip
+#   permissions:
+#     - bounty.some.permission

@@ -1,0 +1,102 @@
+# Messages Configuration
+# Placeholders:
+# {player} - Player name
+# {sender} - Sender name
+# {reason} - Ban/mute reason
+# {duration} - Duration (e.g., "2 hours", "1 day")
+# {time_remaining} - Time remaining (e.g., "1d 5h", "30m")
+# {amount} - Money amount
+# {killer} - Killer name
+# {victim} - Victim name
+# {banned_by} - Who issued the ban
+# {muted_by} - Who issued the mute
+
+msg:
+  format-sender: "§7[§fYou §7→ §f{player}§7] §f{message}"
+  format-receiver: "§7[§f{sender} §7→ §fYou§7] §f{message}"
+  not-online: "§c{player} is not online."
+  no-reply-target: "§cYou have no one to reply to."
+
+bounty:
+  claim-broadcast: "§6§l[BOUNTY] §e{killer} §7has claimed §e{victim}§7's bounty for §c{amount}§7!"
+
+# Ban Messages
+ban:
+  # Discord appeal link (leave empty to disable)
+  discord-link: "https://discord.gg/yourserver"
+
+  # Appeal message (use {link} placeholder for the discord link)
+  appeal-message: |-
+
+    §eIf you wish to appeal or the punishment is false,
+    §eplease appeal at §b{link}
+
+  # Message shown to banned player on login
+  permanent-screen: |-
+    §c§lYou are permanently banned!
+    §7Reason: §f{reason}
+    §7Banned by: §f{banned_by}{appeal}
+
+  temporary-screen: |-
+    §c§lYou are temporarily banned!
+    §7Reason: §f{reason}
+    §7Expires: §f{time_remaining}
+    §7Banned by: §f{banned_by}{appeal}
+
+  # Message shown to player when they get banned (kick message)
+  permanent-kick: |-
+    §c§lYou have been permanently banned!
+    §7Reason: §f{reason}{appeal}
+
+  temporary-kick: |-
+    §c§lYou have been temporarily banned!
+    §7Reason: §f{reason}
+    §7Duration: §f{duration}
+    §7Expires: §f{time_remaining}{appeal}
+
+  # Staff confirmation messages
+  staff-banned: "§aPermananently banned §e{player}§a."
+  staff-banned-reason: "§aReason: §e{reason}"
+  staff-tempbanned: "§aTemporarily banned §e{player} §afor §e{duration}§a."
+  staff-unbanned: "§aUnbanned §e{player}§a."
+  already-banned: "§c{player} is already banned."
+  not-banned: "§c{player} is not banned."
+
+# Mute Messages
+mute:
+  # Message shown to muted player when they try to chat
+  permanent-chat: |-
+    §cYou are permanently muted and cannot chat.
+    §7Reason: §f{reason}
+
+  temporary-chat: |-
+    §cYou are temporarily muted.
+    §7Reason: §f{reason}
+    §7Expires: §f{time_remaining}
+
+  # Message shown to player when they get muted
+  permanent-notification: |-
+    §cYou have been permanently muted.
+    §7Reason: §f{reason}
+
+  temporary-notification: |-
+    §cYou have been temporarily muted.
+    §7Reason: §f{reason}
+    §7Duration: §f{duration}
+    §7Expires: §f{time_remaining}
+
+  # Staff confirmation messages
+  staff-muted: "§aPermanently muted §e{player}§a."
+  staff-muted-reason: "§aReason: §e{reason}"
+  staff-tempmuted: "§aTemporarily muted §e{player} §afor §e{duration}§a."
+  staff-unmuted: "§aUnmuted §e{player}§a."
+  already-muted: "§c{player} is already muted."
+  not-muted: "§c{player} is not muted."
+
+# Kick Messages
+kick:
+  message: "§c{reason}"
+  staff-kicked: "§aKicked §e{player} §afor: {reason}"
+
+# Disabled command message
+disabled-command: "§cThis command is disabled."
