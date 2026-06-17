@@ -9,18 +9,20 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class NametagManager {
     private final BountyCore plugin;
     private final Scoreboard scoreboard;
     private final Map<String, Team> teams;
+    private final Map<UUID, String> playerTeams; // Track which team each player is in
 
     public NametagManager(BountyCore plugin) {
         this.plugin = plugin;
         this.scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
         this.teams = new HashMap<>();
+        this.playerTeams = new HashMap<>();
         setupTeams();
     }
 
@@ -28,7 +30,6 @@ public class NametagManager {
         RankManager rankManager = plugin.getRankManager();
 
         // Get all rank groups from ranks.yml
-        // We need to create teams for all possible ranks
         String[] staffRanks = {"owner", "manager", "dev", "sradmin", "admin", "srmod", "mod", "helper"};
         String[] donatorRanks = {"bountyplus", "bounty"};
         String[] defaultRanks = {"member"};
@@ -62,9 +63,10 @@ public class NametagManager {
     }
 
     private void createTeam(RankManager.RankGroup group) {
-        // Team name format: weight_rankname (e.g., "100_owner", "090_admin")
-        // This ensures teams sort correctly
-        String teamName = String.format("%03d_%s", group.getWeight(), group.getName().replace("group.", "").replace(".", "_"));
+        // Team name format: weight_rankname (limited to 16 characters)
+        String fullName = String.format("%03d_%s", group.getWeight(),
+            group.getName().replace("group.", "").replace(".", "_"));
+        String teamName = fullName.substring(0, Math.min(16, fullName.length()));
 
         // Unregister existing team if it exists
         Team existingTeam = scoreboard.getTeam(teamName);
@@ -79,12 +81,11 @@ public class NametagManager {
         team.setCanSeeFriendlyInvisibles(false);
 
         teams.put(group.getName(), team);
+
+        plugin.getLogger().info("Created team '" + teamName + "' for group '" + group.getName() + "' with prefix: " + prefix);
     }
 
     public void updatePlayer(Player player) {
-        // Remove player from all teams first
-        removePlayerFromAllTeams(player);
-
         RankManager rankManager = plugin.getRankManager();
 
         // Get highest rank (staff > donator > default)
@@ -100,12 +101,31 @@ public class NametagManager {
             highestGroup = rankManager.getDefaultGroup();
         }
 
+        // Remove from old team if assigned
+        String oldTeamName = playerTeams.get(player.getUniqueId());
+        if (oldTeamName != null) {
+            Team oldTeam = teams.get(oldTeamName);
+            if (oldTeam != null && oldTeam.hasEntry(player.getName())) {
+                oldTeam.removeEntry(player.getName());
+            }
+        }
+
         // Add player to their highest rank team
         if (highestGroup != null) {
             Team team = teams.get(highestGroup.getName());
             if (team != null) {
                 team.addEntry(player.getName());
+                playerTeams.put(player.getUniqueId(), highestGroup.getName());
+
+                // Debug logging
+                boolean isInTeam = team.hasEntry(player.getName());
+                plugin.getLogger().info("Added player '" + player.getName() + "' to team '" + team.getName() +
+                    "' for group '" + highestGroup.getName() + "'. In team: " + isInTeam);
+            } else {
+                plugin.getLogger().warning("Team not found for group: " + highestGroup.getName());
             }
+        } else {
+            plugin.getLogger().warning("No rank group found for player: " + player.getName());
         }
 
         // Set player's scoreboard to the main scoreboard to ensure prefix shows above head
@@ -119,12 +139,10 @@ public class NametagManager {
     }
 
     public void removePlayer(Player player) {
-        removePlayerFromAllTeams(player);
-    }
-
-    private void removePlayerFromAllTeams(Player player) {
-        for (Team team : teams.values()) {
-            if (team.hasEntry(player.getName())) {
+        String teamName = playerTeams.remove(player.getUniqueId());
+        if (teamName != null) {
+            Team team = teams.get(teamName);
+            if (team != null && team.hasEntry(player.getName())) {
                 team.removeEntry(player.getName());
             }
         }
@@ -136,6 +154,7 @@ public class NametagManager {
             team.unregister();
         }
         teams.clear();
+        playerTeams.clear();
     }
 
     public void reload() {
