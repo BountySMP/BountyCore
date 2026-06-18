@@ -27,7 +27,7 @@ public class ProfileCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        if (!player.hasPermission("bounty.staff.helper")) {
+        if (!player.hasPermission("bounty.profile")) {
             player.sendMessage(plugin.getMessage("no-permission"));
             return true;
         }

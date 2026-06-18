@@ -12,9 +12,22 @@ import java.util.List;
 
 public class StatsWipeGUI {
     private final BountyCore plugin;
+    private final Player viewer;
 
     public StatsWipeGUI(BountyCore plugin) {
         this.plugin = plugin;
+        this.viewer = null;
+    }
+
+    public StatsWipeGUI(BountyCore plugin, Player viewer) {
+        this.plugin = plugin;
+        this.viewer = viewer;
+    }
+
+    public void open() {
+        if (viewer != null) {
+            open(viewer);
+        }
     }
 
     public void open(Player player) {
@@ -56,6 +69,12 @@ public class StatsWipeGUI {
         gui.setItem(22, closeButton);
 
         player.openInventory(gui);
+    }
+
+    public void openConfirm(String wipeType) {
+        if (viewer != null) {
+            openConfirm(viewer, wipeType);
+        }
     }
 
     public void openConfirm(Player player, String wipeType) {

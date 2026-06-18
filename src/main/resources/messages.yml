@@ -273,3 +273,27 @@ staff:
 
 # Disabled command message
 disabled-command: "§cThis command is disabled."
+
+# Team messages
+teams:
+  created: "§aTeam §e{name} §acreated successfully!"
+  disbanded: "§cYour team has been disbanded."
+  not-in-team: "§cYou are not in a team."
+  already-in-team: "§cYou are already in a team."
+  not-leader: "§cOnly the team leader can do this."
+  name-taken: "§cA team with that name already exists."
+  invite-sent: "§aInvite sent to §e{player}§a."
+  invite-received: "§e{player} §ahas invited you to join their team. Use §e/team accept§a."
+  invite-expired: "§cThat team invite has expired."
+  no-pending-invite: "§cYou don't have any pending team invites."
+  joined: "§aYou joined §e{name}§a!"
+  player-joined: "§e{player} §ahas joined the team!"
+  left: "§cYou left the team."
+  player-left: "§e{player} §chas left the team."
+  kicked: "§cYou were kicked from the team."
+  player-kicked: "§e{player} §cwas kicked from the team."
+  team-full: "§cThat team is full."
+  cannot-invite-self: "§cYou cannot invite yourself."
+  player-in-team: "§c{player} is already in a team."
+  leader-cannot-leave: "§cTeam leaders cannot leave. Use §e/team disband §cor transfer leadership first."
+  not-in-your-team: "§c{player} is not in your team."

@@ -74,6 +74,16 @@ public class WarpManager {
         }
     }
 
+    public void teleportToWarp(org.bukkit.entity.Player player, int slotIndex) {
+        List<Warp> warps = getAllWarps();
+        if (slotIndex >= 0 && slotIndex < warps.size()) {
+            Warp warp = warps.get(slotIndex);
+            player.teleport(warp.getLocation());
+            player.sendMessage(org.bukkit.ChatColor.GREEN + "Teleported to " + warp.getName());
+            player.closeInventory();
+        }
+    }
+
     public void close() {
         if (storage != null) {
             storage.close();

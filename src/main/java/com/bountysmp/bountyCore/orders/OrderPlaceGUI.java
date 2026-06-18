@@ -43,4 +43,11 @@ public class OrderPlaceGUI {
 
         viewer.openInventory(inv);
     }
+
+    public void confirmOrder(Player player) {
+        player.closeInventory();
+        player.sendMessage(ChatColor.GREEN + "Enter order details in chat:");
+        player.sendMessage(ChatColor.GRAY + "Use: /order place <material> <quantity> <max_price>");
+        player.sendMessage(ChatColor.GRAY + "Example: /order place DIAMOND 64 100");
+    }
 }

@@ -39,12 +39,10 @@ public class OrderGUI {
                 inv.setItem(slot, createOrderItem(order));
             }
 
+            int totalPages = orders.isEmpty() ? 1 : ((orders.size() - 1) / SLOTS_PER_PAGE + 1);
+
             inv.setItem(48, createPreviousPage());
-
-            int totalPages = (orders.size() - 1) / SLOTS_PER_PAGE + 1;
-            if (totalPages == 0) totalPages = 1;
-            inv.setItem(49, createPageIndicator(totalPages));
-
+            inv.setItem(49, createPageIndicator(page + 1, totalPages));
             inv.setItem(50, createNextPage());
 
             inv.setItem(53, createPlaceOrderButton());
@@ -89,10 +87,14 @@ public class OrderGUI {
         return item;
     }
 
-    private ItemStack createPageIndicator(int totalPages) {
+    private ItemStack createPageIndicator(int currentPage, int totalPages) {
         ItemStack item = new ItemStack(Material.PAPER);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(ChatColor.GRAY + "Page " + ChatColor.YELLOW + (page + 1) + ChatColor.GRAY + "/" + ChatColor.YELLOW + totalPages);
+        meta.setDisplayName(ChatColor.GRAY + "Page " + ChatColor.YELLOW + currentPage + ChatColor.GRAY + "/" + ChatColor.YELLOW + totalPages);
+        List<String> lore = new ArrayList<>();
+        lore.add("");
+        lore.add(ChatColor.GRAY + "Showing page " + currentPage + " of " + totalPages);
+        meta.setLore(lore);
         item.setItemMeta(meta);
         return item;
     }

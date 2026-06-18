@@ -2,6 +2,7 @@ package com.bountysmp.bountyCore.commands;
 
 import com.bountysmp.bountyCore.BountyCore;
 import com.bountysmp.bountyCore.teams.TeamGUI;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -30,7 +31,16 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
         Player player = (Player) sender;
 
         if (args.length == 0) {
-            new TeamGUI(plugin, player).open();
+            // Open team GUI if in team, otherwise send message
+            plugin.getTeamManager().getPlayerTeam(player.getUniqueId()).thenAccept(team -> {
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    if (team == null) {
+                        player.sendMessage(ChatColor.RED + "You are not in a team. Use /team create <name> to create one.");
+                    } else {
+                        new com.bountysmp.bountyCore.teams.TeamGUI(plugin, player, team).open();
+                    }
+                });
+            });
             return true;
         }
 
@@ -98,7 +108,16 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                 break;
 
             default:
-                new TeamGUI(plugin, player).open();
+                // Unknown subcommand - show team GUI
+                plugin.getTeamManager().getPlayerTeam(player.getUniqueId()).thenAccept(team -> {
+                    Bukkit.getScheduler().runTask(plugin, () -> {
+                        if (team == null) {
+                            player.sendMessage(ChatColor.RED + "You are not in a team. Use /team create <name> to create one.");
+                        } else {
+                            new com.bountysmp.bountyCore.teams.TeamGUI(plugin, player, team).open();
+                        }
+                    });
+                });
                 break;
         }
 

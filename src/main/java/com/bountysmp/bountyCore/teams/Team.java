@@ -10,6 +10,7 @@ public class Team {
     private UUID leaderId;
     private final List<UUID> members;
     private final long createdTime;
+    private boolean friendlyFireEnabled;
     private static final int MAX_MEMBERS = 10;
 
     public Team(UUID teamId, String teamName, UUID leaderId, long createdTime) {
@@ -19,6 +20,7 @@ public class Team {
         this.members = new ArrayList<>();
         this.members.add(leaderId);
         this.createdTime = createdTime;
+        this.friendlyFireEnabled = false; // Default off
     }
 
     public Team(UUID teamId, String teamName, UUID leaderId, List<UUID> members, long createdTime) {
@@ -27,6 +29,16 @@ public class Team {
         this.leaderId = leaderId;
         this.members = new ArrayList<>(members);
         this.createdTime = createdTime;
+        this.friendlyFireEnabled = false; // Default off
+    }
+
+    public Team(UUID teamId, String teamName, UUID leaderId, List<UUID> members, long createdTime, boolean friendlyFireEnabled) {
+        this.teamId = teamId;
+        this.teamName = teamName;
+        this.leaderId = leaderId;
+        this.members = new ArrayList<>(members);
+        this.createdTime = createdTime;
+        this.friendlyFireEnabled = friendlyFireEnabled;
     }
 
     public UUID getTeamId() {
@@ -86,5 +98,17 @@ public class Team {
 
     public long getCreatedTime() {
         return createdTime;
+    }
+
+    public long getCreationDate() {
+        return createdTime;
+    }
+
+    public boolean isFriendlyFireEnabled() {
+        return friendlyFireEnabled;
+    }
+
+    public void setFriendlyFireEnabled(boolean enabled) {
+        this.friendlyFireEnabled = enabled;
     }
 }

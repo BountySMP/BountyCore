@@ -560,7 +560,7 @@ public final class BountyCore extends JavaPlugin {
         getCommand("keyall").setExecutor(keyAllCmd);
         getCommand("keyall").setTabCompleter(keyAllCmd);
 
-        getCommand("info").setExecutor(new com.bountysmp.bountyCore.commands.InfoCommand(this));
+        getCommand("serverinfo").setExecutor(new com.bountysmp.bountyCore.commands.InfoCommand(this));
         getCommand("rules").setExecutor(new com.bountysmp.bountyCore.commands.RulesCommand(this));
     }
 

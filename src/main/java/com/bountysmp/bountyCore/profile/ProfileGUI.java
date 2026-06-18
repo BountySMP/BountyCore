@@ -41,7 +41,7 @@ public class ProfileGUI {
 
         double balance = plugin.getEconomy().getBalance(target);
         gui.setItem(20, createInfoItem(Material.GOLD_INGOT, "§e§lBalance",
-            "§7" + new DecimalFormat("#,###.##").format(balance) + " " + plugin.getEconomy().currencyNamePlural()));
+            "§7$" + new DecimalFormat("#,###.##").format(balance)));
 
         String rank = plugin.getRankManager().getRank(target.getUniqueId()).getDisplayName();
         gui.setItem(21, createInfoItem(Material.NAME_TAG, "§e§lRank", rank));
@@ -75,7 +75,7 @@ public class ProfileGUI {
         double bounty = plugin.getBountyManager().getBounty(target.getUniqueId());
         if (bounty > 0) {
             gui.setItem(33, createInfoItem(Material.REDSTONE, "§e§lBounty",
-                "§c" + new DecimalFormat("#,###.##").format(bounty) + " " + plugin.getEconomy().currencyNamePlural()));
+                "§c$" + new DecimalFormat("#,###.##").format(bounty)));
         } else {
             gui.setItem(33, createInfoItem(Material.BARRIER, "§a§lNo Bounty", "§7No active bounty"));
         }

@@ -59,6 +59,7 @@ public class AuctionReturnGUI {
 
     public void handleClick(int slot, Player clicker) {
         if (slot == 49) {
+            clicker.closeInventory();
             new AuctionGUI(plugin, viewer, 0).open();
             return;
         }
@@ -67,6 +68,7 @@ public class AuctionReturnGUI {
             plugin.getAuctionManager().getExpiredListings(viewer.getUniqueId()).thenAccept(listings -> {
                 if (slot < listings.size()) {
                     AuctionListing listing = listings.get(slot);
+                    clicker.closeInventory();
                     plugin.getAuctionManager().returnItem(clicker, listing.getListingId()).thenAccept(success -> {
                         Bukkit.getScheduler().runTask(plugin, () -> {
                             if (success) {

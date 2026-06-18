@@ -162,13 +162,31 @@ public class TeamManager {
             }
 
             if (team.isLeader(player.getUniqueId())) {
-                player.sendMessage(plugin.getMessage("teams.leader-cannot-leave"));
-                return false;
+                // If leader leaves, disband the team
+                storage.deleteTeam(team.getTeamId());
+                player.sendMessage(plugin.getMessage("teams.disbanded"));
+
+                // Notify all members
+                for (UUID memberId : team.getMembers()) {
+                    if (!memberId.equals(player.getUniqueId())) {
+                        Player member = plugin.getServer().getPlayer(memberId);
+                        if (member != null && member.isOnline()) {
+                            member.sendMessage(plugin.getMessage("teams.disbanded"));
+                        }
+                    }
+                }
+                return true;
             }
 
             team.removeMember(player.getUniqueId());
             storage.saveTeam(team);
             player.sendMessage(plugin.getMessage("teams.left"));
+
+            // Notify team leader
+            Player leader = plugin.getServer().getPlayer(team.getLeaderId());
+            if (leader != null && leader.isOnline()) {
+                leader.sendMessage(plugin.getMessage("teams.player-left", "player", player.getName()));
+            }
             return true;
         });
     }
@@ -179,6 +197,10 @@ public class TeamManager {
 
     public CompletableFuture<List<Team>> getAllTeams() {
         return storage.getAllTeams();
+    }
+
+    public void updateTeam(Team team) {
+        storage.saveTeam(team);
     }
 
     public void close() {

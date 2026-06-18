@@ -6,13 +6,14 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SettingsGUI {
+public class SettingsGUI implements InventoryHolder {
     private final BountyCore plugin;
     private final Player viewer;
 
@@ -22,15 +23,28 @@ public class SettingsGUI {
     }
 
     public void open() {
-        Inventory inv = Bukkit.createInventory(null, 27, ChatColor.BLUE + "Settings");
+        Inventory inv = Bukkit.createInventory(this, 27, ChatColor.DARK_GRAY + "SETTINGS");
 
         plugin.getSettingsManager().getSettings(viewer.getUniqueId()).thenAccept(settings -> {
-            inv.setItem(11, createToggleItem(Material.ENDER_PEARL, "TPA Requests",
-                settings.isAllowTpa(), PlayerSettings.SettingType.ALLOW_TPA));
-            inv.setItem(13, createToggleItem(Material.PAPER, "Private Messages",
-                settings.isAllowMsg(), PlayerSettings.SettingType.ALLOW_MSG));
-            inv.setItem(15, createToggleItem(Material.ITEM_FRAME, "Scoreboard",
-                settings.isShowScoreboard(), PlayerSettings.SettingType.SHOW_SCOREBOARD));
+            // Row 1 - Communication settings
+            inv.setItem(0, createToggleItem(
+                settings.isAllowMsg() ? Material.MAP : Material.GRAY_DYE,
+                "Private Messages",
+                settings.isAllowMsg(),
+                PlayerSettings.SettingType.ALLOW_MSG));
+
+            inv.setItem(2, createToggleItem(
+                settings.isAllowTpa() ? Material.ENDER_PEARL : Material.GRAY_DYE,
+                "TPA Requests",
+                settings.isAllowTpa(),
+                PlayerSettings.SettingType.ALLOW_TPA));
+
+            // Row 2 - Gameplay settings
+            inv.setItem(9, createToggleItem(
+                settings.isShowScoreboard() ? Material.PAPER : Material.GRAY_DYE,
+                "Scoreboard",
+                settings.isShowScoreboard(),
+                PlayerSettings.SettingType.SHOW_SCOREBOARD));
 
             Bukkit.getScheduler().runTask(plugin, () -> viewer.openInventory(inv));
         });
@@ -39,15 +53,13 @@ public class SettingsGUI {
     private ItemStack createToggleItem(Material material, String name, boolean enabled, PlayerSettings.SettingType type) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(ChatColor.YELLOW + name);
+
+        String status = enabled ? ChatColor.GREEN + "ON" : ChatColor.RED + "OFF";
+        meta.setDisplayName(ChatColor.YELLOW + name + " " + ChatColor.GRAY + "[" + status + ChatColor.GRAY + "]");
 
         List<String> lore = new ArrayList<>();
         lore.add("");
-        if (enabled) {
-            lore.add(ChatColor.GREEN + "Status: Enabled");
-        } else {
-            lore.add(ChatColor.RED + "Status: Disabled");
-        }
+        lore.add(ChatColor.GRAY + "Status: " + status);
         lore.add("");
         lore.add(ChatColor.GRAY + "Click to toggle");
         meta.setLore(lore);
@@ -56,23 +68,30 @@ public class SettingsGUI {
         return item;
     }
 
-    public void handleClick(int slot) {
-        PlayerSettings.SettingType type = null;
+    @Override
+    public Inventory getInventory() {
+        return null;
+    }
 
-        if (slot == 11) {
-            type = PlayerSettings.SettingType.ALLOW_TPA;
-        } else if (slot == 13) {
-            type = PlayerSettings.SettingType.ALLOW_MSG;
-        } else if (slot == 15) {
-            type = PlayerSettings.SettingType.SHOW_SCOREBOARD;
-        }
+    public void handleClick(int slot, Player player) {
+        PlayerSettings.SettingType type = getSettingType(slot);
 
         if (type != null) {
-            PlayerSettings.SettingType finalType = type;
-            plugin.getSettingsManager().toggleSetting(viewer.getUniqueId(), finalType).thenRun(() -> {
-                viewer.sendMessage(ChatColor.GREEN + "Setting toggled!");
-                open();
+            plugin.getSettingsManager().toggleSetting(viewer.getUniqueId(), type).thenRun(() -> {
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    player.sendMessage(ChatColor.GREEN + "Setting toggled!");
+                    open(); // Refresh
+                });
             });
+        }
+    }
+
+    private PlayerSettings.SettingType getSettingType(int slot) {
+        switch (slot) {
+            case 0: return PlayerSettings.SettingType.ALLOW_MSG;
+            case 2: return PlayerSettings.SettingType.ALLOW_TPA;
+            case 9: return PlayerSettings.SettingType.SHOW_SCOREBOARD;
+            default: return null;
         }
     }
 }

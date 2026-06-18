@@ -163,8 +163,9 @@ commands:
   keyall:
     description: Give keys to all online players
     usage: /keyall <crate> <amount>
-  info:
+  serverinfo:
     description: Open server info menu
+    aliases: [sinfo]
   rules:
     description: Open server rules menu
 
@@ -209,10 +210,12 @@ permissions:
       # Warp commands
       bounty.warp: true
       # Info/Rules commands
-      bounty.info: true
+      bounty.serverinfo: true
       bounty.rules: true
       # Booster command
       bounty.booster: true
+      # Profile command
+      bounty.profile: true
   bountycore.homes.1:
     description: Allows 1 home
     default: true

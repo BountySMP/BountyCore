@@ -48,4 +48,24 @@ public class AuctionListGUI {
 
         viewer.openInventory(inv);
     }
+
+    public void confirmListing(Player player) {
+        // Get item from slot 13 and list it
+        Inventory inv = player.getOpenInventory().getTopInventory();
+        ItemStack item = inv.getItem(13);
+
+        if (item == null || item.getType().isAir()) {
+            player.sendMessage(ChatColor.RED + "No item to list!");
+            player.closeInventory();
+            return;
+        }
+
+        // For now, request price in chat
+        player.closeInventory();
+        player.sendMessage(ChatColor.GREEN + "Enter the price for this item:");
+        player.sendMessage(ChatColor.GRAY + "(Type the price in chat)");
+
+        // Store the item temporarily - you might want to use a Map<UUID, ItemStack> in AuctionManager
+        // For now, the player would need to type the price and use a command or chat listener
+    }
 }

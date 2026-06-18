@@ -21,7 +21,7 @@ public class InfoCommand implements CommandExecutor {
             return true;
         }
 
-        if (!player.hasPermission("bounty.basic")) {
+        if (!player.hasPermission("bounty.serverinfo")) {
             player.sendMessage(plugin.getMessage("no-permission"));
             return true;
         }
