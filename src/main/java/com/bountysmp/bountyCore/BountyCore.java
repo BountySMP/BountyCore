@@ -79,6 +79,7 @@ public final class BountyCore extends JavaPlugin {
     private com.bountysmp.bountyCore.clearlag.ClearLagManager clearLagManager;
     private com.bountysmp.bountyCore.keyall.KeyAllManager keyAllManager;
     private com.bountysmp.bountyCore.settings.SettingsManager settingsManager;
+    private com.bountysmp.bountyCore.leaderboard.LeaderboardManager leaderboardManager;
 
     @Override
     public void onEnable() {
@@ -111,6 +112,7 @@ public final class BountyCore extends JavaPlugin {
         setupSettings();
         setupWarps();
         setupPlayerStats();
+        setupLeaderboard();
         setupClearLag();
         setupKeyAll();
         registerCommands();
@@ -336,6 +338,11 @@ public final class BountyCore extends JavaPlugin {
     private void setupKeyAll() {
         keyAllManager = new com.bountysmp.bountyCore.keyall.KeyAllManager(this);
         getLogger().info("KeyAll system initialized!");
+    }
+
+    private void setupLeaderboard() {
+        leaderboardManager = new com.bountysmp.bountyCore.leaderboard.LeaderboardManager(this);
+        getLogger().info("Leaderboard system initialized!");
     }
 
     private void startScheduledTasks() {
@@ -567,6 +574,7 @@ public final class BountyCore extends JavaPlugin {
     private void registerListeners() {
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
         getServer().getPluginManager().registerEvents(new GUIListener(this), this);
+        getServer().getPluginManager().registerEvents(new com.bountysmp.bountyCore.listeners.MenuClickListener(this), this);
         getServer().getPluginManager().registerEvents(new TeleportWarmupListener(this), this);
         getServer().getPluginManager().registerEvents(new CombatListener(this), this);
         getServer().getPluginManager().registerEvents(new BountyListener(this), this);
@@ -718,5 +726,9 @@ public final class BountyCore extends JavaPlugin {
 
     public com.bountysmp.bountyCore.settings.SettingsManager getSettingsManager() {
         return settingsManager;
+    }
+
+    public com.bountysmp.bountyCore.leaderboard.LeaderboardManager getLeaderboardManager() {
+        return leaderboardManager;
     }
 }

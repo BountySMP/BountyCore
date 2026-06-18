@@ -201,6 +201,40 @@ public class AuctionManager {
         return item.getType().name().replace("_", " ").toLowerCase();
     }
 
+    public CompletableFuture<List<AuctionListing>> getPlayerListings(UUID playerUuid) {
+        return storage.getActiveListings().thenApply(listings ->
+            listings.stream()
+                .filter(listing -> listing.getSellerUuid().equals(playerUuid))
+                .filter(listing -> listing.getStatus() == AuctionListing.ListingStatus.ACTIVE)
+                .toList()
+        );
+    }
+
+    public CompletableFuture<Boolean> cancelListing(Player player, UUID listingId) {
+        return CompletableFuture.supplyAsync(() -> {
+            AuctionListing listing = storage.getListing(listingId).join();
+
+            if (listing == null || !listing.getSellerUuid().equals(player.getUniqueId())) {
+                return false;
+            }
+
+            if (listing.getStatus() != AuctionListing.ListingStatus.ACTIVE) {
+                return false;
+            }
+
+            // Return item to player
+            if (player.getInventory().firstEmpty() == -1) {
+                return false;
+            }
+
+            player.getInventory().addItem(listing.getItem());
+            listing.setStatus(AuctionListing.ListingStatus.EXPIRED);
+            storage.saveListing(listing);
+
+            return true;
+        });
+    }
+
     public void close() {
         storage.close();
         if (dataSource != null && !dataSource.isClosed()) {
