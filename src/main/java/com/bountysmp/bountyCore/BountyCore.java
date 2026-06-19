@@ -80,6 +80,14 @@ public final class BountyCore extends JavaPlugin {
     private com.bountysmp.bountyCore.keyall.KeyAllManager keyAllManager;
     private com.bountysmp.bountyCore.settings.SettingsManager settingsManager;
     private com.bountysmp.bountyCore.leaderboard.LeaderboardManager leaderboardManager;
+    private com.bountysmp.bountyCore.afk.AFKManager afkManager;
+    private com.bountysmp.bountyCore.alts.AltsManager altsManager;
+    private com.bountysmp.bountyCore.freeze.FreezeManager freezeManager;
+    private com.bountysmp.bountyCore.ignore.IgnoreManager ignoreManager;
+    private com.bountysmp.bountyCore.invsee.InvseeManager invseeManager;
+    private com.bountysmp.bountyCore.staffchat.StaffChatManager staffChatManager;
+    private com.bountysmp.bountyCore.staffmode.StaffModeManager staffModeManager;
+    private com.bountysmp.bountyCore.worth.WorthManager worthManager;
 
     @Override
     public void onEnable() {
@@ -115,6 +123,14 @@ public final class BountyCore extends JavaPlugin {
         setupLeaderboard();
         setupClearLag();
         setupKeyAll();
+        setupAFK();
+        setupAlts();
+        setupFreeze();
+        setupIgnore();
+        setupInvsee();
+        setupStaffChat();
+        setupStaffMode();
+        setupWorth();
         registerCommands();
         registerListeners();
         startScheduledTasks();
@@ -179,6 +195,22 @@ public final class BountyCore extends JavaPlugin {
 
         if (clearLagManager != null) {
             clearLagManager.shutdown();
+        }
+
+        if (afkManager != null) {
+            afkManager.shutdown();
+        }
+
+        if (freezeManager != null) {
+            freezeManager.shutdown();
+        }
+
+        if (ignoreManager != null) {
+            ignoreManager.close();
+        }
+
+        if (staffModeManager != null) {
+            staffModeManager.shutdown();
         }
 
         getLogger().info("BountyCore has been disabled!");
@@ -345,6 +377,46 @@ public final class BountyCore extends JavaPlugin {
         getLogger().info("Leaderboard system initialized!");
     }
 
+    private void setupAFK() {
+        afkManager = new com.bountysmp.bountyCore.afk.AFKManager(this);
+        getLogger().info("AFK system initialized!");
+    }
+
+    private void setupAlts() {
+        altsManager = new com.bountysmp.bountyCore.alts.AltsManager(this);
+        getLogger().info("Alts tracking initialized!");
+    }
+
+    private void setupFreeze() {
+        freezeManager = new com.bountysmp.bountyCore.freeze.FreezeManager(this);
+        getLogger().info("Freeze system initialized!");
+    }
+
+    private void setupIgnore() {
+        ignoreManager = new com.bountysmp.bountyCore.ignore.IgnoreManager(this);
+        getLogger().info("Ignore system initialized!");
+    }
+
+    private void setupInvsee() {
+        invseeManager = new com.bountysmp.bountyCore.invsee.InvseeManager(this);
+        getLogger().info("Invsee system initialized!");
+    }
+
+    private void setupStaffChat() {
+        staffChatManager = new com.bountysmp.bountyCore.staffchat.StaffChatManager();
+        getLogger().info("Staff chat initialized!");
+    }
+
+    private void setupStaffMode() {
+        staffModeManager = new com.bountysmp.bountyCore.staffmode.StaffModeManager(this);
+        getLogger().info("Staff mode initialized!");
+    }
+
+    private void setupWorth() {
+        worthManager = new com.bountysmp.bountyCore.worth.WorthManager(this);
+        getLogger().info("Worth system initialized!");
+    }
+
     private void startScheduledTasks() {
         // Sell booster expiry check every minute
         getServer().getScheduler().runTaskTimer(this, () -> {
@@ -357,6 +429,16 @@ public final class BountyCore extends JavaPlugin {
         getServer().getScheduler().runTaskTimer(this, () -> {
             if (auctionManager != null) {
                 auctionManager.expireListings();
+            }
+        }, 20 * 60 * 5, 20 * 60 * 5);
+
+        // AFK check every 10 seconds
+        new com.bountysmp.bountyCore.afk.AFKCheckTask(this).runTaskTimer(this, 200L, 200L);
+
+        // Leaderboard refresh every 5 minutes
+        getServer().getScheduler().runTaskTimerAsynchronously(this, () -> {
+            if (leaderboardManager != null) {
+                leaderboardManager.refreshAll();
             }
         }, 20 * 60 * 5, 20 * 60 * 5);
 
@@ -569,6 +651,71 @@ public final class BountyCore extends JavaPlugin {
 
         getCommand("serverinfo").setExecutor(new com.bountysmp.bountyCore.commands.InfoCommand(this));
         getCommand("rules").setExecutor(new com.bountysmp.bountyCore.commands.RulesCommand(this));
+
+        // New feature commands
+        getCommand("afk").setExecutor(new com.bountysmp.bountyCore.commands.AfkCommand(this));
+
+        AltsCommand altsCmd = new AltsCommand(this);
+        getCommand("alts").setExecutor(altsCmd);
+        getCommand("alts").setTabCompleter(altsCmd);
+
+        FreezeCommand freezeCmd = new FreezeCommand(this);
+        getCommand("freeze").setExecutor(freezeCmd);
+        getCommand("freeze").setTabCompleter(freezeCmd);
+        getCommand("freezelist").setExecutor(new FreezeListCommand(this));
+
+        HealCommand healCmd = new HealCommand(this);
+        getCommand("heal").setExecutor(healCmd);
+        getCommand("heal").setTabCompleter(healCmd);
+
+        FeedCommand feedCmd = new FeedCommand(this);
+        getCommand("feed").setExecutor(feedCmd);
+        getCommand("feed").setTabCompleter(feedCmd);
+
+        FindPlayerCommand findCmd = new FindPlayerCommand(this);
+        getCommand("findplayer").setExecutor(findCmd);
+        getCommand("findplayer").setTabCompleter(findCmd);
+
+        IgnoreCommand ignoreCmd = new com.bountysmp.bountyCore.commands.IgnoreCommand(this);
+        getCommand("ignore").setExecutor(ignoreCmd);
+        getCommand("ignore").setTabCompleter(ignoreCmd);
+
+        InvseeCommand invseeCmd = new InvseeCommand(this);
+        getCommand("invsee").setExecutor(invseeCmd);
+        getCommand("invsee").setTabCompleter(invseeCmd);
+
+        getCommand("leaderboard").setExecutor(new com.bountysmp.bountyCore.commands.LeaderboardCommand(this));
+
+        NightVisionCommand nvCmd = new NightVisionCommand(this);
+        getCommand("nv").setExecutor(nvCmd);
+        getCommand("nv").setTabCompleter(nvCmd);
+        getCommand("nightvision").setExecutor(nvCmd);
+        getCommand("nightvision").setTabCompleter(nvCmd);
+
+        PingCommand pingCmd = new com.bountysmp.bountyCore.commands.PingCommand(this);
+        getCommand("ping").setExecutor(pingCmd);
+        getCommand("ping").setTabCompleter(pingCmd);
+
+        PlaytimeCommand playtimeCmd = new com.bountysmp.bountyCore.commands.PlaytimeCommand(this);
+        getCommand("playtime").setExecutor(playtimeCmd);
+        getCommand("playtime").setTabCompleter(playtimeCmd);
+
+        getCommand("rename").setExecutor(new RenameCommand(this));
+
+        getCommand("report").setExecutor(new com.bountysmp.bountyCore.commands.ReportCommand(this));
+        getCommand("helpop").setExecutor(new com.bountysmp.bountyCore.commands.HelpopCommand(this));
+
+        getCommand("sc").setExecutor(new StaffChatCommand(this));
+        getCommand("staffchat").setExecutor(new StaffChatCommand(this));
+
+        getCommand("stafflist").setExecutor(new StaffListCommand(this));
+        getCommand("staffmode").setExecutor(new StaffModeCommand(this));
+
+        getCommand("stats").setExecutor(new com.bountysmp.bountyCore.commands.StatsCommand(this));
+
+        com.bountysmp.bountyCore.commands.WorthCommand worthCmd = new com.bountysmp.bountyCore.commands.WorthCommand(this);
+        getCommand("worth").setExecutor(worthCmd);
+        getCommand("worth").setTabCompleter(worthCmd);
     }
 
     private void registerListeners() {
@@ -587,6 +734,16 @@ public final class BountyCore extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new TabListener(this), this);
         getServer().getPluginManager().registerEvents(new com.bountysmp.bountyCore.listeners.FastCrystalListener(this), this);
         getServer().getPluginManager().registerEvents(new com.bountysmp.bountyCore.listeners.ChatListener(this), this);
+
+        // New feature listeners
+        getServer().getPluginManager().registerEvents(new com.bountysmp.bountyCore.listeners.AFKListener(this), this);
+        getServer().getPluginManager().registerEvents(new com.bountysmp.bountyCore.listeners.AltsListener(this), this);
+        getServer().getPluginManager().registerEvents(new com.bountysmp.bountyCore.listeners.FreezeListener(this), this);
+        getServer().getPluginManager().registerEvents(new com.bountysmp.bountyCore.listeners.IgnoreListener(this), this);
+        getServer().getPluginManager().registerEvents(new com.bountysmp.bountyCore.listeners.InvseeListener(this), this);
+        getServer().getPluginManager().registerEvents(new com.bountysmp.bountyCore.listeners.StaffChatListener(this), this);
+        getServer().getPluginManager().registerEvents(new com.bountysmp.bountyCore.staffmode.StaffModeListener(this), this);
+        getServer().getPluginManager().registerEvents(new com.bountysmp.bountyCore.listeners.WorthDisplayListener(this), this);
     }
 
     public static BountyCore getInstance() {
@@ -730,5 +887,37 @@ public final class BountyCore extends JavaPlugin {
 
     public com.bountysmp.bountyCore.leaderboard.LeaderboardManager getLeaderboardManager() {
         return leaderboardManager;
+    }
+
+    public com.bountysmp.bountyCore.afk.AFKManager getAfkManager() {
+        return afkManager;
+    }
+
+    public com.bountysmp.bountyCore.alts.AltsManager getAltsManager() {
+        return altsManager;
+    }
+
+    public com.bountysmp.bountyCore.freeze.FreezeManager getFreezeManager() {
+        return freezeManager;
+    }
+
+    public com.bountysmp.bountyCore.ignore.IgnoreManager getIgnoreManager() {
+        return ignoreManager;
+    }
+
+    public com.bountysmp.bountyCore.invsee.InvseeManager getInvseeManager() {
+        return invseeManager;
+    }
+
+    public com.bountysmp.bountyCore.staffchat.StaffChatManager getStaffChatManager() {
+        return staffChatManager;
+    }
+
+    public com.bountysmp.bountyCore.staffmode.StaffModeManager getStaffModeManager() {
+        return staffModeManager;
+    }
+
+    public com.bountysmp.bountyCore.worth.WorthManager getWorthManager() {
+        return worthManager;
     }
 }

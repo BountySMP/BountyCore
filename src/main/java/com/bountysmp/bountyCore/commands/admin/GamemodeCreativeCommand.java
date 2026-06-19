@@ -40,10 +40,11 @@ public class GamemodeCreativeCommand implements CommandExecutor, TabCompleter {
 
         target.setGameMode(GameMode.CREATIVE);
 
-        if (target.equals(sender)) {
-            sender.sendMessage(plugin.getMessage("gamemode.gmc-self"));
-        } else {
-            sender.sendMessage(plugin.getMessage("gamemode.gmc-other", "player", target.getName()));
+        String prefix = getPlayerPrefix(target);
+        String displayName = prefix + " " + target.getName();
+
+        sender.sendMessage("§aYou set §f" + displayName + "§a's game mode to §fCreative§a.");
+        if (!target.equals(sender)) {
             target.sendMessage(plugin.getMessage("gamemode.gmc-notify"));
         }
 

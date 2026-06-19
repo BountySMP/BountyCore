@@ -40,10 +40,11 @@ public class GamemodeSpectatorCommand implements CommandExecutor, TabCompleter {
 
         target.setGameMode(GameMode.SPECTATOR);
 
-        if (target.equals(sender)) {
-            sender.sendMessage(plugin.getMessage("gamemode.gmsp-self"));
-        } else {
-            sender.sendMessage(plugin.getMessage("gamemode.gmsp-other", "player", target.getName()));
+        String prefix = getPlayerPrefix(target);
+        String displayName = prefix + " " + target.getName();
+
+        sender.sendMessage("§aYou set §f" + displayName + "§a's game mode to §fSpectator§a.");
+        if (!target.equals(sender)) {
             target.sendMessage(plugin.getMessage("gamemode.gmsp-notify"));
         }
 
