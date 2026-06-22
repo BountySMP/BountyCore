@@ -24,5 +24,7 @@ public interface AuctionStorage {
 
     CompletableFuture<List<AuctionListing>> searchListings(String query);
 
+    void wipeAll();
+
     void close();
 }

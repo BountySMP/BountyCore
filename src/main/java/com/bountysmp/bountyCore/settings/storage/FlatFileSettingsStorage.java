@@ -50,7 +50,7 @@ public class FlatFileSettingsStorage implements SettingsStorage {
                     try {
                         UUID uuid = UUID.fromString(uuidStr);
                         PlayerSettings settings = new PlayerSettings(uuid, settingsData.allowTpa,
-                                                                    settingsData.allowMsg, settingsData.showScoreboard);
+                                                                    settingsData.allowMsg);
                         cache.put(uuid, settings);
                     } catch (IllegalArgumentException e) {
                         logger.warning("Invalid UUID in settings data: " + uuidStr);
@@ -81,8 +81,7 @@ public class FlatFileSettingsStorage implements SettingsStorage {
             cache.forEach((uuid, settings) -> {
                 data.put(uuid.toString(), new SettingsData(
                     settings.isAllowTpa(),
-                    settings.isAllowMsg(),
-                    settings.isShowScoreboard()
+                    settings.isAllowMsg()
                 ));
             });
 
@@ -102,12 +101,10 @@ public class FlatFileSettingsStorage implements SettingsStorage {
     private static class SettingsData {
         boolean allowTpa;
         boolean allowMsg;
-        boolean showScoreboard;
 
-        SettingsData(boolean allowTpa, boolean allowMsg, boolean showScoreboard) {
+        SettingsData(boolean allowTpa, boolean allowMsg) {
             this.allowTpa = allowTpa;
             this.allowMsg = allowMsg;
-            this.showScoreboard = showScoreboard;
         }
     }
 }

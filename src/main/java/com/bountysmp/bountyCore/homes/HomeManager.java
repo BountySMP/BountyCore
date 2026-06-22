@@ -138,6 +138,14 @@ public class HomeManager {
         return defaultLimit;
     }
 
+    public void wipeAll() {
+        homeCache.clear();
+        File[] files = homesFolder.listFiles((dir, name) -> name.endsWith(".json"));
+        if (files != null) {
+            for (File file : files) file.delete();
+        }
+    }
+
     public void close() {
         saveAll().join();
     }

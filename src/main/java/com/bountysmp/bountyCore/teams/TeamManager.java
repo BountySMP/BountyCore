@@ -203,6 +203,10 @@ public class TeamManager {
         storage.saveTeam(team);
     }
 
+    public void wipeAll() {
+        storage.wipeAll();
+    }
+
     public void close() {
         storage.close();
     }

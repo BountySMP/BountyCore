@@ -25,96 +25,95 @@ public class StatsWipeGUI {
     }
 
     public void open() {
-        if (viewer != null) {
-            open(viewer);
-        }
+        if (viewer != null) open(viewer);
     }
 
+    /**
+     * 27-slot layout:
+     * Row 0: [BG][Eco:1][Stats:2][Homes:3][EC:4][Bounty:5][AH:6][Teams:7][BG]
+     * Row 1: [BG][Orders:10][HH:11][BG][BG][BG][WipeAll:15][BG][BG]
+     * Row 2: [BG][BG][BG][BG][Close:22][BG][BG][BG][BG]
+     */
     public void open(Player player) {
         Inventory gui = Bukkit.createInventory(null, 27, "§8§lStats Wipe");
 
-        gui.setItem(10, createWipeItem(Material.GOLD_INGOT, "§e§lWipe Economy",
-            "§7Click to wipe all player balances",
-            "§c§lWARNING: This cannot be undone!"));
+        ItemStack bg = borderItem();
+        for (int i = 0; i < 27; i++) gui.setItem(i, bg);
 
-        gui.setItem(12, createWipeItem(Material.DIAMOND_SWORD, "§e§lWipe Stats",
-            "§7Click to wipe all player stats",
-            "§7(Kills, Deaths, Playtime)",
-            "§c§lWARNING: This cannot be undone!"));
+        // Row 0 — 7 data categories
+        gui.setItem(1,  btn(Material.GOLD_INGOT,        "§e§lEconomy",       "§7Wipe all player balances."));
+        gui.setItem(2,  btn(Material.DIAMOND_SWORD,     "§b§lStats",          "§7Wipe all kills, deaths & playtime."));
+        gui.setItem(3,  btn(Material.RED_BED,           "§c§lHomes",          "§7Delete all player homes."));
+        gui.setItem(4,  btn(Material.ENDER_CHEST,       "§5§lEnder Chests",   "§7Clear all ender chest contents."));
+        gui.setItem(5,  btn(Material.ARROW,             "§6§lBounties",       "§7Remove all active bounties."));
+        gui.setItem(6,  btn(Material.GOLD_BLOCK,        "§6§lAuction House",  "§7Delete all AH listings."));
+        gui.setItem(7,  btn(Material.SHIELD,            "§a§lTeams",          "§7Disband all teams."));
 
-        gui.setItem(14, createWipeItem(Material.RED_BED, "§e§lWipe Homes",
-            "§7Click to wipe all player homes",
-            "§c§lWARNING: This cannot be undone!"));
+        // Row 1 — 2 more + wipe all
+        gui.setItem(10, btn(Material.WRITABLE_BOOK,     "§d§lOrders",         "§7Cancel all buy orders."));
+        gui.setItem(11, btn(Material.EXPERIENCE_BOTTLE, "§2§lHH Levels/XP",   "§7Reset all HeadHunter levels & XP."));
+        gui.setItem(15, btn(Material.BARRIER,           "§c§l⚠ Wipe ALL",     "§7Wipes every category above.", "§4§lTHIS CANNOT BE UNDONE!"));
 
-        gui.setItem(16, createWipeItem(Material.BARRIER, "§c§lWipe Everything",
-            "§7Click to wipe all player data",
-            "§7(Economy, Stats, Homes)",
-            "§c§lWARNING: This cannot be undone!"));
-
-        ItemStack glassPane = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
-        ItemMeta glassMeta = glassPane.getItemMeta();
-        glassMeta.setDisplayName(" ");
-        glassPane.setItemMeta(glassMeta);
-
-        for (int i = 0; i < 27; i++) {
-            if (gui.getItem(i) == null) {
-                gui.setItem(i, glassPane);
-            }
-        }
-
-        ItemStack closeButton = new ItemStack(Material.BARRIER);
-        ItemMeta closeMeta = closeButton.getItemMeta();
+        // Close button
+        ItemStack close = new ItemStack(Material.RED_STAINED_GLASS_PANE);
+        ItemMeta closeMeta = close.getItemMeta();
         closeMeta.setDisplayName("§c§lClose");
-        closeButton.setItemMeta(closeMeta);
-        gui.setItem(22, closeButton);
+        close.setItemMeta(closeMeta);
+        gui.setItem(22, close);
 
         player.openInventory(gui);
     }
 
     public void openConfirm(String wipeType) {
-        if (viewer != null) {
-            openConfirm(viewer, wipeType);
-        }
+        if (viewer != null) openConfirm(viewer, wipeType);
     }
 
+    /**
+     * 27-slot confirm layout:
+     * Row 0: all BG
+     * Row 1: [BG][BG][CONFIRM:11][BG][Info:13][BG][CANCEL:15][BG][BG]
+     * Row 2: all BG
+     */
     public void openConfirm(Player player, String wipeType) {
         Inventory gui = Bukkit.createInventory(null, 27, "§8§lConfirm Wipe - " + wipeType);
+
+        ItemStack bg = borderItem();
+        for (int i = 0; i < 27; i++) gui.setItem(i, bg);
 
         ItemStack confirm = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
         ItemMeta confirmMeta = confirm.getItemMeta();
         confirmMeta.setDisplayName("§a§lCONFIRM");
-        confirmMeta.setLore(List.of("§7Click to confirm the wipe"));
+        confirmMeta.setLore(List.of("§7Click to wipe §e" + wipeType + "§7.", "§c§lThis cannot be undone!"));
         confirm.setItemMeta(confirmMeta);
 
         ItemStack cancel = new ItemStack(Material.RED_STAINED_GLASS_PANE);
         ItemMeta cancelMeta = cancel.getItemMeta();
         cancelMeta.setDisplayName("§c§lCANCEL");
-        cancelMeta.setLore(List.of("§7Click to cancel"));
+        cancelMeta.setLore(List.of("§7Click to go back."));
         cancel.setItemMeta(cancelMeta);
 
-        for (int i = 0; i < 13; i++) {
-            gui.setItem(i, confirm);
-        }
+        ItemStack info = new ItemStack(Material.PAPER);
+        ItemMeta infoMeta = info.getItemMeta();
+        infoMeta.setDisplayName("§e§lWiping: §f" + wipeType);
+        infoMeta.setLore(List.of("§7Are you sure?"));
+        info.setItemMeta(infoMeta);
 
-        gui.setItem(13, createInfoItem(Material.PAPER, "§e§lWipe Type", "§7" + wipeType));
-
-        for (int i = 14; i < 27; i++) {
-            gui.setItem(i, cancel);
-        }
+        gui.setItem(11, confirm);
+        gui.setItem(13, info);
+        gui.setItem(15, cancel);
 
         player.openInventory(gui);
     }
 
-    private ItemStack createWipeItem(Material material, String name, String... lore) {
-        ItemStack item = new ItemStack(material);
-        ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(name);
-        meta.setLore(List.of(lore));
-        item.setItemMeta(meta);
-        return item;
+    private ItemStack borderItem() {
+        ItemStack pane = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
+        ItemMeta meta = pane.getItemMeta();
+        meta.setDisplayName(" ");
+        pane.setItemMeta(meta);
+        return pane;
     }
 
-    private ItemStack createInfoItem(Material material, String name, String... lore) {
+    private ItemStack btn(Material material, String name, String... lore) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(name);

@@ -119,6 +119,12 @@ commands:
   gmsp:
     description: Set gamemode to spectator
     usage: /gmsp [player]
+  eat:
+    description: Feed yourself
+    usage: /eat
+  feed:
+    description: Feed a player
+    usage: /feed [player]
   randomtp:
     description: Opens random teleport GUI
     aliases: [rtp]

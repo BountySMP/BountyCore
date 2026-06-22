@@ -39,13 +39,6 @@ public class SettingsGUI implements InventoryHolder {
                 settings.isAllowTpa(),
                 PlayerSettings.SettingType.ALLOW_TPA));
 
-            // Row 2 - Gameplay settings
-            inv.setItem(9, createToggleItem(
-                settings.isShowScoreboard() ? Material.PAPER : Material.GRAY_DYE,
-                "Scoreboard",
-                settings.isShowScoreboard(),
-                PlayerSettings.SettingType.SHOW_SCOREBOARD));
-
             Bukkit.getScheduler().runTask(plugin, () -> viewer.openInventory(inv));
         });
     }
@@ -90,7 +83,6 @@ public class SettingsGUI implements InventoryHolder {
         switch (slot) {
             case 0: return PlayerSettings.SettingType.ALLOW_MSG;
             case 2: return PlayerSettings.SettingType.ALLOW_TPA;
-            case 9: return PlayerSettings.SettingType.SHOW_SCOREBOARD;
             default: return null;
         }
     }

@@ -177,6 +177,16 @@ public class MySQLTeamStorage implements TeamStorage {
     }
 
     @Override
+    public void wipeAll() {
+        try (java.sql.Connection conn = dataSource.getConnection();
+             java.sql.PreparedStatement stmt = conn.prepareStatement("DELETE FROM teams")) {
+            stmt.executeUpdate();
+        } catch (Exception e) {
+            logger.log(java.util.logging.Level.SEVERE, "Failed to wipe teams", e);
+        }
+    }
+
+    @Override
     public void close() {
         // DataSource is shared, don't close it here
     }

@@ -93,6 +93,12 @@ public class FlatFileStorage implements EconomyStorage {
     }
 
     @Override
+    public void wipeAll() {
+        cache.clear();
+        dataFile.delete();
+    }
+
+    @Override
     public void close() {
         saveAll().join();
     }

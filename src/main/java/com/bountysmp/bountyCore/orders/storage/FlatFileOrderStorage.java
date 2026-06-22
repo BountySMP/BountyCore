@@ -1,6 +1,8 @@
 package com.bountysmp.bountyCore.orders.storage;
 
 import com.bountysmp.bountyCore.orders.BuyOrder;
+import com.bountysmp.bountyCore.orders.OrderClaim;
+import com.bountysmp.bountyCore.orders.OrderStatus;
 import com.google.gson.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.io.BukkitObjectInputStream;
@@ -16,152 +18,234 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class FlatFileOrderStorage implements OrderStorage {
-    private final File dataFile;
+    private final File ordersFile;
+    private final File claimsFile;
     private final Gson gson;
-    private final Map<UUID, BuyOrder> cache;
+    private final Map<UUID, BuyOrder> orderCache;
+    private final Map<UUID, OrderClaim> claimCache;
     private final Logger logger;
 
     public FlatFileOrderStorage(File dataFolder, Logger logger) {
-        this.dataFile = new File(dataFolder, "orders.json");
+        this.ordersFile = new File(dataFolder, "orders.json");
+        this.claimsFile = new File(dataFolder, "order_claims.json");
         this.gson = new GsonBuilder()
                 .setPrettyPrinting()
-                .registerTypeAdapter(BuyOrder.class, new BuyOrderSerializer())
-                .registerTypeAdapter(BuyOrder.class, new BuyOrderDeserializer())
+                .registerTypeHierarchyAdapter(BuyOrder.class, new BuyOrderAdapter())
+                .registerTypeHierarchyAdapter(OrderClaim.class, new OrderClaimAdapter())
                 .create();
-        this.cache = new ConcurrentHashMap<>();
+        this.orderCache = new ConcurrentHashMap<>();
+        this.claimCache = new ConcurrentHashMap<>();
         this.logger = logger;
 
-        if (!dataFolder.exists()) {
-            dataFolder.mkdirs();
-        }
-
-        loadAll();
+        if (!dataFolder.exists()) dataFolder.mkdirs();
+        loadOrders();
+        loadClaims();
     }
 
-    private void loadAll() {
-        if (!dataFile.exists()) {
-            return;
-        }
+    // ----------------------------- Orders -----------------------------
 
-        try (FileReader reader = new FileReader(dataFile)) {
+    private void loadOrders() {
+        if (!ordersFile.exists()) return;
+        try (FileReader reader = new FileReader(ordersFile)) {
             Type type = com.google.gson.reflect.TypeToken.getParameterized(List.class, BuyOrder.class).getType();
             List<BuyOrder> orders = gson.fromJson(reader, type);
-
-            if (orders != null) {
-                orders.forEach(order -> cache.put(order.getOrderId(), order));
-            }
+            if (orders != null) orders.forEach(o -> orderCache.put(o.getOrderId(), o));
         } catch (IOException e) {
-            logger.log(Level.SEVERE, "Failed to load order data", e);
+            logger.log(Level.SEVERE, "Failed to load orders.json", e);
         }
+    }
+
+    private CompletableFuture<Void> saveOrders() {
+        return CompletableFuture.runAsync(() -> {
+            try (FileWriter writer = new FileWriter(ordersFile)) {
+                gson.toJson(new ArrayList<>(orderCache.values()), writer);
+            } catch (IOException e) {
+                logger.log(Level.SEVERE, "Failed to save orders.json", e);
+            }
+        });
     }
 
     @Override
     public CompletableFuture<Void> saveOrder(BuyOrder order) {
-        cache.put(order.getOrderId(), order);
-        return saveAll();
+        orderCache.put(order.getOrderId(), order);
+        return saveOrders();
     }
 
     @Override
     public CompletableFuture<BuyOrder> getOrder(UUID orderId) {
-        return CompletableFuture.completedFuture(cache.get(orderId));
+        return CompletableFuture.completedFuture(orderCache.get(orderId));
     }
 
     @Override
     public CompletableFuture<List<BuyOrder>> getActiveOrders() {
         return CompletableFuture.supplyAsync(() ->
-            cache.values().stream()
-                .filter(order -> !order.isComplete())
-                .sorted(Comparator.comparingLong(BuyOrder::getCreatedTime).reversed())
-                .collect(Collectors.toList())
+                orderCache.values().stream()
+                        .filter(BuyOrder::isActive)
+                        .sorted(Comparator.comparingLong(BuyOrder::getCreatedTime).reversed())
+                        .collect(Collectors.toList())
         );
     }
 
     @Override
     public CompletableFuture<List<BuyOrder>> getPlayerOrders(UUID playerUuid) {
         return CompletableFuture.supplyAsync(() ->
-            cache.values().stream()
-                .filter(order -> order.getBuyerUuid().equals(playerUuid))
-                .sorted(Comparator.comparingLong(BuyOrder::getCreatedTime).reversed())
-                .collect(Collectors.toList())
+                orderCache.values().stream()
+                        .filter(o -> o.getBuyerUuid().equals(playerUuid) && o.isActive())
+                        .sorted(Comparator.comparingLong(BuyOrder::getCreatedTime).reversed())
+                        .collect(Collectors.toList())
         );
     }
 
     @Override
     public CompletableFuture<Void> deleteOrder(UUID orderId) {
-        cache.remove(orderId);
-        return saveAll();
+        orderCache.remove(orderId);
+        return saveOrders();
     }
 
-    private CompletableFuture<Void> saveAll() {
+    // ----------------------------- Claims -----------------------------
+
+    private void loadClaims() {
+        if (!claimsFile.exists()) return;
+        try (FileReader reader = new FileReader(claimsFile)) {
+            Type type = com.google.gson.reflect.TypeToken.getParameterized(List.class, OrderClaim.class).getType();
+            List<OrderClaim> claims = gson.fromJson(reader, type);
+            if (claims != null) claims.forEach(c -> claimCache.put(c.getClaimId(), c));
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Failed to load order_claims.json", e);
+        }
+    }
+
+    private CompletableFuture<Void> saveClaims() {
         return CompletableFuture.runAsync(() -> {
-            try (FileWriter writer = new FileWriter(dataFile)) {
-                List<BuyOrder> orders = new ArrayList<>(cache.values());
-                gson.toJson(orders, writer);
+            try (FileWriter writer = new FileWriter(claimsFile)) {
+                gson.toJson(new ArrayList<>(claimCache.values()), writer);
             } catch (IOException e) {
-                logger.log(Level.SEVERE, "Failed to save order data", e);
+                logger.log(Level.SEVERE, "Failed to save order_claims.json", e);
             }
         });
     }
 
     @Override
+    public CompletableFuture<Void> saveClaim(OrderClaim claim) {
+        claimCache.put(claim.getClaimId(), claim);
+        return saveClaims();
+    }
+
+    @Override
+    public CompletableFuture<List<OrderClaim>> getPendingClaims(UUID buyerUuid) {
+        return CompletableFuture.supplyAsync(() ->
+                claimCache.values().stream()
+                        .filter(c -> c.getBuyerUuid().equals(buyerUuid))
+                        .sorted(Comparator.comparingLong(OrderClaim::getCreatedAt))
+                        .collect(Collectors.toList())
+        );
+    }
+
+    @Override
+    public CompletableFuture<Void> deleteClaim(UUID claimId) {
+        claimCache.remove(claimId);
+        return saveClaims();
+    }
+
+    @Override
+    public void wipeAll() {
+        orderCache.clear();
+        claimCache.clear();
+        ordersFile.delete();
+        claimsFile.delete();
+    }
+
+    @Override
     public void close() {
-        saveAll().join();
+        saveOrders().join();
+        saveClaims().join();
     }
 
-    private static class BuyOrderSerializer implements JsonSerializer<BuyOrder> {
+    // ----------------------------- Serializers -----------------------------
+
+    private static class BuyOrderAdapter implements JsonSerializer<BuyOrder>, JsonDeserializer<BuyOrder> {
         @Override
-        public JsonElement serialize(BuyOrder order, Type typeOfSrc, JsonSerializationContext context) {
-            JsonObject json = new JsonObject();
-            json.addProperty("orderId", order.getOrderId().toString());
-            json.addProperty("buyerUuid", order.getBuyerUuid().toString());
-            json.addProperty("buyerName", order.getBuyerName());
-            json.addProperty("itemTemplate", serializeItem(order.getItemTemplate()));
-            json.addProperty("maxPrice", order.getMaxPrice());
-            json.addProperty("quantity", order.getQuantity());
-            json.addProperty("filledQuantity", order.getFilledQuantity());
-            json.addProperty("createdTime", order.getCreatedTime());
-            return json;
+        public JsonElement serialize(BuyOrder o, Type t, JsonSerializationContext ctx) {
+            JsonObject j = new JsonObject();
+            j.addProperty("orderId", o.getOrderId().toString());
+            j.addProperty("buyerUuid", o.getBuyerUuid().toString());
+            j.addProperty("buyerName", o.getBuyerName());
+            j.addProperty("itemTemplate", serializeItem(o.getItemTemplate()));
+            j.addProperty("maxPrice", o.getMaxPrice());
+            j.addProperty("quantity", o.getQuantity());
+            j.addProperty("filledQuantity", o.getFilledQuantity());
+            j.addProperty("createdTime", o.getCreatedTime());
+            j.addProperty("status", o.getStatus().name());
+            return j;
         }
 
-        private String serializeItem(ItemStack item) {
-            try {
-                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
-                dataOutput.writeObject(item);
-                dataOutput.close();
-                return Base64.getEncoder().encodeToString(outputStream.toByteArray());
-            } catch (Exception e) {
-                return "";
+        @Override
+        public BuyOrder deserialize(JsonElement json, Type t, JsonDeserializationContext ctx) throws JsonParseException {
+            JsonObject o = json.getAsJsonObject();
+            OrderStatus status = OrderStatus.ACTIVE;
+            if (o.has("status")) {
+                try { status = OrderStatus.valueOf(o.get("status").getAsString()); } catch (Exception ignored) {}
             }
-        }
-    }
-
-    private static class BuyOrderDeserializer implements JsonDeserializer<BuyOrder> {
-        @Override
-        public BuyOrder deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-            JsonObject obj = json.getAsJsonObject();
-            UUID orderId = UUID.fromString(obj.get("orderId").getAsString());
-            UUID buyerUuid = UUID.fromString(obj.get("buyerUuid").getAsString());
-            String buyerName = obj.get("buyerName").getAsString();
-            ItemStack itemTemplate = deserializeItem(obj.get("itemTemplate").getAsString());
-            double maxPrice = obj.get("maxPrice").getAsDouble();
-            int quantity = obj.get("quantity").getAsInt();
-            int filledQuantity = obj.get("filledQuantity").getAsInt();
-            long createdTime = obj.get("createdTime").getAsLong();
-
-            return new BuyOrder(orderId, buyerUuid, buyerName, itemTemplate, maxPrice, quantity, createdTime, filledQuantity);
+            return new BuyOrder(
+                    UUID.fromString(o.get("orderId").getAsString()),
+                    UUID.fromString(o.get("buyerUuid").getAsString()),
+                    o.get("buyerName").getAsString(),
+                    deserializeItem(o.get("itemTemplate").getAsString()),
+                    o.get("maxPrice").getAsDouble(),
+                    o.get("quantity").getAsInt(),
+                    o.get("createdTime").getAsLong(),
+                    o.get("filledQuantity").getAsInt(),
+                    status
+            );
         }
 
-        private ItemStack deserializeItem(String data) {
+        static String serializeItem(ItemStack item) {
             try {
-                ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64.getDecoder().decode(data));
-                BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
-                ItemStack item = (ItemStack) dataInput.readObject();
-                dataInput.close();
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                BukkitObjectOutputStream dos = new BukkitObjectOutputStream(out);
+                dos.writeObject(item);
+                dos.close();
+                return Base64.getEncoder().encodeToString(out.toByteArray());
+            } catch (Exception e) { return ""; }
+        }
+
+        static ItemStack deserializeItem(String data) {
+            try {
+                ByteArrayInputStream in = new ByteArrayInputStream(Base64.getDecoder().decode(data));
+                BukkitObjectInputStream dis = new BukkitObjectInputStream(in);
+                ItemStack item = (ItemStack) dis.readObject();
+                dis.close();
                 return item;
-            } catch (Exception e) {
-                return null;
-            }
+            } catch (Exception e) { return null; }
+        }
+    }
+
+    private static class OrderClaimAdapter implements JsonSerializer<OrderClaim>, JsonDeserializer<OrderClaim> {
+        @Override
+        public JsonElement serialize(OrderClaim c, Type t, JsonSerializationContext ctx) {
+            JsonObject j = new JsonObject();
+            j.addProperty("claimId", c.getClaimId().toString());
+            j.addProperty("buyerUuid", c.getBuyerUuid().toString());
+            j.addProperty("orderId", c.getOrderId().toString());
+            j.addProperty("item", c.isItemClaim() ? BuyOrderAdapter.serializeItem(c.getItem()) : "");
+            j.addProperty("refundAmount", c.getRefundAmount());
+            j.addProperty("createdAt", c.getCreatedAt());
+            return j;
+        }
+
+        @Override
+        public OrderClaim deserialize(JsonElement json, Type t, JsonDeserializationContext ctx) throws JsonParseException {
+            JsonObject o = json.getAsJsonObject();
+            String itemData = o.get("item").getAsString();
+            ItemStack item = itemData.isEmpty() ? null : BuyOrderAdapter.deserializeItem(itemData);
+            return new OrderClaim(
+                    UUID.fromString(o.get("claimId").getAsString()),
+                    UUID.fromString(o.get("buyerUuid").getAsString()),
+                    UUID.fromString(o.get("orderId").getAsString()),
+                    item,
+                    o.get("refundAmount").getAsDouble(),
+                    o.get("createdAt").getAsLong()
+            );
         }
     }
 }

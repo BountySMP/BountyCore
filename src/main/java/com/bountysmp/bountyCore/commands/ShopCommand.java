@@ -1,7 +1,7 @@
 package com.bountysmp.bountyCore.commands;
 
 import com.bountysmp.bountyCore.BountyCore;
-import com.bountysmp.bountyCore.shop.ShopGUI;
+import com.bountysmp.bountyCore.menus.ShopMenu;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -23,7 +23,7 @@ public class ShopCommand implements CommandExecutor {
         }
 
         Player player = (Player) sender;
-        new ShopGUI(plugin, player).open();
+        new ShopMenu(plugin).open(player);
         return true;
     }
 }

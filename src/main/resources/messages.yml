@@ -242,17 +242,17 @@ ranks:
 gamemode:
   gms-usage: "§cUsage: /gms [player]"
   gms-self: "§aYour gamemode has been set to §eSurvival§a."
-  gms-other: "§aSet §e{player}§a's gamemode to §eSurvival§a."
+  gms-other: "§aYou set {prefix}§e{player}§a's game mode to §eSurvival§a!"
   gms-notify: "§aYour gamemode has been set to §eSurvival§a."
 
   gmc-usage: "§cUsage: /gmc [player]"
   gmc-self: "§aYour gamemode has been set to §eCreative§a."
-  gmc-other: "§aSet §e{player}§a's gamemode to §eCreative§a."
+  gmc-other: "§aYou set {prefix}§e{player}§a's game mode to §eCreative§a!"
   gmc-notify: "§aYour gamemode has been set to §eCreative§a."
 
   gmsp-usage: "§cUsage: /gmsp [player]"
   gmsp-self: "§aYour gamemode has been set to §eSpectator§a."
-  gmsp-other: "§aSet §e{player}§a's gamemode to §eSpectator§a."
+  gmsp-other: "§aYou set {prefix}§e{player}§a's game mode to §eSpectator§a!"
   gmsp-notify: "§aYour gamemode has been set to §eSpectator§a."
 
 # Staff commands
@@ -297,3 +297,13 @@ teams:
   player-in-team: "§c{player} is already in a team."
   leader-cannot-leave: "§cTeam leaders cannot leave. Use §e/team disband §cor transfer leadership first."
   not-in-your-team: "§c{player} is not in your team."
+
+# Eat / Feed messages
+eat:
+  self: "§aYou have been fed!"
+
+feed:
+  usage: "§cUsage: /feed [player]"
+  self: "§aYou have been fed!"
+  other: "§aYou fed §e{player}§a!"
+  notify: "§aYou have been fed by a staff member!"

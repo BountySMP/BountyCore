@@ -40,10 +40,9 @@ public class GamemodeSurvivalCommand implements CommandExecutor, TabCompleter {
 
         target.setGameMode(GameMode.SURVIVAL);
 
-        if (target.equals(sender)) {
-            sender.sendMessage(plugin.getMessage("gamemode.gms-self"));
-        } else {
-            sender.sendMessage(plugin.getMessage("gamemode.gms-other", "player", target.getName()));
+        String prefix = getPlayerPrefix(target);
+        sender.sendMessage(plugin.getMessage("gamemode.gms-other", "prefix", prefix, "player", target.getName()));
+        if (!target.equals(sender)) {
             target.sendMessage(plugin.getMessage("gamemode.gms-notify"));
         }
 

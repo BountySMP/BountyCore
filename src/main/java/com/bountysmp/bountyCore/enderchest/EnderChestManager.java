@@ -85,6 +85,12 @@ public class EnderChestManager {
         saveData();
     }
 
+    public void wipeAll() {
+        enderChestCache.clear();
+        data = new org.bukkit.configuration.file.YamlConfiguration();
+        saveData();
+    }
+
     public void close() {
         for (UUID uuid : enderChestCache.keySet()) {
             ItemStack[] contents = enderChestCache.get(uuid);

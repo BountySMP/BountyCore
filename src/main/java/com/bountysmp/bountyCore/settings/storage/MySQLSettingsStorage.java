@@ -26,8 +26,7 @@ public class MySQLSettingsStorage implements SettingsStorage {
         String sql = "CREATE TABLE IF NOT EXISTS player_settings (" +
                      "uuid VARCHAR(36) PRIMARY KEY, " +
                      "allow_tpa BOOLEAN NOT NULL DEFAULT TRUE, " +
-                     "allow_msg BOOLEAN NOT NULL DEFAULT TRUE, " +
-                     "show_scoreboard BOOLEAN NOT NULL DEFAULT TRUE" +
+                     "allow_msg BOOLEAN NOT NULL DEFAULT TRUE" +
                      ")";
 
         try (Connection conn = dataSource.getConnection();
@@ -53,8 +52,7 @@ public class MySQLSettingsStorage implements SettingsStorage {
                     return new PlayerSettings(
                         uuid,
                         rs.getBoolean("allow_tpa"),
-                        rs.getBoolean("allow_msg"),
-                        rs.getBoolean("show_scoreboard")
+                        rs.getBoolean("allow_msg")
                     );
                 }
             } catch (SQLException e) {
@@ -67,9 +65,9 @@ public class MySQLSettingsStorage implements SettingsStorage {
     @Override
     public CompletableFuture<Void> saveSettings(PlayerSettings settings) {
         return CompletableFuture.runAsync(() -> {
-            String sql = "INSERT INTO player_settings (uuid, allow_tpa, allow_msg, show_scoreboard) " +
-                         "VALUES (?, ?, ?, ?) " +
-                         "ON DUPLICATE KEY UPDATE allow_tpa = ?, allow_msg = ?, show_scoreboard = ?";
+            String sql = "INSERT INTO player_settings (uuid, allow_tpa, allow_msg) " +
+                         "VALUES (?, ?, ?) " +
+                         "ON DUPLICATE KEY UPDATE allow_tpa = ?, allow_msg = ?";
 
             try (Connection conn = dataSource.getConnection();
                  PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -77,10 +75,8 @@ public class MySQLSettingsStorage implements SettingsStorage {
                 stmt.setString(1, settings.getUuid().toString());
                 stmt.setBoolean(2, settings.isAllowTpa());
                 stmt.setBoolean(3, settings.isAllowMsg());
-                stmt.setBoolean(4, settings.isShowScoreboard());
-                stmt.setBoolean(5, settings.isAllowTpa());
-                stmt.setBoolean(6, settings.isAllowMsg());
-                stmt.setBoolean(7, settings.isShowScoreboard());
+                stmt.setBoolean(4, settings.isAllowTpa());
+                stmt.setBoolean(5, settings.isAllowMsg());
 
                 stmt.executeUpdate();
             } catch (SQLException e) {

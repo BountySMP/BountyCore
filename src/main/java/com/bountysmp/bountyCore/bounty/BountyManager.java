@@ -72,6 +72,12 @@ public class BountyManager {
         plugin.getEconomy().depositPlayer(plugin.getServer().getOfflinePlayer(killer), amount);
     }
 
+    public void wipeAll() {
+        bountyCache.clear();
+        bountiesConfig = new org.bukkit.configuration.file.YamlConfiguration();
+        saveBounties();
+    }
+
     public Map<UUID, Double> getAllBounties() {
         Map<UUID, Double> activeBounties = new HashMap<>();
         for (Map.Entry<UUID, Double> entry : bountyCache.entrySet()) {

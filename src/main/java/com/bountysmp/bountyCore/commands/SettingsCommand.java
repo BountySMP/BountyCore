@@ -1,7 +1,7 @@
 package com.bountysmp.bountyCore.commands;
 
 import com.bountysmp.bountyCore.BountyCore;
-import com.bountysmp.bountyCore.settings.SettingsGUI;
+import com.bountysmp.bountyCore.menus.SettingsMenu;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -23,7 +23,7 @@ public class SettingsCommand implements CommandExecutor {
         }
 
         Player player = (Player) sender;
-        new SettingsGUI(plugin, player).open();
+        new SettingsMenu(plugin).open(player);
         return true;
     }
 }

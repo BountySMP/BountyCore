@@ -37,6 +37,11 @@ public class GUIListener implements Listener {
         Player player = (Player) event.getWhoClicked();
         String title = event.getView().getTitle();
 
+        // BaseMenu subclasses (BountyMenu, order menus, etc.) are handled by MenuClickListener
+        if (event.getInventory().getHolder() instanceof com.bountysmp.bountyCore.menus.BaseMenu) {
+            return;
+        }
+
         // Check for InventoryHolder-based GUIs first
         if (event.getInventory().getHolder() instanceof com.bountysmp.bountyCore.teams.TeamGUI) {
             event.setCancelled(true);
@@ -79,8 +84,11 @@ public class GUIListener implements Listener {
 
             int slot = event.getSlot();
 
-            // Route to appropriate handler
-            if (title.equals(ChatColor.GOLD + "Your Homes")) {
+            // Route to appropriate handler — Stats Wipe must be first to avoid
+            // "Confirm Wipe - Auction House" matching the Auction/Team/Order checks below
+            if (title.contains("Stats Wipe") || title.contains("Confirm Wipe")) {
+                handleStatsWipeGUI(player, slot, title);
+            } else if (title.startsWith(ChatColor.GOLD + "Your Homes")) {
                 handleHomeGUI(player, slot, event);
             } else if (title.equals(ChatColor.RED + "Delete Home?")) {
                 handleHomeDeleteGUI(player, slot);
@@ -106,16 +114,12 @@ public class GUIListener implements Listener {
                 handleSellGUI(player, slot, event);
             } else if (title.contains("Warp") || title.startsWith(ChatColor.DARK_GRAY + "Warp")) {
                 handleWarpGUI(player, slot, title);
-            } else if (title.contains("Stats Wipe") || title.contains("Confirm Wipe")) {
-                handleStatsWipeGUI(player, slot, title);
             } else if (title.contains("Profile") || title.startsWith(ChatColor.BLUE + "Profile")) {
                 handleProfileGUI(player, slot);
             } else if (title.contains("Info") && !title.contains("Profile")) {
                 handleInfoGUI(player, slot);
             } else if (title.contains("Rules")) {
                 handleRulesGUI(player, slot);
-            } else if (title.contains("Bounty") || title.startsWith(ChatColor.GOLD + "Bounty")) {
-                handleBountyGUI(player, slot);
             }
         }
     }
@@ -123,10 +127,11 @@ public class GUIListener implements Listener {
     private boolean isBountyCoreGUI(String title) {
         return title.contains("Auction") || title.contains("Order") || title.contains("Team") ||
                title.contains("Settings") || title.contains("Shop") || title.contains("Sell") ||
-               title.contains("Warp") || title.contains("Stats Wipe") || title.contains("Profile") ||
-               title.contains("Info") || title.contains("Rules") || title.contains("Bounty") ||
-               title.contains("Homes") || title.contains("Delete Home") || title.contains("Random Teleport") ||
-               title.contains("Unclaimed") || title.contains("List Item") || title.contains("Place Order");
+               title.contains("Warp") || title.contains("Stats Wipe") || title.contains("Confirm Wipe") ||
+               title.contains("Profile") || title.contains("Info") || title.contains("Rules") ||
+               title.contains("Bounty") || title.contains("Homes") || title.contains("Delete Home") ||
+               title.contains("Random Teleport") || title.contains("Unclaimed") ||
+               title.contains("List Item") || title.contains("Place Order");
     }
 
     // =============== HANDLER METHODS ===============
@@ -347,38 +352,82 @@ public class GUIListener implements Listener {
     }
 
     private void handleStatsWipeGUI(Player player, int slot, String title) {
-        if (title.contains("Confirm")) {
-            // Confirmation dialog
+        if (title.contains("Confirm Wipe")) {
             if (slot == 11) {
-                // Confirm
                 String wipeType = extractWipeType(title);
-                plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(),
-                    "statswipe execute " + wipeType);
+                executeWipe(player, wipeType);
                 player.closeInventory();
-                player.sendMessage(ChatColor.GREEN + "Stats wiped successfully!");
+                player.sendMessage("§a§l(!) §aWiped: §e" + wipeType);
             } else if (slot == 15) {
-                // Cancel
                 player.closeInventory();
+                new com.bountysmp.bountyCore.statswipe.StatsWipeGUI(plugin, player).open(player);
             }
         } else {
-            // Main wipe menu
-            if (slot == 11) {
-                // Wipe economy
+            // Main 27-slot menu — slot map mirrors StatsWipeGUI.open()
+            String wipeType = switch (slot) {
+                case 1  -> "Economy";
+                case 2  -> "Stats";
+                case 3  -> "Homes";
+                case 4  -> "Ender Chests";
+                case 5  -> "Bounties";
+                case 6  -> "Auction House";
+                case 7  -> "Teams";
+                case 10 -> "Orders";
+                case 11 -> "HH Data";
+                case 15 -> "ALL DATA";
+                default -> null;
+            };
+            if (wipeType != null) {
                 player.closeInventory();
-                new com.bountysmp.bountyCore.statswipe.StatsWipeGUI(plugin, player).openConfirm("economy");
-            } else if (slot == 13) {
-                // Wipe teams
-                player.closeInventory();
-                new com.bountysmp.bountyCore.statswipe.StatsWipeGUI(plugin, player).openConfirm("teams");
-            } else if (slot == 15) {
-                // Wipe stats
-                player.closeInventory();
-                new com.bountysmp.bountyCore.statswipe.StatsWipeGUI(plugin, player).openConfirm("stats");
+                new com.bountysmp.bountyCore.statswipe.StatsWipeGUI(plugin, player).openConfirm(player, wipeType);
             } else if (slot == 22) {
-                // Wipe all
                 player.closeInventory();
-                new com.bountysmp.bountyCore.statswipe.StatsWipeGUI(plugin, player).openConfirm("all");
             }
+        }
+    }
+
+    private void executeWipe(Player player, String wipeType) {
+        switch (wipeType) {
+            case "Economy"      -> plugin.wipeAllEconomy();
+            case "Stats"        -> plugin.getPlayerStatsManager().wipeAllStats();
+            case "Homes"        -> plugin.getHomeManager().wipeAll();
+            case "Ender Chests" -> plugin.getEnderChestManager().wipeAll();
+            case "Bounties"     -> plugin.getBountyManager().wipeAll();
+            case "Auction House"-> plugin.getAuctionManager().wipeAll();
+            case "Teams"        -> plugin.getTeamManager().wipeAll();
+            case "Orders"       -> plugin.getOrderManager().wipeAll();
+            case "HH Data"      -> wipeHHData();
+            case "ALL DATA"     -> {
+                plugin.wipeAllEconomy();
+                plugin.getPlayerStatsManager().wipeAllStats();
+                plugin.getHomeManager().wipeAll();
+                plugin.getEnderChestManager().wipeAll();
+                plugin.getBountyManager().wipeAll();
+                plugin.getAuctionManager().wipeAll();
+                plugin.getTeamManager().wipeAll();
+                plugin.getOrderManager().wipeAll();
+                wipeHHData();
+            }
+        }
+    }
+
+    private void wipeHHData() {
+        // Reset in-memory HH plugin data
+        org.bukkit.plugin.Plugin hh = Bukkit.getPluginManager().getPlugin("HeadHunter");
+        if (hh != null && hh.isEnabled()) {
+            try {
+                java.lang.reflect.Method getpdm = hh.getClass().getMethod("getPlayerDataManager");
+                Object pdm = getpdm.invoke(null);
+                pdm.getClass().getMethod("wipeAll").invoke(pdm);
+            } catch (Exception e) {
+                plugin.getLogger().warning("Failed to wipe HeadHunter data: " + e.getMessage());
+            }
+        }
+        // Reset Minecraft XP of all online players to zero
+        for (Player online : Bukkit.getOnlinePlayers()) {
+            online.setLevel(0);
+            online.setExp(0f);
+            online.setTotalExperience(0);
         }
     }
 
@@ -403,21 +452,22 @@ public class GUIListener implements Listener {
         }
     }
 
-    private void handleBountyGUI(Player player, int slot) {
-        if (slot >= 0 && slot < 45) {
-            // Clicked on a bounty
-        } else if (slot == 48) {
-            // Previous page
-            player.closeInventory();
-            // Navigate to previous page
-        } else if (slot == 50) {
-            // Next page
-            player.closeInventory();
-            // Navigate to next page
-        }
-    }
 
     // =============== UTILITY METHODS ===============
+
+    // Parses page from titles formatted as "Title (X)" or "Title (X/Y)"
+    private int extractPageFromParens(String title) {
+        int open = title.indexOf('(');
+        int close = title.indexOf(')');
+        if (open < 0 || close <= open) return 0;
+        String inner = title.substring(open + 1, close).trim();
+        String pageStr = inner.contains("/") ? inner.split("/")[0].trim() : inner;
+        try {
+            return Integer.parseInt(pageStr) - 1;
+        } catch (NumberFormatException ignored) {
+            return 0;
+        }
+    }
 
     private int extractPage(String title) {
         // Extract page number from title like "Page 1/5"
@@ -437,11 +487,9 @@ public class GUIListener implements Listener {
     }
 
     private String extractWipeType(String title) {
-        if (title.contains("Economy")) return "economy";
-        if (title.contains("Teams")) return "teams";
-        if (title.contains("Stats")) return "stats";
-        if (title.contains("All")) return "all";
-        return "unknown";
+        String stripped = ChatColor.stripColor(title);
+        int idx = stripped.indexOf("- ");
+        return idx >= 0 ? stripped.substring(idx + 2).trim() : "unknown";
     }
 
     @EventHandler
@@ -453,10 +501,10 @@ public class GUIListener implements Listener {
         Player player = (Player) event.getPlayer();
         String title = event.getView().getTitle();
 
-        // Clean up sessions for home GUIs
-        if (title.equals(ChatColor.GOLD + "Your Homes")) {
-            plugin.getGuiManager().removeHomeSession(player.getUniqueId());
-        } else if (title.equals(ChatColor.RED + "Delete Home?")) {
+        // Only clean up delete session on close — home session must NOT be removed here
+        // because opening a new page registers a new session before the old inventory closes,
+        // and removing it here would wipe the freshly registered session.
+        if (title.equals(ChatColor.RED + "Delete Home?")) {
             plugin.getGuiManager().removeDeleteSession(player.getUniqueId());
         }
     }

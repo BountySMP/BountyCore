@@ -13,5 +13,6 @@ public interface TeamStorage {
     CompletableFuture<Team> getPlayerTeam(UUID playerUuid);
     CompletableFuture<List<Team>> getAllTeams();
     CompletableFuture<Void> deleteTeam(UUID teamId);
+    void wipeAll();
     void close();
 }

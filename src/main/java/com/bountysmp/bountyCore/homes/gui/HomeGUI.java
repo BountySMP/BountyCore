@@ -2,10 +2,10 @@ package com.bountysmp.bountyCore.homes.gui;
 
 import com.bountysmp.bountyCore.BountyCore;
 import com.bountysmp.bountyCore.homes.Home;
-import com.bountysmp.bountyCore.homes.TeleportWarmup;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
@@ -15,197 +15,179 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.*;
 
 public class HomeGUI {
-    private final BountyCore plugin;
-    private final Player player;
-    private final int page;
-    private final int homeLimit;
-    private final Map<String, Home> homes;
 
-    private static final int SLOTS_PER_PAGE = 45;
+    private static final int HOMES_PER_PAGE = 18;
+    private static final int MAX_HOMES = 90;
+    private static final int MAX_PAGES = 5;
+
     private static final Material[] BED_COLORS = {
         Material.RED_BED, Material.BLUE_BED, Material.GREEN_BED, Material.YELLOW_BED,
         Material.ORANGE_BED, Material.PURPLE_BED, Material.PINK_BED, Material.LIME_BED,
         Material.CYAN_BED, Material.LIGHT_BLUE_BED, Material.MAGENTA_BED, Material.WHITE_BED
     };
 
+    private final BountyCore plugin;
+    private final Player player;
+    private final int page;
+
     public HomeGUI(BountyCore plugin, Player player, int page) {
         this.plugin = plugin;
         this.player = player;
         this.page = page;
-        this.homeLimit = plugin.getHomeManager().getHomeLimit(player);
-        this.homes = plugin.getHomeManager().getHomes(player.getUniqueId());
     }
 
     public void open() {
-        Inventory inv = Bukkit.createInventory(null, 54, ChatColor.GOLD + "Your Homes");
-
+        Map<String, Home> homes = plugin.getHomeManager().getHomes(player.getUniqueId());
         List<String> homeNames = new ArrayList<>(homes.keySet());
         Collections.sort(homeNames);
 
-        int startSlot = page * SLOTS_PER_PAGE;
-        int endSlot = Math.min(startSlot + SLOTS_PER_PAGE, homeLimit);
+        int homeLimit = Math.min(plugin.getHomeManager().getHomeLimit(player), MAX_HOMES);
+        int totalPages = Math.min(MAX_PAGES, Math.max(1, (int) Math.ceil(homeLimit / (double) HOMES_PER_PAGE)));
 
-        for (int i = startSlot; i < endSlot; i++) {
-            int slot = i - startSlot;
-            if (i < homeNames.size()) {
-                String homeName = homeNames.get(i);
-                Home home = homes.get(homeName);
-                inv.setItem(slot, createHomeItem(home));
+        Inventory inv = Bukkit.createInventory(null, 27,
+                ChatColor.GOLD + "Your Homes " + ChatColor.GRAY + "(" + (page + 1) + "/" + totalPages + ")");
+
+        // Rows 1-2: show homes, barriers for unlocked-but-empty slots
+        int start = page * HOMES_PER_PAGE;
+        for (int i = 0; i < HOMES_PER_PAGE; i++) {
+            int homeIndex = start + i;
+            if (homeIndex >= homeLimit) break; // past the player's limit — leave as air
+            if (homeIndex < homeNames.size()) {
+                inv.setItem(i, createHomeItem(homes.get(homeNames.get(homeIndex))));
             } else {
-                inv.setItem(slot, createEmptySlot());
+                inv.setItem(i, createLockedSlot());
             }
         }
 
-        // Fill remaining slots with barriers if less than player's limit
-        for (int i = endSlot - startSlot; i < SLOTS_PER_PAGE; i++) {
-            inv.setItem(i, createBarrier());
-        }
-
-        // Bottom row - fill all with gray panes first
-        for (int i = 45; i < 54; i++) {
-            inv.setItem(i, createGrayPane());
-        }
-
-        // Previous page button at slot 48 (always show)
-        inv.setItem(48, createPreviousPage());
-
-        // Page indicator at slot 49
-        inv.setItem(49, createPageIndicator());
-
-        // Next page button at slot 50 (always show)
-        inv.setItem(50, createNextPage());
+        // Row 3: prev (21), page indicator (22), next (23) — no filler
+        inv.setItem(21, createPrev(page > 0));
+        inv.setItem(22, createPageIndicator(page + 1, totalPages));
+        inv.setItem(23, createNext(page < totalPages - 1));
 
         plugin.getGuiManager().openHomeGUI(this, player, page);
         player.openInventory(inv);
     }
 
     private ItemStack createHomeItem(Home home) {
-        Material bedMaterial = BED_COLORS[Math.abs(home.getName().hashCode()) % BED_COLORS.length];
-        ItemStack item = new ItemStack(bedMaterial);
+        Material bed = BED_COLORS[Math.abs(home.getName().hashCode()) % BED_COLORS.length];
+        ItemStack item = new ItemStack(bed);
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(ChatColor.YELLOW + home.getName());
         meta.setLore(Arrays.asList(
-            ChatColor.GRAY + "Click to teleport",
-            ChatColor.GRAY + "Right-click to delete"
+                ChatColor.GRAY + "Left-click " + ChatColor.WHITE + "» Teleport",
+                ChatColor.GRAY + "Right-click " + ChatColor.WHITE + "» Delete"
         ));
         item.setItemMeta(meta);
         return item;
     }
 
-    private ItemStack createEmptySlot() {
-        ItemStack item = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
-        ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(ChatColor.RED + "Empty Slot");
-        meta.setLore(Collections.singletonList(ChatColor.GRAY + "Use /sethome <name> to set a home"));
-        item.setItemMeta(meta);
-        return item;
-    }
-
-    private ItemStack createBarrier() {
+    private ItemStack createLockedSlot() {
         ItemStack item = new ItemStack(Material.BARRIER);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(ChatColor.RED + "Locked");
-        meta.setLore(Collections.singletonList(ChatColor.RED + "Home slot not unlocked"));
+        meta.setDisplayName(ChatColor.RED + "No Home Set");
+        meta.setLore(Arrays.asList(
+                ChatColor.GRAY + "This slot is empty.",
+                ChatColor.GRAY + "Use " + ChatColor.YELLOW + "/sethome <name>" + ChatColor.GRAY + " to set one,",
+                ChatColor.GRAY + "or purchase more slots at " + ChatColor.YELLOW + "/store" + ChatColor.GRAY + "."
+        ));
         item.setItemMeta(meta);
         return item;
     }
 
-    private ItemStack createGrayPane() {
-        ItemStack item = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+    private ItemStack createPrev(boolean active) {
+        ItemStack item = new ItemStack(Material.ARROW);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(" ");
+        meta.setDisplayName(active ? ChatColor.YELLOW + "« Previous Page" : ChatColor.DARK_GRAY + "No Previous Page");
         item.setItemMeta(meta);
         return item;
     }
 
-    private ItemStack createPreviousPage() {
-        ItemStack item = new ItemStack(Material.RED_STAINED_GLASS_PANE);
+    private ItemStack createNext(boolean active) {
+        ItemStack item = new ItemStack(Material.ARROW);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(ChatColor.RED + "Previous Page");
+        meta.setDisplayName(active ? ChatColor.YELLOW + "Next Page »" : ChatColor.DARK_GRAY + "No Next Page");
         item.setItemMeta(meta);
         return item;
     }
 
-    private ItemStack createNextPage() {
-        ItemStack item = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
-        ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(ChatColor.GREEN + "Next Page");
-        item.setItemMeta(meta);
-        return item;
-    }
-
-    private ItemStack createPageIndicator() {
+    private ItemStack createPageIndicator(int current, int total) {
         ItemStack item = new ItemStack(Material.PAPER);
         ItemMeta meta = item.getItemMeta();
-        int totalHomesSlots = Math.max(homes.size(), homeLimit);
-        int maxPage = totalHomesSlots > 0 ? (totalHomesSlots - 1) / SLOTS_PER_PAGE : 0;
-        meta.setDisplayName(ChatColor.YELLOW + "Page " + (page + 1) + "/" + (maxPage + 1));
+        meta.setDisplayName(ChatColor.YELLOW + "Page " + current + "/" + total);
         item.setItemMeta(meta);
         return item;
+    }
+
+    private void menuSound() {
+        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);
+    }
+
+    private void denySound() {
+        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 0.5f);
     }
 
     public void handleClick(int slot, ClickType clickType) {
-        if (slot >= 45) {
-            // Previous page button at slot 48
-            if (slot == 48) {
+        // Navigation row
+        if (slot >= 18) {
+            if (slot == 21) {
                 if (page > 0) {
+                    menuSound();
                     new HomeGUI(plugin, player, page - 1).open();
+                } else {
+                    denySound();
                 }
-                return;
-            }
-
-            // Page indicator at slot 49 - do nothing on click
-            if (slot == 49) {
-                return;
-            }
-
-            // Next page button at slot 50
-            if (slot == 50) {
-                int totalHomesSlots = Math.max(homes.size(), homeLimit);
-                int maxPage = (totalHomesSlots - 1) / SLOTS_PER_PAGE;
-                if (page < maxPage) {
+            } else if (slot == 22) {
+                menuSound();
+            } else if (slot == 23) {
+                Map<String, Home> homes = plugin.getHomeManager().getHomes(player.getUniqueId());
+                int homeLimit = Math.min(plugin.getHomeManager().getHomeLimit(player), MAX_HOMES);
+                int totalPages = Math.min(MAX_PAGES, Math.max(1, (int) Math.ceil(homeLimit / (double) HOMES_PER_PAGE)));
+                if (page < totalPages - 1) {
+                    menuSound();
                     new HomeGUI(plugin, player, page + 1).open();
+                } else {
+                    denySound();
                 }
-                return;
+            } else {
+                menuSound();
             }
             return;
         }
 
+        // Home slots
+        Map<String, Home> homes = plugin.getHomeManager().getHomes(player.getUniqueId());
         List<String> homeNames = new ArrayList<>(homes.keySet());
         Collections.sort(homeNames);
 
-        int homeIndex = (page * SLOTS_PER_PAGE) + slot;
+        int homeIndex = page * HOMES_PER_PAGE + slot;
         if (homeIndex >= homeNames.size()) {
+            denySound();
             return;
         }
 
         String homeName = homeNames.get(homeIndex);
         Home home = homes.get(homeName);
-
-        if (home == null) {
-            return;
-        }
+        if (home == null) return;
 
         if (clickType == ClickType.RIGHT || clickType == ClickType.SHIFT_RIGHT) {
+            menuSound();
             player.closeInventory();
             new HomeDeleteConfirmGUI(plugin, player, homeName, page).open();
         } else {
-            // Left click - teleport
+            player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.7f, 1.5f);
             player.closeInventory();
 
-            // Check combat tag
             if (plugin.getCombatTagManager().isTagged(player.getUniqueId())) {
                 int seconds = plugin.getCombatTagManager().getRemainingSeconds(player.getUniqueId());
                 player.sendMessage(ChatColor.RED + "You are in combat! Wait " + ChatColor.YELLOW + seconds + ChatColor.RED + " seconds.");
                 return;
             }
 
-            // Save last location before teleport
             plugin.getTeleportManager().setLastLocation(player.getUniqueId(), player.getLocation());
 
-            int warmupSeconds = plugin.getConfig().getInt("homes.home-warmup-seconds", 5);
-            player.sendMessage(ChatColor.GREEN + "Teleporting in " + warmupSeconds + " seconds... Don't move!");
-            new com.bountysmp.bountyCore.homes.TeleportWarmup(plugin, player, home.getLocation(), home.getName(), warmupSeconds);
+            int warmup = plugin.getConfig().getInt("homes.home-warmup-seconds", 5);
+            player.sendMessage(ChatColor.GREEN + "Teleporting in " + warmup + " seconds... Don't move!");
+            new com.bountysmp.bountyCore.homes.TeleportWarmup(plugin, player, home.getLocation(), home.getName(), warmup);
         }
     }
 }

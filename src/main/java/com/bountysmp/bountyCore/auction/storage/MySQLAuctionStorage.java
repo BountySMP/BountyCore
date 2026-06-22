@@ -224,6 +224,16 @@ public class MySQLAuctionStorage implements AuctionStorage {
     }
 
     @Override
+    public void wipeAll() {
+        try (java.sql.Connection conn = dataSource.getConnection();
+             java.sql.PreparedStatement stmt = conn.prepareStatement("DELETE FROM auction_listings")) {
+            stmt.executeUpdate();
+        } catch (Exception e) {
+            logger.log(java.util.logging.Level.SEVERE, "Failed to wipe auction listings", e);
+        }
+    }
+
+    @Override
     public void close() {
         // DataSource is shared, don't close it here
     }

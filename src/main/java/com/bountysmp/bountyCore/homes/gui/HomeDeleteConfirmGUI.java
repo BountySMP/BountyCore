@@ -10,9 +10,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
-import java.util.Collections;
 
 public class HomeDeleteConfirmGUI {
+
     private final BountyCore plugin;
     private final Player player;
     private final String homeName;
@@ -26,35 +26,51 @@ public class HomeDeleteConfirmGUI {
     }
 
     public void open() {
-        Inventory inv = Bukkit.createInventory(null, 9, ChatColor.RED + "Delete Home?");
+        Inventory inv = Bukkit.createInventory(null, 27, ChatColor.RED + "Delete Home?");
 
-        // Fill with gray panes
-        for (int i = 0; i < 9; i++) {
-            inv.setItem(i, createGrayPane());
+        // Fill all with black panes
+        ItemStack black = blackPane();
+        for (int i = 0; i < 27; i++) {
+            inv.setItem(i, black);
         }
 
-        // Cancel button
-        inv.setItem(2, createCancelButton());
+        // Red deny button — slot 11
+        inv.setItem(11, createDenyButton());
 
-        // Confirm button
-        inv.setItem(6, createConfirmButton());
+        // Home info in center — slot 13
+        inv.setItem(13, createHomeInfoItem());
+
+        // Green confirm button — slot 15
+        inv.setItem(15, createConfirmButton());
 
         plugin.getGuiManager().openDeleteGUI(this, player, homeName, returnPage);
         player.openInventory(inv);
     }
 
-    private ItemStack createGrayPane() {
-        ItemStack item = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+    private ItemStack blackPane() {
+        ItemStack item = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(" ");
         item.setItemMeta(meta);
         return item;
     }
 
-    private ItemStack createCancelButton() {
+    private ItemStack createHomeInfoItem() {
+        ItemStack item = new ItemStack(Material.RED_BED);
+        ItemMeta meta = item.getItemMeta();
+        meta.setDisplayName(ChatColor.YELLOW + homeName);
+        meta.setLore(Arrays.asList(
+                ChatColor.GRAY + "Are you sure you want to",
+                ChatColor.GRAY + "delete this home?"
+        ));
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    private ItemStack createDenyButton() {
         ItemStack item = new ItemStack(Material.RED_STAINED_GLASS_PANE);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(ChatColor.RED + "Cancel");
+        meta.setDisplayName(ChatColor.RED + "✗ Cancel");
         item.setItemMeta(meta);
         return item;
     }
@@ -62,24 +78,22 @@ public class HomeDeleteConfirmGUI {
     private ItemStack createConfirmButton() {
         ItemStack item = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(ChatColor.GREEN + "Confirm Delete");
-        meta.setLore(Collections.singletonList(ChatColor.GRAY + "This will delete " + ChatColor.YELLOW + homeName));
+        meta.setDisplayName(ChatColor.GREEN + "✓ Confirm Delete");
         item.setItemMeta(meta);
         return item;
     }
 
     public void handleClick(int slot) {
-        if (slot == 2) {
-            // Cancel - reopen homes GUI
+        if (slot == 11) {
+            // Deny — go back to homes GUI
             player.closeInventory();
             new HomeGUI(plugin, player, returnPage).open();
-        } else if (slot == 6) {
+        } else if (slot == 15) {
             // Confirm delete
             boolean deleted = plugin.getHomeManager().deleteHome(player.getUniqueId(), homeName);
             player.closeInventory();
-
             if (deleted) {
-                player.sendMessage(ChatColor.GREEN + "Home " + ChatColor.YELLOW + homeName + ChatColor.GREEN + " has been deleted.");
+                player.sendMessage(ChatColor.GREEN + "Home " + ChatColor.YELLOW + homeName + ChatColor.GREEN + " deleted.");
             } else {
                 player.sendMessage(ChatColor.RED + "Failed to delete home.");
             }

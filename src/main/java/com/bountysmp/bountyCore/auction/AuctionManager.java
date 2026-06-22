@@ -235,6 +235,10 @@ public class AuctionManager {
         });
     }
 
+    public void wipeAll() {
+        storage.wipeAll();
+    }
+
     public void close() {
         storage.close();
         if (dataSource != null && !dataSource.isClosed()) {

@@ -120,6 +120,16 @@ public class MySQLStorage implements EconomyStorage {
     }
 
     @Override
+    public void wipeAll() {
+        try (java.sql.Connection conn = dataSource.getConnection();
+             java.sql.PreparedStatement stmt = conn.prepareStatement("DELETE FROM economy")) {
+            stmt.executeUpdate();
+        } catch (Exception e) {
+            logger.log(java.util.logging.Level.SEVERE, "Failed to wipe economy data", e);
+        }
+    }
+
+    @Override
     public void close() {
         saveAll().join();
         if (dataSource != null && !dataSource.isClosed()) {

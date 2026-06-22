@@ -1,7 +1,7 @@
 package com.bountysmp.bountyCore.commands;
 
 import com.bountysmp.bountyCore.BountyCore;
-import com.bountysmp.bountyCore.bounty.BountyGUI;
+import com.bountysmp.bountyCore.menus.BountyMenu;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -32,12 +32,12 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
 
         // /bounty - open GUI
         if (args.length == 0) {
-            new BountyGUI(plugin, player, 0).open();
+            new BountyMenu(plugin).open(player);
             return true;
         }
 
-        // /bounty set <player> <amount>
-        if (args.length == 3 && args[0].equalsIgnoreCase("set")) {
+        // /bounty set <player> <amount> or /bounty add <player> <amount>
+        if (args.length == 3 && (args[0].equalsIgnoreCase("set") || args[0].equalsIgnoreCase("add"))) {
             return handleSetBounty(player, args[1], args[2]);
         }
 
@@ -125,10 +125,11 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
 
         if (args.length == 1) {
             completions.add("set");
+            completions.add("add");
             for (Player player : Bukkit.getOnlinePlayers()) {
                 completions.add(player.getName());
             }
-        } else if (args.length == 2 && args[0].equalsIgnoreCase("set")) {
+        } else if (args.length == 2 && (args[0].equalsIgnoreCase("set") || args[0].equalsIgnoreCase("add"))) {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 if (!player.equals(sender)) {
                     completions.add(player.getName());

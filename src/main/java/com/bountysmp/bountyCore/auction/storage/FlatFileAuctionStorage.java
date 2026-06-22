@@ -141,6 +141,12 @@ public class FlatFileAuctionStorage implements AuctionStorage {
     }
 
     @Override
+    public void wipeAll() {
+        cache.clear();
+        dataFile.delete();
+    }
+
+    @Override
     public void close() {
         saveAll().join();
     }

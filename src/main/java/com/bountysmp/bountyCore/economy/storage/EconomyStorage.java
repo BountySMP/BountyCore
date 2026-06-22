@@ -13,5 +13,7 @@ public interface EconomyStorage {
 
     CompletableFuture<Void> saveAll();
 
+    void wipeAll();
+
     void close();
 }

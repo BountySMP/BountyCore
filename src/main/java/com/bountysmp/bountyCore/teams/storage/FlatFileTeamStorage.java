@@ -120,6 +120,13 @@ public class FlatFileTeamStorage implements TeamStorage {
     }
 
     @Override
+    public void wipeAll() {
+        cache.clear();
+        nameCache.clear();
+        dataFile.delete();
+    }
+
+    @Override
     public void close() {
         saveAll().join();
     }
