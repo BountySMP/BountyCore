@@ -174,6 +174,67 @@ commands:
     aliases: [sinfo]
   rules:
     description: Open server rules menu
+  afk:
+    description: Toggle AFK status
+  alts:
+    description: View player's alt accounts
+    usage: /alts <player>
+  freeze:
+    description: Freeze a player
+    usage: /freeze <player>
+  freezelist:
+    description: Open frozen players GUI
+  heal:
+    description: Heal yourself or another player
+    usage: /heal [player]
+  feed:
+    description: Feed yourself or another player
+    usage: /feed [player]
+  findplayer:
+    description: Find a player's location
+    usage: /findplayer <player>
+  ignore:
+    description: Ignore a player
+    usage: /ignore <player|list>
+  invsee:
+    description: View a player's inventory
+    usage: /invsee <player>
+  leaderboard:
+    description: View server leaderboards
+    aliases: [lb]
+  nv:
+    description: Toggle night vision
+    usage: /nv [player]
+    aliases: [nightvision]
+  ping:
+    description: Check your or another player's ping
+    usage: /ping [player]
+  playtime:
+    description: Check playtime
+    usage: /playtime [player]
+  rename:
+    description: Rename item in hand
+    usage: /rename <name>
+  report:
+    description: Report a player
+    usage: /report <player> <reason>
+  helpop:
+    description: Request help from staff
+    usage: /helpop <message>
+  sc:
+    description: Staff chat
+    usage: /sc [message]
+    aliases: [staffchat]
+  stafflist:
+    description: View online staff
+  staffmode:
+    description: Toggle staff mode
+  stats:
+    description: View player stats
+    usage: /stats [player]
+  worth:
+    description: Check item worth
+    usage: /worth [material]
 
 permissions:
   bounty.basic:
@@ -222,6 +283,16 @@ permissions:
       bounty.booster: true
       # Profile command
       bounty.profile: true
+      # New basic commands
+      bounty.afk: true
+      bounty.ignore: true
+      bounty.ping: true
+      bounty.playtime: true
+      bounty.leaderboard: true
+      bounty.stats: true
+      bounty.worth: true
+      bounty.report: true
+      bounty.helpop: true
   bountycore.homes.1:
     description: Allows 1 home
     default: true
@@ -332,6 +403,16 @@ permissions:
     default: op
     children:
       bounty.staff.profile: true
+      bounty.staff.freeze: true
+      bounty.staff.freezelist: true
+      bounty.staff.heal: true
+      bounty.staff.feed: true
+      bounty.staff.findplayer: true
+      bounty.staff.invsee: true
+      bounty.staff.nv: true
+      bounty.staff.sc: true
+      bounty.staff.stafflist: true
+      bounty.staff.staffmode: true
   bounty.staff.profile:
     description: Allows viewing player profiles
     default: op
@@ -378,3 +459,5 @@ permissions:
       bounty.staff.statswipe: true
       bounty.staff.keyall: true
       bounty.staff.helper: true
+      bounty.staff.alts: true
+      bounty.staff.rename: true

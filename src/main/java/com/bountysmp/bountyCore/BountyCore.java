@@ -79,7 +79,7 @@ public final class BountyCore extends JavaPlugin {
     private com.bountysmp.bountyCore.clearlag.ClearLagManager clearLagManager;
     private com.bountysmp.bountyCore.keyall.KeyAllManager keyAllManager;
     private com.bountysmp.bountyCore.settings.SettingsManager settingsManager;
-    // private com.bountysmp.bountyCore.leaderboard.LeaderboardManager leaderboardManager;
+    private com.bountysmp.bountyCore.leaderboard.LeaderboardManager leaderboardManager;
 
     @Override
     public void onEnable() {
@@ -112,7 +112,7 @@ public final class BountyCore extends JavaPlugin {
         setupSettings();
         setupWarps();
         setupPlayerStats();
-        // setupLeaderboard();
+        setupLeaderboard();
         setupClearLag();
         setupKeyAll();
         registerCommands();
@@ -340,10 +340,10 @@ public final class BountyCore extends JavaPlugin {
         getLogger().info("KeyAll system initialized!");
     }
 
-    // private void setupLeaderboard() {
-    //     leaderboardManager = new com.bountysmp.bountyCore.leaderboard.LeaderboardManager(this);
-    //     getLogger().info("Leaderboard system initialized!");
-    // }
+    private void setupLeaderboard() {
+        leaderboardManager = new com.bountysmp.bountyCore.leaderboard.LeaderboardManager(this);
+        getLogger().info("Leaderboard system initialized!");
+    }
 
     private void startScheduledTasks() {
         // Sell booster expiry check every minute
@@ -410,7 +410,7 @@ public final class BountyCore extends JavaPlugin {
 
         getCommand("tpaccept").setExecutor(new TpAcceptCommand(this));
         getCommand("tpdeny").setExecutor(new TpDenyCommand(this));
-        // getCommand("spawn").setExecutor(new SpawnCommand(this));
+        getCommand("spawn").setExecutor(new SpawnCommand(this));
         getCommand("setspawn").setExecutor(new SetSpawnCommand(this));
         getCommand("back").setExecutor(new BackCommand(this));
 
@@ -512,12 +512,6 @@ public final class BountyCore extends JavaPlugin {
         getCommand("gmsp").setExecutor(gmspCmd);
         getCommand("gmsp").setTabCompleter(gmspCmd);
 
-        getCommand("eat").setExecutor(new com.bountysmp.bountyCore.commands.EatCommand(this));
-
-        com.bountysmp.bountyCore.commands.admin.FeedCommand feedCmd = new com.bountysmp.bountyCore.commands.admin.FeedCommand(this);
-        getCommand("feed").setExecutor(feedCmd);
-        getCommand("feed").setTabCompleter(feedCmd);
-
         randomTpCommand = new RandomTpCommand(this);
         getCommand("randomtp").setExecutor(randomTpCommand);
         getCommand("rtp").setExecutor(randomTpCommand);
@@ -573,8 +567,8 @@ public final class BountyCore extends JavaPlugin {
         getCommand("keyall").setExecutor(keyAllCmd);
         getCommand("keyall").setTabCompleter(keyAllCmd);
 
-        // getCommand("serverinfo").setExecutor(new com.bountysmp.bountyCore.commands.InfoCommand(this));
-        // getCommand("rules").setExecutor(new com.bountysmp.bountyCore.commands.RulesCommand(this));
+        getCommand("serverinfo").setExecutor(new com.bountysmp.bountyCore.commands.InfoCommand(this));
+        getCommand("rules").setExecutor(new com.bountysmp.bountyCore.commands.RulesCommand(this));
     }
 
     private void registerListeners() {
@@ -593,7 +587,6 @@ public final class BountyCore extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new TabListener(this), this);
         getServer().getPluginManager().registerEvents(new com.bountysmp.bountyCore.listeners.FastCrystalListener(this), this);
         getServer().getPluginManager().registerEvents(new com.bountysmp.bountyCore.listeners.ChatListener(this), this);
-        getServer().getPluginManager().registerEvents(new com.bountysmp.bountyCore.listeners.OrderChatListener(this), this);
     }
 
     public static BountyCore getInstance() {
@@ -735,11 +728,7 @@ public final class BountyCore extends JavaPlugin {
         return settingsManager;
     }
 
-    public void wipeAllEconomy() {
-        economyStorage.wipeAll();
+    public com.bountysmp.bountyCore.leaderboard.LeaderboardManager getLeaderboardManager() {
+        return leaderboardManager;
     }
-
-    // public com.bountysmp.bountyCore.leaderboard.LeaderboardManager getLeaderboardManager() {
-    //     return leaderboardManager;
-    // }
 }
