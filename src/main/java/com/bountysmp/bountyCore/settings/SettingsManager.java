@@ -27,6 +27,15 @@ public class SettingsManager {
         return storage.loadSettings(uuid);
     }
 
+    /**
+     * Synchronous settings lookup for enforcement checks. Returns null if the
+     * settings aren't cached yet (possible on MySQL) — callers should treat
+     * null as "all defaults enabled".
+     */
+    public PlayerSettings getCached(UUID uuid) {
+        return storage.loadSettings(uuid).getNow(null);
+    }
+
     public CompletableFuture<Void> saveSettings(PlayerSettings settings) {
         return storage.saveSettings(settings);
     }

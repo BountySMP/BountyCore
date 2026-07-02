@@ -51,11 +51,14 @@ public class TpaCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        plugin.getTeleportManager().sendRequest(player, target, com.bountysmp.bountyCore.teleport.TeleportRequest.RequestType.TPA);
+        boolean delivered = plugin.getTeleportManager().deliverRequest(player, target,
+            com.bountysmp.bountyCore.teleport.TeleportRequest.RequestType.TPA);
+        if (!delivered) {
+            player.sendMessage("§c§l(!) §cThat player has TPA requests disabled.");
+            return true;
+        }
 
         player.sendMessage(plugin.getMessage("teleport.tpa-sent", "player", target.getName()));
-        target.sendMessage(plugin.getMessage("teleport.tpa-received", "player", player.getName()));
-        target.sendMessage(plugin.getMessage("teleport.tpa-accept-deny"));
 
         // Schedule expiration notification
         int expireSeconds = plugin.getConfig().getInt("teleport.tpa-expire-seconds", 60);

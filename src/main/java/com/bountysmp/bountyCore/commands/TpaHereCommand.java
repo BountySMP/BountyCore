@@ -52,11 +52,14 @@ public class TpaHereCommand implements CommandExecutor, TabCompleter {
         }
 
         // Send request (player is asking target to teleport to them)
-        plugin.getTeleportManager().sendRequest(player, target, com.bountysmp.bountyCore.teleport.TeleportRequest.RequestType.TPAHERE);
+        boolean delivered = plugin.getTeleportManager().deliverRequest(player, target,
+            com.bountysmp.bountyCore.teleport.TeleportRequest.RequestType.TPAHERE);
+        if (!delivered) {
+            player.sendMessage("§c§l(!) §cThat player has TPA-Here requests disabled.");
+            return true;
+        }
 
         player.sendMessage(plugin.getMessage("teleport.tpahere-sent", "player", target.getName()));
-        target.sendMessage(plugin.getMessage("teleport.tpahere-received", "player", player.getName()));
-        target.sendMessage(plugin.getMessage("teleport.tpa-accept-deny"));
 
         // Schedule expiration notification
         int expireSeconds = plugin.getConfig().getInt("teleport.tpa-expire-seconds", 60);

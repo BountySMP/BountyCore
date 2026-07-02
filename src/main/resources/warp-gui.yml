@@ -1,0 +1,39 @@
+# ─────────────────────────────────────────
+#  Warp GUI Configuration
+# ─────────────────────────────────────────
+#  slot:  1-9  (position in the single-row GUI)
+#  item:  Minecraft material name (e.g. GRASS_BLOCK, DIAMOND_SWORD)
+#  name:  Display name  — use § for colors
+#  lore:  List of lore lines — use § for colors
+#
+#  Use /setwarp <name> in-game to set the teleport destination.
+#  Only warps that have been set with /setwarp will appear in the GUI.
+# ─────────────────────────────────────────
+
+warps:
+  spawn:
+    slot: 1
+    item: GRASS_BLOCK
+    name: "§a§lSpawn"
+    lore:
+      - "§7Teleport to the main spawn."
+      - ""
+      - "§7Click §f» §eTeleport"
+
+  shop:
+    slot: 2
+    item: GOLD_INGOT
+    name: "§6§lShop"
+    lore:
+      - "§7Visit the server shop."
+      - ""
+      - "§7Click §f» §eTeleport"
+
+  pvp:
+    slot: 5
+    item: DIAMOND_SWORD
+    name: "§c§lPvP Arena"
+    lore:
+      - "§7Enter at your own risk!"
+      - ""
+      - "§7Click §f» §eTeleport"

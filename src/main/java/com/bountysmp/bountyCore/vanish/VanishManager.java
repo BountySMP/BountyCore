@@ -125,6 +125,11 @@ public class VanishManager {
                     boolean isVanished = vanishedPlayers.contains(uuid);
                     boolean isGod = goddedPlayers.contains(uuid);
 
+                    // Hotbar Messages setting: skip action bar entirely when disabled
+                    com.bountysmp.bountyCore.settings.PlayerSettings settings =
+                        plugin.getSettingsManager().getCached(uuid);
+                    if (settings != null && !settings.isHotbarMessages()) continue;
+
                     if (isVanished && isGod) {
                         // Both active - alternate every 3 seconds
                         boolean toggle = actionBarToggle.getOrDefault(uuid, false);

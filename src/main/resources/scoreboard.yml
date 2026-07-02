@@ -1,0 +1,25 @@
+# BountyCore — scoreboard.yml
+# Sidebar scoreboard layout and colors.
+# Reload with: /bountyadmin reload (or restart)
+#
+# Color format: legacy &-codes (&a, &c, ...) and hex (&#RRGGBB) are both supported.
+# Placeholders: any PlaceholderAPI placeholder may be used, e.g. %bountycore_kills%.
+
+SCOREBOARD:
+  ENABLED: true
+  UPDATE-TICKS: 20
+  HIDE-NUMBERS: true
+  TITLE:
+    - "&a&lBountySMP"
+  LINES:
+    - ""
+    - "&#00FC00&l$ &fBalance &#00FC00%bountycore_balance%"
+    - "&#FC0000🗡 &fKills &#FC0000%bountycore_kills%"
+    - "&#F97603☠ &fDeaths &#F97603%bountycore_deaths%"
+    - "&#00A4FC⚔ &fK/D &#00A4FC%bountycore_kd%"
+    - "&#FCE300⌚ &fPlaytime &#FCE300%bountycore_playtime%"
+    - "&#A303F9🪓 &fTeam &#A303F9%bountycore_team%"
+    - "&#0069D6⚡ &fPing &#0069D6%bountycore_ping%ms"
+    - ""
+    - "&7Level: &f%headhunter_level%"
+    - "&7Progress: &f%headhunter_progress% &7to next level"

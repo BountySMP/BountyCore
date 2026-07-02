@@ -81,7 +81,8 @@ public final class BountyCore extends JavaPlugin {
     private com.bountysmp.bountyCore.leaderboard.LeaderboardManager leaderboardManager;
     private com.bountysmp.bountyCore.worth.WorthManager worthManager;
     private com.bountysmp.bountyCore.scoreboard.ScoreboardManager scoreboardManager;
-    private com.bountysmp.bountyCore.statswipe.InventoryWipeManager inventoryWipeManager;
+    private com.bountysmp.bountyCore.statswipe.PlayerWipeManager playerWipeManager;
+    private com.bountysmp.bountyCore.tab.TabManager tabManager;
 
     @Override
     public void onEnable() {
@@ -117,6 +118,7 @@ public final class BountyCore extends JavaPlugin {
         setupKeyAll();
         setupWorth();
         setupInventoryWipe();
+        setupTab();
         setupScoreboard();
         registerCommands();
         registerListeners();
@@ -339,8 +341,15 @@ public final class BountyCore extends JavaPlugin {
     }
 
     private void setupInventoryWipe() {
-        inventoryWipeManager = new com.bountysmp.bountyCore.statswipe.InventoryWipeManager(this);
-        getServer().getPluginManager().registerEvents(inventoryWipeManager, this);
+        playerWipeManager = new com.bountysmp.bountyCore.statswipe.PlayerWipeManager(this);
+        getServer().getPluginManager().registerEvents(playerWipeManager, this);
+    }
+
+    private void setupTab() {
+        tabManager = new com.bountysmp.bountyCore.tab.TabManager(this);
+        // Refresh every second: covers joins, quits, rank changes, and counts
+        getServer().getScheduler().runTaskTimer(this, tabManager::updateAll, 20L, 20L);
+        getLogger().info("Tab list initialized!");
     }
 
     private void setupScoreboard() {
@@ -770,8 +779,29 @@ public final class BountyCore extends JavaPlugin {
         return scoreboardManager;
     }
 
-    public com.bountysmp.bountyCore.statswipe.InventoryWipeManager getInventoryWipeManager() {
-        return inventoryWipeManager;
+    public com.bountysmp.bountyCore.statswipe.PlayerWipeManager getPlayerWipeManager() {
+        return playerWipeManager;
+    }
+
+    public com.bountysmp.bountyCore.tab.TabManager getTabManager() {
+        return tabManager;
+    }
+
+    /**
+     * Broadcasts a message to every player whose settings pass the given
+     * check (players without cached settings receive it). Always logged
+     * to console.
+     */
+    public void broadcastFiltered(String message,
+            java.util.function.Predicate<com.bountysmp.bountyCore.settings.PlayerSettings> allowed) {
+        getServer().getConsoleSender().sendMessage(message);
+        for (org.bukkit.entity.Player online : getServer().getOnlinePlayers()) {
+            com.bountysmp.bountyCore.settings.PlayerSettings settings =
+                settingsManager.getCached(online.getUniqueId());
+            if (settings == null || allowed.test(settings)) {
+                online.sendMessage(message);
+            }
+        }
     }
 
     public void wipeAllEconomy() {

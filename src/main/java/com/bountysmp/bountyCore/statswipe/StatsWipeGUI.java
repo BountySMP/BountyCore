@@ -50,7 +50,7 @@ public class StatsWipeGUI {
         gui.setItem(7,  btn(Material.SHIELD,            "§a§lTeams",          "§7Disband all teams."));
 
         // Row 1 — 2 more + wipe all
-        gui.setItem(10, btn(Material.CHEST,             "§6§lInventories",    "§7Clear all player inventories.", "§7Offline players are cleared on join."));
+        gui.setItem(10, btn(Material.CHEST,             "§6§lInventories",    "§7Clear all player inventories.", "§7Includes offline players."));
         gui.setItem(11, btn(Material.EXPERIENCE_BOTTLE, "§2§lHH Levels/XP",   "§7Reset all HeadHunter levels & XP."));
         gui.setItem(15, btn(Material.BARRIER,           "§c§l⚠ Wipe ALL",     "§7Wipes every category above.", "§4§lTHIS CANNOT BE UNDONE!"));
 

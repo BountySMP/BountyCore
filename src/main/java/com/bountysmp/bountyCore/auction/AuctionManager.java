@@ -123,7 +123,7 @@ public class AuctionManager {
             storage.saveListing(listing).join();
 
             Player seller = Bukkit.getPlayer(listing.getSellerUuid());
-            if (seller != null && seller.isOnline()) {
+            if (seller != null && seller.isOnline() && wantsAuctionNotifications(seller)) {
                 seller.sendMessage(plugin.getMessage("auction.item-sold",
                     "buyer", buyer.getName(),
                     "item", getItemName(listing.getItem()),
@@ -132,6 +132,12 @@ public class AuctionManager {
 
             return true;
         });
+    }
+
+    private boolean wantsAuctionNotifications(Player player) {
+        com.bountysmp.bountyCore.settings.PlayerSettings settings =
+            plugin.getSettingsManager().getCached(player.getUniqueId());
+        return settings == null || settings.isAuctionNotifications();
     }
 
     /** Like buyItem but returns the purchased ItemStack (for bulk-drop), or null on failure. */
@@ -154,7 +160,7 @@ public class AuctionManager {
             listing.setStatus(AuctionListing.ListingStatus.SOLD);
             storage.saveListing(listing).join();
             Player seller = Bukkit.getPlayer(listing.getSellerUuid());
-            if (seller != null && seller.isOnline()) {
+            if (seller != null && seller.isOnline() && wantsAuctionNotifications(seller)) {
                 seller.sendMessage(plugin.getMessage("auction.item-sold",
                     "buyer", buyer.getName(),
                     "item", getItemName(listing.getItem()),
@@ -170,6 +176,12 @@ public class AuctionManager {
                 if (listing.isExpired()) {
                     listing.setStatus(AuctionListing.ListingStatus.EXPIRED);
                     storage.saveListing(listing);
+
+                    Player seller = Bukkit.getPlayer(listing.getSellerUuid());
+                    if (seller != null && seller.isOnline() && wantsAuctionNotifications(seller)) {
+                        seller.sendMessage("§6§lAH §7» §eYour listing §f" + getItemName(listing.getItem())
+                            + " §ehas expired. §7Reclaim it in §f/ah §7» §fClaims§7.");
+                    }
                 }
             }
         });

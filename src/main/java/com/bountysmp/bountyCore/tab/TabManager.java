@@ -47,18 +47,23 @@ public class TabManager {
         RankManager.RankGroup donatorGroup = rankManager.getHighestDonatorGroup(player.getUniqueId());
 
         String prefix = "";
+        int order; // higher sorts first in the tab list (1.21.2+ listOrder)
         if (staffGroup != null) {
             prefix = ChatColor.translateAlternateColorCodes('&', staffGroup.getPrefix());
+            order = 20_000 + staffGroup.getWeight();
         } else if (donatorGroup != null) {
             prefix = ChatColor.translateAlternateColorCodes('&', donatorGroup.getPrefix());
+            order = 10_000 + donatorGroup.getWeight();
         } else {
             RankManager.RankGroup defaultGroup = rankManager.getDefaultGroup();
             if (defaultGroup != null) {
                 prefix = ChatColor.translateAlternateColorCodes('&', defaultGroup.getPrefix());
             }
+            order = 0;
         }
 
         player.setPlayerListName(prefix + player.getName());
+        player.setPlayerListOrder(order);
     }
 
     public void updateHeaderFooter() {
@@ -77,66 +82,29 @@ public class TabManager {
             }
         }
 
-        // Build header
-        StringBuilder header = new StringBuilder();
-        for (int i = 0; i < headerLines.size(); i++) {
-            String line = ChatColor.translateAlternateColorCodes('&', headerLines.get(i));
-            header.append(line);
-            if (i < headerLines.size() - 1) {
-                header.append("\n");
-            }
-        }
-
-        // Build footer with staff count replacement
-        StringBuilder footer = new StringBuilder();
-        for (int i = 0; i < footerLines.size(); i++) {
-            String line = ChatColor.translateAlternateColorCodes('&', footerLines.get(i));
-            line = line.replace("{staff_count}", String.valueOf(staffCount));
-            footer.append(line);
-            if (i < footerLines.size() - 1) {
-                footer.append("\n");
-            }
-        }
+        int onlineCount = Bukkit.getOnlinePlayers().size();
+        String header = buildSection(headerLines, onlineCount, staffCount);
+        String footer = buildSection(footerLines, onlineCount, staffCount);
 
         // Apply to all players
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.setPlayerListHeader(header.toString());
-            player.setPlayerListFooter(footer.toString());
+            player.setPlayerListHeader(header);
+            player.setPlayerListFooter(footer);
         }
     }
 
-    public void sortTabList() {
-        // Get all online players
-        List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
-
-        // Sort by rank weight (highest first)
-        players.sort((p1, p2) -> {
-            int weight1 = getHighestWeight(p1);
-            int weight2 = getHighestWeight(p2);
-            return Integer.compare(weight2, weight1); // Descending order
-        });
-
-        // Note: Tab list sorting requires ProtocolLib or paper-specific API
-        // This is a placeholder - actual sorting would need additional implementation
-        // For now, just update display names which affects some clients
-        for (Player player : players) {
-            updatePlayer(player);
-        }
-    }
-
-    private int getHighestWeight(Player player) {
-        RankManager rankManager = plugin.getRankManager();
-        List<String> playerGroups = rankManager.getGroups(player.getUniqueId());
-
-        int highestWeight = 0;
-        for (String groupName : playerGroups) {
-            RankManager.RankGroup group = rankManager.getGroup(groupName);
-            if (group != null && group.getWeight() > highestWeight) {
-                highestWeight = group.getWeight();
+    private String buildSection(List<String> lines, int onlineCount, int staffCount) {
+        StringBuilder section = new StringBuilder();
+        for (int i = 0; i < lines.size(); i++) {
+            String line = lines.get(i)
+                .replace("{online}", String.valueOf(onlineCount))
+                .replace("{staff_count}", String.valueOf(staffCount));
+            section.append(ChatColor.translateAlternateColorCodes('&', line));
+            if (i < lines.size() - 1) {
+                section.append("\n");
             }
         }
-
-        return highestWeight;
+        return section.toString();
     }
 
     public void reload() {

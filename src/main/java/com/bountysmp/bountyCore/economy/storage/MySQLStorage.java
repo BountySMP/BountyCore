@@ -121,6 +121,9 @@ public class MySQLStorage implements EconomyStorage {
 
     @Override
     public void wipeAll() {
+        // Clear the cache too — otherwise online players keep their old balances
+        // and saveAll() on shutdown writes them straight back to the database.
+        cache.clear();
         try (java.sql.Connection conn = dataSource.getConnection();
              java.sql.PreparedStatement stmt = conn.prepareStatement("DELETE FROM economy")) {
             stmt.executeUpdate();

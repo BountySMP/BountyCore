@@ -81,7 +81,8 @@ public class ClearLagManager {
                 String message = clearlagConfig.getString("warning-message", "&c&lClear Lag &7in &e{time} &7seconds!")
                     .replace("{time}", String.valueOf(warningTime))
                     .replace("&", "§");
-                Bukkit.getServer().broadcast(net.kyori.adventure.text.Component.text(message));
+                plugin.broadcastFiltered(message,
+                    com.bountysmp.bountyCore.settings.PlayerSettings::isServerBroadcasts);
             }, (intervalMinutes * 60 - warningTime) * 20L);
         }
 
@@ -90,7 +91,8 @@ public class ClearLagManager {
             String message = clearlagConfig.getString("clear-message", "&a&lClear Lag: &7Removed &e{count} &7entities!")
                 .replace("{count}", String.valueOf(removed))
                 .replace("&", "§");
-            Bukkit.getServer().broadcast(net.kyori.adventure.text.Component.text(message));
+            plugin.broadcastFiltered(message,
+                com.bountysmp.bountyCore.settings.PlayerSettings::isServerBroadcasts);
         }, intervalMinutes * 60 * 20L);
     }
 

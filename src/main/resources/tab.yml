@@ -1,14 +1,17 @@
 # Tab List Configuration
-# All text supports & color codes
-# Use {staff_count} placeholder in footer to show online staff count
+# All text supports & color codes and &#RRGGBB hex codes
+# Placeholders: {online} = online player count, {staff_count} = online staff count
 
 header:
-  - "&aBountySMP"
+  - "&a&lBountySMP"
+  - "&f{online} &7Players online"
   - ""
 
 footer:
   - ""
-  - "&7Online Staff: &a{staff_count}"
+  - "&6Online staff: &e{staff_count}"
+  - ""
+  - "&7Visit our webpage &ewww.domain.com"
   - ""
 
 # Permission prefix to check for staff count

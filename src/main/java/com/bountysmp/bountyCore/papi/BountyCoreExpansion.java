@@ -90,6 +90,10 @@ public class BountyCoreExpansion extends PlaceholderExpansion {
             case "online":
                 return String.valueOf(Bukkit.getOnlinePlayers().size());
 
+            case "ping":
+                org.bukkit.entity.Player online = player.getPlayer();
+                return online != null ? String.valueOf(online.getPing()) : "0";
+
             case "homes":
                 if (player.isOnline()) {
                     return String.valueOf(plugin.getHomeManager().getHomes(player.getUniqueId()).size());

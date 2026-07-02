@@ -52,6 +52,16 @@ public class BountyManager {
         bountyCache.put(target, newBounty);
         bountiesConfig.set(target.toString(), newBounty);
         saveBounties();
+
+        String targetName = plugin.getServer().getOfflinePlayer(target).getName();
+        if (targetName == null) targetName = "Unknown";
+        String broadcast = plugin.getMessagesConfig().getString("bounty.placed-broadcast",
+                "§6§l[BOUNTY] §7A bounty was placed! §e{target} §7is now worth §c{amount}§7!")
+            .replace("{target}", targetName)
+            .replace("{amount}", plugin.getEconomy().format(newBounty))
+            .replace("&", "§");
+        plugin.broadcastFiltered(broadcast,
+            com.bountysmp.bountyCore.settings.PlayerSettings::isBountyAlerts);
     }
 
     public double getBounty(UUID target) {

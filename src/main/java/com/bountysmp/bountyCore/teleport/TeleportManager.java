@@ -31,6 +31,44 @@ public class TeleportManager {
         pendingRequests.put(target.getUniqueId(), request);
     }
 
+    /**
+     * Sends a request honoring the target's settings: allow toggles block it,
+     * auto-accept confirms it instantly, and the confirm-menu setting swaps
+     * the chat prompt for an accept/deny GUI.
+     *
+     * @return false if the target's settings block this request type
+     */
+    public boolean deliverRequest(Player requester, Player target, TeleportRequest.RequestType type) {
+        com.bountysmp.bountyCore.settings.PlayerSettings settings =
+            plugin.getSettingsManager().getCached(target.getUniqueId());
+        boolean tpa = type == TeleportRequest.RequestType.TPA;
+
+        if (settings != null && (tpa ? !settings.isAllowTpa() : !settings.isAllowTpaHere())) {
+            return false;
+        }
+
+        sendRequest(requester, target, type);
+
+        if (settings != null && settings.isAutoConfirmTpa()) {
+            target.sendMessage(plugin.getMessage(tpa ? "teleport.tpa-received" : "teleport.tpahere-received",
+                "player", requester.getName()));
+            target.sendMessage("§a§l(!) §aAuto-accepting §7(change in /settings)");
+            org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> {
+                if (target.isOnline()) target.performCommand("tpaccept");
+            });
+            return true;
+        }
+
+        target.sendMessage(plugin.getMessage(tpa ? "teleport.tpa-received" : "teleport.tpahere-received",
+            "player", requester.getName()));
+        if (settings != null && settings.isTpaConfirmMenu()) {
+            new TpaConfirmGUI(plugin, target, requester.getName(), type).open();
+        } else {
+            target.sendMessage(plugin.getMessage("teleport.tpa-accept-deny"));
+        }
+        return true;
+    }
+
     public TeleportRequest getPendingRequest(UUID player) {
         TeleportRequest request = pendingRequests.get(player);
         if (request != null && request.isExpired()) {

@@ -67,6 +67,13 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
                     player.sendMessage(ChatColor.RED + "Player not found!");
                     return true;
                 }
+                // Team Invites setting: target may have invites disabled
+                com.bountysmp.bountyCore.settings.PlayerSettings targetSettings =
+                    plugin.getSettingsManager().getCached(target.getUniqueId());
+                if (targetSettings != null && !targetSettings.isTeamInvites()) {
+                    player.sendMessage("§c§l(!) §cThat player has team invites disabled.");
+                    return true;
+                }
                 plugin.getTeamManager().invitePlayer(player, target);
                 break;
 

@@ -98,6 +98,12 @@ public class PlayerStatsManager implements Listener {
     public void wipeAllStats() {
         statsCache.clear();
         storage.deleteAllStats();
+        // Restart session timers so time played before the wipe doesn't get
+        // added to the fresh stats when online players eventually quit.
+        long now = System.currentTimeMillis();
+        for (Player online : Bukkit.getOnlinePlayers()) {
+            loginTimes.put(online.getUniqueId(), now);
+        }
     }
 
     public void close() {

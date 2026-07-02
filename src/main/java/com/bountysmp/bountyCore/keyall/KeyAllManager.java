@@ -48,7 +48,8 @@ public class KeyAllManager {
             .replace("{crate}", crateName)
             .replace("&", "§");
 
-        Bukkit.getServer().broadcast(net.kyori.adventure.text.Component.text(broadcastMessage));
+        plugin.broadcastFiltered(broadcastMessage,
+            com.bountysmp.bountyCore.settings.PlayerSettings::isKeyAllNotifications);
 
         plugin.getLogger().info("KeyAll: Gave " + amount + "x " + crateName + " keys to " + playersGiven + " players");
     }

@@ -42,7 +42,8 @@ public class BountyListener implements Listener {
         broadcast = broadcast.replace("{victim}", victim.getName());
         broadcast = broadcast.replace("{amount}", plugin.getEconomy().format(bounty));
 
-        Bukkit.broadcastMessage(broadcast);
+        plugin.broadcastFiltered(broadcast,
+            com.bountysmp.bountyCore.settings.PlayerSettings::isBountyAlerts);
     }
 
     @EventHandler

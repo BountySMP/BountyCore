@@ -69,6 +69,14 @@ public class MsgCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
+        // Private Messages setting: target may have messages disabled
+        com.bountysmp.bountyCore.settings.PlayerSettings targetSettings =
+            plugin.getSettingsManager().getCached(target.getUniqueId());
+        if (targetSettings != null && !targetSettings.isAllowMsg()) {
+            player.sendMessage("§c§l(!) §cThat player has private messages disabled.");
+            return true;
+        }
+
         // Build the message
         StringBuilder messageBuilder = new StringBuilder();
         for (int i = 1; i < args.length; i++) {

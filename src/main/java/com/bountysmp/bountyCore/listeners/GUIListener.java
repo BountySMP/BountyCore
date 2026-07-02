@@ -90,6 +90,20 @@ public class GUIListener implements Listener {
             return;
         }
 
+        if (event.getInventory().getHolder() instanceof com.bountysmp.bountyCore.teleport.TpaConfirmGUI gui) {
+            event.setCancelled(true);
+            if (event.getClickedInventory() != event.getView().getTopInventory()) return;
+            gui.handleClick(event.getSlot(), player);
+            return;
+        }
+
+        if (event.getInventory().getHolder() instanceof com.bountysmp.bountyCore.economy.PayConfirmGUI gui) {
+            event.setCancelled(true);
+            if (event.getClickedInventory() != event.getView().getTopInventory()) return;
+            gui.handleClick(event.getSlot(), player);
+            return;
+        }
+
         if (event.getInventory().getHolder() instanceof com.bountysmp.bountyCore.auction.AHClaimGUI) {
             event.setCancelled(true);
             if (event.getClickedInventory() != event.getView().getTopInventory()) return;
@@ -308,15 +322,20 @@ public class GUIListener implements Listener {
     }
 
     private void executeWipe(Player player, String wipeType) {
+        var wipes = plugin.getPlayerWipeManager();
         switch (wipeType) {
             case "Economy"      -> plugin.wipeAllEconomy();
             case "Stats"        -> plugin.getPlayerStatsManager().wipeAllStats();
             case "Homes"        -> plugin.getHomeManager().wipeAll();
-            case "Ender Chests" -> plugin.getEnderChestManager().wipeAll();
+            case "Ender Chests" -> {
+                plugin.getEnderChestManager().wipeAll();
+                // Also clear vanilla ender chests (online now, offline on join)
+                wipes.wipe(com.bountysmp.bountyCore.statswipe.PlayerWipeManager.WipeType.ENDER_CHEST);
+            }
             case "Bounties"     -> plugin.getBountyManager().wipeAll();
             case "Auction House"-> plugin.getAuctionManager().wipeAll();
             case "Teams"        -> plugin.getTeamManager().wipeAll();
-            case "Inventories"  -> plugin.getInventoryWipeManager().wipeAll();
+            case "Inventories"  -> wipes.wipe(com.bountysmp.bountyCore.statswipe.PlayerWipeManager.WipeType.INVENTORY);
             case "HH Data"      -> wipeHHData();
             case "ALL DATA"     -> {
                 plugin.wipeAllEconomy();
@@ -326,7 +345,8 @@ public class GUIListener implements Listener {
                 plugin.getBountyManager().wipeAll();
                 plugin.getAuctionManager().wipeAll();
                 plugin.getTeamManager().wipeAll();
-                plugin.getInventoryWipeManager().wipeAll();
+                wipes.wipe(com.bountysmp.bountyCore.statswipe.PlayerWipeManager.WipeType.INVENTORY,
+                           com.bountysmp.bountyCore.statswipe.PlayerWipeManager.WipeType.ENDER_CHEST);
                 wipeHHData();
             }
         }
@@ -344,12 +364,8 @@ public class GUIListener implements Listener {
                 plugin.getLogger().warning("Failed to wipe HeadHunter data: " + e.getMessage());
             }
         }
-        // Reset Minecraft XP of all online players to zero
-        for (Player online : Bukkit.getOnlinePlayers()) {
-            online.setLevel(0);
-            online.setExp(0f);
-            online.setTotalExperience(0);
-        }
+        // Reset Minecraft XP for everyone — online now, offline on next join
+        plugin.getPlayerWipeManager().wipe(com.bountysmp.bountyCore.statswipe.PlayerWipeManager.WipeType.XP);
     }
 
     private void handleInfoGUI(Player player, int slot) {

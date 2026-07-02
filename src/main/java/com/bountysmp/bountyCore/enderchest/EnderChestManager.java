@@ -86,6 +86,13 @@ public class EnderChestManager {
     }
 
     public void wipeAll() {
+        // Close open ender chest views first — their close handler saves the
+        // viewed contents, which would restore the old items after the wipe.
+        for (Player online : org.bukkit.Bukkit.getOnlinePlayers()) {
+            if (online.getOpenInventory().getTitle().equals("Ender Chest")) {
+                online.closeInventory();
+            }
+        }
         enderChestCache.clear();
         data = new org.bukkit.configuration.file.YamlConfiguration();
         saveData();

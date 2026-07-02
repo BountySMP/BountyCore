@@ -63,23 +63,45 @@ public class PayCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        EconomyResponse withdraw = plugin.getEconomy().withdrawPlayer(player, amount);
-        if (!withdraw.transactionSuccess()) {
-            player.sendMessage(plugin.getMessage("economy.pay-failed", "error", withdraw.errorMessage));
+        // Pay Confirm Menus setting: show a confirmation GUI before sending
+        com.bountysmp.bountyCore.settings.PlayerSettings senderSettings =
+            plugin.getSettingsManager().getCached(player.getUniqueId());
+        if (senderSettings != null && senderSettings.isPayConfirmMenu()) {
+            new com.bountysmp.bountyCore.economy.PayConfirmGUI(plugin, player, target, amount).open();
             return true;
         }
 
-        EconomyResponse deposit = plugin.getEconomy().depositPlayer(target, amount);
-        if (!deposit.transactionSuccess()) {
-            plugin.getEconomy().depositPlayer(player, amount);
-            player.sendMessage(plugin.getMessage("economy.pay-failed", "error", deposit.errorMessage));
-            return true;
-        }
-
-        player.sendMessage(plugin.getMessage("economy.pay-success-sender", "player", target.getName(), "amount", plugin.getEconomy().format(amount)));
-        target.sendMessage(plugin.getMessage("economy.pay-success-receiver", "amount", plugin.getEconomy().format(amount), "sender", player.getName()));
-
+        transfer(plugin, player, target, amount);
         return true;
+    }
+
+    /** Executes the payment. Receiver notification honors their Pay Alerts setting. */
+    public static void transfer(BountyCore plugin, Player from, Player to, double amount) {
+        if (!plugin.getEconomy().has(from, amount)) {
+            from.sendMessage(plugin.getMessage("economy.pay-insufficient"));
+            return;
+        }
+
+        EconomyResponse withdraw = plugin.getEconomy().withdrawPlayer(from, amount);
+        if (!withdraw.transactionSuccess()) {
+            from.sendMessage(plugin.getMessage("economy.pay-failed", "error", withdraw.errorMessage));
+            return;
+        }
+
+        EconomyResponse deposit = plugin.getEconomy().depositPlayer(to, amount);
+        if (!deposit.transactionSuccess()) {
+            plugin.getEconomy().depositPlayer(from, amount);
+            from.sendMessage(plugin.getMessage("economy.pay-failed", "error", deposit.errorMessage));
+            return;
+        }
+
+        from.sendMessage(plugin.getMessage("economy.pay-success-sender", "player", to.getName(), "amount", plugin.getEconomy().format(amount)));
+
+        com.bountysmp.bountyCore.settings.PlayerSettings receiverSettings =
+            plugin.getSettingsManager().getCached(to.getUniqueId());
+        if (receiverSettings == null || receiverSettings.isPayAlerts()) {
+            to.sendMessage(plugin.getMessage("economy.pay-success-receiver", "amount", plugin.getEconomy().format(amount), "sender", from.getName()));
+        }
     }
 
     @Override
