@@ -22,7 +22,7 @@ public class HomeManager {
     private final File homesFolder;
     private final Gson gson;
     private final Map<UUID, Map<String, Home>> homeCache;
-    private final int defaultLimit;
+    private int defaultLimit;
 
     public HomeManager(BountyCore plugin) {
         this.plugin = plugin;
@@ -34,6 +34,11 @@ public class HomeManager {
         if (!homesFolder.exists()) {
             homesFolder.mkdirs();
         }
+    }
+
+    /** Re-reads the values cached from config.yml. */
+    public void refreshConfigValues() {
+        this.defaultLimit = plugin.getConfig().getInt("homes.default-home-limit", 1);
     }
 
     public CompletableFuture<Map<String, Home>> loadHomes(UUID uuid) {

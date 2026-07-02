@@ -60,6 +60,10 @@ public class ShopManager {
         }
     }
 
+    public void reload() {
+        loadShopConfig();
+    }
+
     public Map<String, List<ShopItem>> getCategories() {
         return new HashMap<>(categories);
     }

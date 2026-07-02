@@ -55,6 +55,10 @@ public class SellManager {
         }
     }
 
+    public void reload() {
+        loadSellConfig();
+    }
+
     public double getItemPrice(ItemStack item, UUID playerUuid) {
         if (item == null || item.getType().isAir()) {
             return 0.0;

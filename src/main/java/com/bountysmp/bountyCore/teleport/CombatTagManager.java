@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class CombatTagManager {
     private final BountyCore plugin;
     private final Map<UUID, Long> combatTags;
-    private final int tagDurationSeconds;
+    private int tagDurationSeconds;
 
     public CombatTagManager(BountyCore plugin) {
         this.plugin = plugin;
@@ -20,6 +20,11 @@ public class CombatTagManager {
         this.tagDurationSeconds = plugin.getConfig().getInt("teleport.combat-tag-seconds", 15);
 
         startCleanupTask();
+    }
+
+    /** Re-reads the values cached from config.yml. */
+    public void refreshConfigValues() {
+        this.tagDurationSeconds = plugin.getConfig().getInt("teleport.combat-tag-seconds", 15);
     }
 
     public void tagPlayer(Player player) {

@@ -70,6 +70,16 @@ public class RankManager {
         playersConfig = YamlConfiguration.loadConfiguration(playersFile);
     }
 
+    /** Fully re-reads ranks.yml and players.yml, then reapplies permissions to online players. */
+    public void reload() {
+        loadRanks();
+        loadPlayers();
+        for (Player online : Bukkit.getOnlinePlayers()) {
+            refreshPermissions(online.getUniqueId());
+            updateTabAndNametag(online.getUniqueId());
+        }
+    }
+
     public List<String> getGroups(UUID player) {
         String uuidStr = player.toString();
         return playersConfig.getStringList(uuidStr + ".groups");

@@ -231,6 +231,10 @@ commands:
   worth:
     description: Check item worth
     usage: /worth [material]
+  config:
+    description: Reload or list synced configs
+    usage: /config <reload <name|all>|list>
+    permission: bounty.admin.config
 
 permissions:
   bounty.basic:
@@ -453,3 +457,6 @@ permissions:
       bounty.staff.keyall: true
       bounty.staff.helper: true
       bounty.staff.rename: true
+  bounty.admin.config:
+    description: Allows reloading and listing synced configs
+    default: op

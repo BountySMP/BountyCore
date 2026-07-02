@@ -17,8 +17,8 @@ import java.util.concurrent.CompletableFuture;
 public class AuctionManager {
     private final BountyCore plugin;
     private final AuctionStorage storage;
-    private final double saleFeePercent;
-    private final long listingDuration;
+    private double saleFeePercent;
+    private long listingDuration;
     private HikariDataSource dataSource;
 
     public AuctionManager(BountyCore plugin) {
@@ -53,6 +53,12 @@ public class AuctionManager {
             this.storage = new FlatFileAuctionStorage(plugin.getDataFolder(), plugin.getLogger());
             plugin.getLogger().info("Using FlatFile storage for auction house");
         }
+    }
+
+    /** Re-reads the tunable values cached from config.yml (storage type stays restart-only). */
+    public void refreshConfigValues() {
+        this.saleFeePercent = plugin.getConfig().getDouble("auction.sale-fee-percent", 10.0);
+        this.listingDuration = plugin.getConfig().getLong("auction.listing-duration-hours", 24) * 3600000L;
     }
 
     public CompletableFuture<Boolean> listItem(Player seller, ItemStack item, double price) {

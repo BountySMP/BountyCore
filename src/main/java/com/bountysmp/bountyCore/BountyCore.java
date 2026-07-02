@@ -83,6 +83,7 @@ public final class BountyCore extends JavaPlugin {
     private com.bountysmp.bountyCore.scoreboard.ScoreboardManager scoreboardManager;
     private com.bountysmp.bountyCore.statswipe.PlayerWipeManager playerWipeManager;
     private com.bountysmp.bountyCore.tab.TabManager tabManager;
+    private com.bountysmp.bountyCore.sync.ConfigRegistry configRegistry;
 
     @Override
     public void onEnable() {
@@ -120,6 +121,7 @@ public final class BountyCore extends JavaPlugin {
         setupInventoryWipe();
         setupTab();
         setupScoreboard();
+        setupConfigSync();
         registerCommands();
         registerListeners();
         startScheduledTasks();
@@ -363,6 +365,52 @@ public final class BountyCore extends JavaPlugin {
         getLogger().info("Scoreboard system initialized!");
     }
 
+    private void setupConfigSync() {
+        configRegistry = new com.bountysmp.bountyCore.sync.ConfigRegistry(getLogger());
+
+        File dataFolder = getDataFolder();
+        configRegistry.register("config", new File(dataFolder, "config.yml"), () -> {
+            reloadConfig();
+            homeManager.refreshConfigValues();
+            combatTagManager.refreshConfigValues();
+            auctionManager.refreshConfigValues();
+        });
+        configRegistry.register("messages", new File(dataFolder, "messages.yml"), this::loadMessagesConfig);
+        configRegistry.register("ranks", new File(dataFolder, "ranks.yml"), rankManager::reload);
+        configRegistry.register("tab", new File(dataFolder, "tab.yml"), tabManager::reload);
+        configRegistry.register("scoreboard", new File(dataFolder, "scoreboard.yml"), scoreboardManager::reload);
+        configRegistry.register("clearlag", new File(dataFolder, "clearlag.yml"), clearLagManager::reload);
+        configRegistry.register("keyall", new File(dataFolder, "keyall.yml"), keyAllManager::reload);
+        configRegistry.register("warp-gui", new File(dataFolder, "warp-gui.yml"), warpConfig::reload);
+        configRegistry.register("worth", new File(dataFolder, "worth.yml"), worthManager::load);
+        configRegistry.register("shop", new File(dataFolder, "shop.yml"), shopManager::reload);
+        configRegistry.register("sell", new File(dataFolder, "sell.yml"), sellManager::reload);
+
+        // config-sync.yml is server-local: it holds poll settings and the
+        // GitHub token, so it is deliberately not part of the synced repo.
+        File syncFile = new File(dataFolder, "config-sync.yml");
+        if (!syncFile.exists()) {
+            saveResource("config-sync.yml", false);
+        }
+        FileConfiguration sync = YamlConfiguration.loadConfiguration(syncFile);
+
+        org.bukkit.configuration.ConfigurationSection configSync = sync.getConfigurationSection("config-sync");
+        if (configSync != null && configSync.getBoolean("enabled", true)) {
+            int interval = configSync.getInt("poll-interval-seconds", 5);
+            new com.bountysmp.bountyCore.sync.ConfigSyncTask(this, configSync).start(interval);
+            getLogger().info("Config sync polling every " + interval + "s");
+        }
+
+        org.bukkit.configuration.ConfigurationSection jarSync = sync.getConfigurationSection("jar-sync");
+        if (jarSync != null && jarSync.getBoolean("enabled", true)) {
+            int interval = jarSync.getInt("interval-minutes", 5);
+            new com.bountysmp.bountyCore.sync.JarSyncTask(this, jarSync).start(interval);
+            getLogger().info("Jar sync checking every " + interval + "m");
+        }
+
+        getLogger().info("Config registry initialized with " + configRegistry.getEntries().size() + " configs!");
+    }
+
     private void startScheduledTasks() {
         // Sell booster expiry check every minute
         getServer().getScheduler().runTaskTimer(this, () -> {
@@ -597,6 +645,10 @@ public final class BountyCore extends JavaPlugin {
         com.bountysmp.bountyCore.commands.WorthCommand worthCmd = new com.bountysmp.bountyCore.commands.WorthCommand(this);
         getCommand("worth").setExecutor(worthCmd);
         getCommand("worth").setTabCompleter(worthCmd);
+
+        com.bountysmp.bountyCore.commands.admin.ConfigCommand configCmd = new com.bountysmp.bountyCore.commands.admin.ConfigCommand(this);
+        getCommand("config").setExecutor(configCmd);
+        getCommand("config").setTabCompleter(configCmd);
     }
 
     private void registerListeners() {
@@ -785,6 +837,10 @@ public final class BountyCore extends JavaPlugin {
 
     public com.bountysmp.bountyCore.tab.TabManager getTabManager() {
         return tabManager;
+    }
+
+    public com.bountysmp.bountyCore.sync.ConfigRegistry getConfigRegistry() {
+        return configRegistry;
     }
 
     /**

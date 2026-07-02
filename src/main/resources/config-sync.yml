@@ -1,0 +1,28 @@
+# BountyCore GitOps sync settings.
+# This file is SERVER-LOCAL: it can hold a GitHub token and must never be
+# committed to the config repo (it is not in the config repo whitelist).
+
+config-sync:
+  enabled: true
+  # Config repo checked out in the server root (informational; the git
+  # remote configured in the server root is what is actually used)
+  repo: BountySMP/Configs-SMP
+  branch: main
+  poll-interval-seconds: 5
+  # Server root override; empty = auto-detect (two levels up from this
+  # plugin's data folder)
+  server-root: ""
+
+jar-sync:
+  enabled: true
+  interval-minutes: 5
+  # Fine-grained PAT with Contents: Read access on the source repos.
+  # Required while the plugin repos are private.
+  github-token: ""
+  sources:
+    - repo: BountySMP/BountyCore
+      # pin: lock this plugin to a specific release tag (e.g. build-7);
+      # empty = always stage the latest release
+      pin: ""
+    - repo: BountySMP/HeadHunter
+      pin: ""
