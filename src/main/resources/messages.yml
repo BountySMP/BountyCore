@@ -307,3 +307,10 @@ feed:
   self: "§aYou have been fed!"
   other: "§aYou fed §e{player}§a!"
   notify: "§aYou have been fed by a staff member!"
+
+# Worth messages
+worth:
+  single: "§71x §f{item} §7is worth §a${price}"
+  stack: "§7{amount}x §f{item} §7is worth §a${total} §8(§f${price} §7each§8)"
+  not-sellable: "§cThis item has no sell value."
+  no-item-held: "§cHold an item to check its worth."

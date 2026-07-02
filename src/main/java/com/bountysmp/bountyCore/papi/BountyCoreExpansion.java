@@ -2,6 +2,7 @@ package com.bountysmp.bountyCore.papi;
 
 import com.bountysmp.bountyCore.BountyCore;
 import com.bountysmp.bountyCore.booster.SellBooster;
+import com.bountysmp.bountyCore.ranks.RankManager;
 import com.bountysmp.bountyCore.stats.PlayerStats;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.Bukkit;
@@ -46,10 +47,16 @@ public class BountyCoreExpansion extends PlaceholderExpansion {
 
         switch (params.toLowerCase()) {
             case "balance":
-                return df.format(plugin.getEconomy().getBalance(player));
+                return abbreviateBalance(plugin.getEconomy().getBalance(player));
 
             case "rank":
-                return plugin.getRankManager().getRank(player.getUniqueId()).getDisplayName();
+                RankManager.RankGroup rank = plugin.getRankManager().getRank(player.getUniqueId());
+                if (rank == null || rank.getCategory().equals("default")) return "";
+                return rank.getDisplayName();
+
+            case "team":
+                com.bountysmp.bountyCore.teams.Team team = plugin.getTeamManager().getPlayerTeam(player.getUniqueId()).join();
+                return team != null ? team.getTeamName() : "None";
 
             case "kills":
                 PlayerStats stats = plugin.getPlayerStatsManager().getStats(player.getUniqueId());
@@ -92,5 +99,16 @@ public class BountyCoreExpansion extends PlaceholderExpansion {
             default:
                 return null;
         }
+    }
+
+    private String abbreviateBalance(double amount) {
+        if (amount >= 1_000_000_000) return abbrev(amount / 1_000_000_000, "B");
+        if (amount >= 1_000_000)     return abbrev(amount / 1_000_000, "M");
+        if (amount >= 1_000)         return abbrev(amount / 1_000, "K");
+        return new java.text.DecimalFormat("0.##").format(amount);
+    }
+
+    private String abbrev(double value, String suffix) {
+        return new java.text.DecimalFormat("0.##").format(value) + suffix;
     }
 }

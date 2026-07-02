@@ -37,6 +37,7 @@ public class PlayerListener implements Listener {
                 autoOppedPlayers.add(player.getUniqueId());
             }
         }, 3L);
+
     }
 
     @EventHandler

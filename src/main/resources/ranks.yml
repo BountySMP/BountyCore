@@ -6,44 +6,44 @@
 groups:
   staff:
     owner:
-      prefix: "§4[Owner] §f"
-      chat-color: "§f"
+      prefix: "§b§lOwner §b"
+      chat-color: "§c"
       weight: 100
       bypass-all: true
       permissions:
         - "*"
     manager:
-      prefix: "§5[Manager] §f"
-      chat-color: "§f"
+      prefix: "§5§lManager §5"
+      chat-color: "§c"
       weight: 95
       bypass-all: true
       permissions:
         - "bounty.staff.admin"
     dev:
-      prefix: "§b[Dev] §f"
-      chat-color: "§f"
+      prefix: "§e§lDev §e"
+      chat-color: "§c"
       weight: 93
       bypass-all: true
       permissions:
         - "bounty.staff.admin"
         - "bountycore.homes.50"
     sradmin:
-      prefix: "§c[Sr.Admin] §f"
-      chat-color: "§f"
+      prefix: "§c§lSrAdmin §c"
+      chat-color: "§c"
       weight: 92
       permissions:
         - "bounty.staff.admin"
         - "bountycore.homes.30"
     admin:
-      prefix: "§c[Admin] §f"
-      chat-color: "§f"
+      prefix: "§c§lAdmin §c"
+      chat-color: "§c"
       weight: 90
       permissions:
         - "bounty.staff.admin"
         - "bountycore.homes.25"
     srmod:
-      prefix: "§9[Sr.Mod] §f"
-      chat-color: "§f"
+      prefix: "§9§lSrMod §9"
+      chat-color: "§c"
       weight: 85
       permissions:
         - "bounty.staff.kick"
@@ -55,8 +55,8 @@ groups:
         - "bounty.staff.unban"
         - "bountycore.homes.20"
     mod:
-      prefix: "§9[Mod] §f"
-      chat-color: "§f"
+      prefix: "§9§lMod §9"
+      chat-color: "§c"
       weight: 80
       permissions:
         - "bounty.staff.kick"
@@ -65,8 +65,8 @@ groups:
         - "bounty.staff.unmute"
         - "bountycore.homes.15"
     helper:
-      prefix: "§a[Helper] §f"
-      chat-color: "§f"
+      prefix: "§a§lHelper §a"
+      chat-color: "§c"
       weight: 70
       permissions:
         - "bounty.staff.kick"
@@ -74,8 +74,17 @@ groups:
         - "bounty.staff.tempmute"
         - "bountycore.homes.10"
   donator:
+    bountyplusplus:
+      prefix: "§dBounty++ §f"
+      chat-color: "§f"
+      weight: 30
+      permissions:
+        - "bounty.donator.bounty"
+        - "bounty.donator.bountyplus"
+        - "bounty.donator.bountyplusplus"
+        - "bountycore.homes.15"
     bountyplus:
-      prefix: "§e[Bounty+] §f"
+      prefix: "§eBounty+ §f"
       chat-color: "§f"
       weight: 20
       permissions:
@@ -83,7 +92,7 @@ groups:
         - "bounty.donator.bountyplus"
         - "bountycore.homes.10"
     bounty:
-      prefix: "§6[Bounty] §f"
+      prefix: "§6Bounty §f"
       chat-color: "§f"
       weight: 10
       permissions:

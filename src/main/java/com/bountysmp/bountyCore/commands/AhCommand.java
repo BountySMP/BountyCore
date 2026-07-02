@@ -3,6 +3,7 @@ package com.bountysmp.bountyCore.commands;
 import com.bountysmp.bountyCore.BountyCore;
 import com.bountysmp.bountyCore.auction.AuctionGUI;
 import com.bountysmp.bountyCore.auction.AuctionReturnGUI;
+import com.bountysmp.bountyCore.auction.AuctionSort;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -30,12 +31,12 @@ public class AhCommand implements CommandExecutor, TabCompleter {
         Player player = (Player) sender;
 
         if (args.length == 0) {
-            new AuctionGUI(plugin, player, 0).open();
+            new AuctionGUI(plugin, player, 0, AuctionSort.NEWEST).open();
             return true;
         }
 
         if (args[0].equalsIgnoreCase("return")) {
-            new AuctionReturnGUI(plugin, player).open();
+            new AuctionReturnGUI(plugin, player, 0).open();
             return true;
         }
 
@@ -56,7 +57,7 @@ public class AhCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        new AuctionGUI(plugin, player, 0).open();
+        new AuctionGUI(plugin, player, 0, AuctionSort.NEWEST).open();
         return true;
     }
 

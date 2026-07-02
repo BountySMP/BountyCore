@@ -132,8 +132,6 @@ commands:
     description: Open auction house
     usage: /ah [return|search <query>]
     aliases: [auction, auctionhouse]
-  orders:
-    description: Manage buy orders
   team:
     description: Team management
     usage: /team [create|invite|accept|deny|leave|kick|disband|info|list|chat]
@@ -158,6 +156,9 @@ commands:
     description: Manage server warps
     usage: /warpmanager <create|delete|list|seticon>
     aliases: [warpmgr]
+  setwarp:
+    description: Set a warp location at your current position
+    usage: /setwarp <name>
   profile:
     description: View a player's profile
     usage: /profile <player>
@@ -174,11 +175,6 @@ commands:
     aliases: [sinfo]
   rules:
     description: Open server rules menu
-  afk:
-    description: Toggle AFK status
-  alts:
-    description: View player's alt accounts
-    usage: /alts <player>
   freeze:
     description: Freeze a player
     usage: /freeze <player>
@@ -264,8 +260,6 @@ permissions:
       bounty.randomtp: true
       # Auction House
       bounty.ah: true
-      # Orders
-      bounty.orders: true
       # Team
       bounty.team: true
       # Settings
@@ -284,7 +278,6 @@ permissions:
       # Profile command
       bounty.profile: true
       # New basic commands
-      bounty.afk: true
       bounty.ignore: true
       bounty.ping: true
       bounty.playtime: true
@@ -459,5 +452,4 @@ permissions:
       bounty.staff.statswipe: true
       bounty.staff.keyall: true
       bounty.staff.helper: true
-      bounty.staff.alts: true
       bounty.staff.rename: true

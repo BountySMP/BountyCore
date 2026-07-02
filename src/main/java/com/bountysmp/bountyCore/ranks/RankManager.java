@@ -180,6 +180,8 @@ public class RankManager {
         for (String groupName : playerGroups) {
             RankGroup group = groups.get(groupName);
             if (group != null) {
+                // Inject the group name itself so TAB can detect it
+                attachment.setPermission(groupName, true);
                 // Add this group's permissions
                 allPermissions.addAll(group.getPermissions());
 
@@ -262,17 +264,22 @@ public class RankManager {
         return highestRank;
     }
 
-    private void updateTabAndNametag(UUID player) {
-        Player onlinePlayer = Bukkit.getPlayer(player);
-        if (onlinePlayer != null && onlinePlayer.isOnline()) {
-            // Use a 1-tick delay to ensure permissions are fully injected
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                if (onlinePlayer.isOnline()) {
-                    plugin.getTabManager().updatePlayer(onlinePlayer);
-                    plugin.getNametagManager().updatePlayer(onlinePlayer);
+    private void updateTabAndNametag(UUID uuid) {
+        Player online = Bukkit.getPlayer(uuid);
+        if (online == null || !online.isOnline()) return;
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            if (!online.isOnline()) return;
+            try {
+                Object api = Class.forName("me.neznamy.tab.api.TabAPI")
+                        .getMethod("getInstance").invoke(null);
+                Object tabPlayer = api.getClass()
+                        .getMethod("getTabPlayer", UUID.class)
+                        .invoke(api, uuid);
+                if (tabPlayer != null) {
+                    tabPlayer.getClass().getMethod("forceRefresh").invoke(tabPlayer);
                 }
-            }, 1L);
-        }
+            } catch (Exception ignored) {}
+        }, 2L);
     }
 
     public static class RankGroup {

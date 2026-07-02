@@ -1,7 +1,7 @@
 package com.bountysmp.bountyCore.commands;
 
 import com.bountysmp.bountyCore.BountyCore;
-import com.bountysmp.bountyCore.menus.SellMenu;
+import com.bountysmp.bountyCore.sell.SellGUI;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -31,7 +31,7 @@ public class SellCommand implements CommandExecutor, TabCompleter {
 
         if (args.length == 0) {
             // Open sell menu
-            new SellMenu(plugin).open(player);
+            new SellGUI(plugin, player).open();
             return true;
         }
 

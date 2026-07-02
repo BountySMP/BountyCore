@@ -114,10 +114,9 @@ public class AuctionManager {
 
             plugin.getEconomy().depositPlayer(Bukkit.getOfflinePlayer(listing.getSellerUuid()), sellerAmount);
 
-            if (buyer.getInventory().firstEmpty() == -1) {
-                buyer.getWorld().dropItem(buyer.getLocation(), listing.getItem());
-            } else {
-                buyer.getInventory().addItem(listing.getItem());
+            java.util.Map<Integer, ItemStack> leftover = buyer.getInventory().addItem(listing.getItem());
+            for (ItemStack drop : leftover.values()) {
+                buyer.getWorld().dropItem(buyer.getEyeLocation(), drop);
             }
 
             listing.setStatus(AuctionListing.ListingStatus.SOLD);
@@ -132,6 +131,36 @@ public class AuctionManager {
             }
 
             return true;
+        });
+    }
+
+    /** Like buyItem but returns the purchased ItemStack (for bulk-drop), or null on failure. */
+    public CompletableFuture<ItemStack> buyItemDirect(Player buyer, UUID listingId) {
+        return CompletableFuture.supplyAsync(() -> {
+            AuctionListing listing = storage.getListing(listingId).join();
+            if (listing == null || listing.getStatus() != AuctionListing.ListingStatus.ACTIVE) return null;
+            if (listing.isExpired()) {
+                listing.setStatus(AuctionListing.ListingStatus.EXPIRED);
+                storage.saveListing(listing).join();
+                return null;
+            }
+            if (plugin.getEconomy().getBalance(buyer) < listing.getPrice()) {
+                buyer.sendMessage(plugin.getMessage("auction.insufficient-funds"));
+                return null;
+            }
+            plugin.getEconomy().withdrawPlayer(buyer, listing.getPrice());
+            double sellerAmount = listing.getPrice() * (1.0 - saleFeePercent / 100.0);
+            plugin.getEconomy().depositPlayer(Bukkit.getOfflinePlayer(listing.getSellerUuid()), sellerAmount);
+            listing.setStatus(AuctionListing.ListingStatus.SOLD);
+            storage.saveListing(listing).join();
+            Player seller = Bukkit.getPlayer(listing.getSellerUuid());
+            if (seller != null && seller.isOnline()) {
+                seller.sendMessage(plugin.getMessage("auction.item-sold",
+                    "buyer", buyer.getName(),
+                    "item", getItemName(listing.getItem()),
+                    "amount", plugin.getEconomy().format(sellerAmount)));
+            }
+            return listing.getItem().clone();
         });
     }
 

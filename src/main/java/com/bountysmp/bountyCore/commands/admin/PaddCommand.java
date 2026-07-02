@@ -59,13 +59,18 @@ public class PaddCommand implements CommandExecutor, TabCompleter {
                 completions.add(player.getName());
             }
         } else if (args.length == 2) {
-            // Suggest common groups and permissions
             completions.add("group.staff.owner");
+            completions.add("group.staff.manager");
+            completions.add("group.staff.dev");
+            completions.add("group.staff.sradmin");
             completions.add("group.staff.admin");
+            completions.add("group.staff.srmod");
             completions.add("group.staff.mod");
-            completions.add("group.donator.vip");
-            completions.add("group.donator.vip++");
-            completions.add("bounty.staff.admin");
+            completions.add("group.staff.helper");
+            completions.add("group.donator.bountyplusplus");
+            completions.add("group.donator.bountyplus");
+            completions.add("group.donator.bounty");
+            completions.add("group.default.member");
         }
 
         return completions;

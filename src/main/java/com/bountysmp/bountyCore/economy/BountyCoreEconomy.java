@@ -43,7 +43,24 @@ public class BountyCoreEconomy implements Economy {
 
     @Override
     public String format(double amount) {
-        return String.format("$%.2f", amount);
+        if (amount >= 1_000_000_000) {
+            return abbrev(amount / 1_000_000_000, "b");
+        } else if (amount >= 1_000_000) {
+            return abbrev(amount / 1_000_000, "m");
+        } else if (amount >= 1_000) {
+            return abbrev(amount / 1_000, "k");
+        } else {
+            return amount == Math.floor(amount)
+                    ? String.format("$%.0f", amount)
+                    : String.format("$%.2f", amount);
+        }
+    }
+
+    private static String abbrev(double value, String suffix) {
+        double rounded = Math.round(value * 10.0) / 10.0;
+        return rounded == Math.floor(rounded)
+                ? String.format("$%.0f%s", rounded, suffix)
+                : String.format("$%.1f%s", rounded, suffix);
     }
 
     @Override

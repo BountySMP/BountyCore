@@ -32,7 +32,7 @@ public class WarpCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length == 0) {
-            new WarpGUI(plugin, 0).open(player);
+            new WarpGUI(plugin).open(player);
             return true;
         }
 

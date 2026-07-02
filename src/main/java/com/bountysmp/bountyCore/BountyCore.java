@@ -24,12 +24,9 @@ import com.bountysmp.bountyCore.listeners.GUIListener;
 import com.bountysmp.bountyCore.listeners.MuteListener;
 import com.bountysmp.bountyCore.listeners.PlayerListener;
 import com.bountysmp.bountyCore.listeners.RankListener;
-import com.bountysmp.bountyCore.listeners.TabListener;
 import com.bountysmp.bountyCore.listeners.TeleportWarmupListener;
 import com.bountysmp.bountyCore.listeners.VanishListener;
 import com.bountysmp.bountyCore.messaging.MessagingManager;
-import com.bountysmp.bountyCore.tab.NametagManager;
-import com.bountysmp.bountyCore.tab.TabManager;
 import com.bountysmp.bountyCore.teleport.CombatTagManager;
 import com.bountysmp.bountyCore.teleport.TeleportManager;
 import net.milkbowl.vault.economy.Economy;
@@ -64,22 +61,27 @@ public final class BountyCore extends JavaPlugin {
     private VanishManager vanishManager;
     private EnderChestManager enderChestManager;
     private GameModeManager gameModeManager;
-    private TabManager tabManager;
-    private NametagManager nametagManager;
     private RandomTpCommand randomTpCommand;
     private FileConfiguration messagesConfig;
     private com.bountysmp.bountyCore.auction.AuctionManager auctionManager;
-    private com.bountysmp.bountyCore.orders.OrderManager orderManager;
+    private com.bountysmp.bountyCore.auction.AHOrderSignListener ahOrderSignListener;
+    private com.bountysmp.bountyCore.auction.AHClaimStore ahClaimStore;
+    private com.bountysmp.bountyCore.auction.AHSearchChatListener ahSearchChatListener;
+    private com.bountysmp.bountyCore.auction.AHSignSearchListener ahSignSearchListener;
     private com.bountysmp.bountyCore.teams.TeamManager teamManager;
     private com.bountysmp.bountyCore.shop.ShopManager shopManager;
     private com.bountysmp.bountyCore.booster.SellBoosterManager sellBoosterManager;
     private com.bountysmp.bountyCore.sell.SellManager sellManager;
     private com.bountysmp.bountyCore.warp.WarpManager warpManager;
+    private com.bountysmp.bountyCore.warp.WarpConfig warpConfig;
     private com.bountysmp.bountyCore.stats.PlayerStatsManager playerStatsManager;
     private com.bountysmp.bountyCore.clearlag.ClearLagManager clearLagManager;
     private com.bountysmp.bountyCore.keyall.KeyAllManager keyAllManager;
     private com.bountysmp.bountyCore.settings.SettingsManager settingsManager;
     private com.bountysmp.bountyCore.leaderboard.LeaderboardManager leaderboardManager;
+    private com.bountysmp.bountyCore.worth.WorthManager worthManager;
+    private com.bountysmp.bountyCore.scoreboard.ScoreboardManager scoreboardManager;
+    private com.bountysmp.bountyCore.statswipe.InventoryWipeManager inventoryWipeManager;
 
     @Override
     public void onEnable() {
@@ -103,9 +105,7 @@ public final class BountyCore extends JavaPlugin {
         setupVanish();
         setupEnderChest();
         setupGameMode();
-        setupTabAndNametags();
         setupAuction();
-        setupOrders();
         setupTeams();
         setupShop();
         setupSell();
@@ -115,6 +115,9 @@ public final class BountyCore extends JavaPlugin {
         setupLeaderboard();
         setupClearLag();
         setupKeyAll();
+        setupWorth();
+        setupInventoryWipe();
+        setupScoreboard();
         registerCommands();
         registerListeners();
         startScheduledTasks();
@@ -145,16 +148,12 @@ public final class BountyCore extends JavaPlugin {
             gameModeManager.close();
         }
 
-        if (nametagManager != null) {
-            nametagManager.shutdown();
-        }
-
         if (auctionManager != null) {
             auctionManager.close();
         }
 
-        if (orderManager != null) {
-            orderManager.close();
+        if (ahSignSearchListener != null) {
+            ahSignSearchListener.restoreAll();
         }
 
         if (teamManager != null) {
@@ -278,25 +277,13 @@ public final class BountyCore extends JavaPlugin {
         getLogger().info("GameMode manager initialized!");
     }
 
-    private void setupTabAndNametags() {
-        tabManager = new TabManager(this);
-        nametagManager = new NametagManager(this);
-
-        // Update all online players on enable
-        tabManager.updateAll();
-        nametagManager.updateAll();
-
-        getLogger().info("Tab and nametag systems initialized!");
-    }
-
     private void setupAuction() {
         auctionManager = new com.bountysmp.bountyCore.auction.AuctionManager(this);
+        ahOrderSignListener = new com.bountysmp.bountyCore.auction.AHOrderSignListener(this);
+        ahClaimStore = new com.bountysmp.bountyCore.auction.AHClaimStore();
+        ahSearchChatListener = new com.bountysmp.bountyCore.auction.AHSearchChatListener(this);
+        ahSignSearchListener = new com.bountysmp.bountyCore.auction.AHSignSearchListener(this);
         getLogger().info("Auction system initialized!");
-    }
-
-    private void setupOrders() {
-        orderManager = new com.bountysmp.bountyCore.orders.OrderManager(this);
-        getLogger().info("Orders system initialized!");
     }
 
     private void setupTeams() {
@@ -321,6 +308,7 @@ public final class BountyCore extends JavaPlugin {
     }
 
     private void setupWarps() {
+        warpConfig  = new com.bountysmp.bountyCore.warp.WarpConfig(this);
         warpManager = new com.bountysmp.bountyCore.warp.WarpManager(this);
         getLogger().info("Warp system initialized!");
     }
@@ -343,6 +331,27 @@ public final class BountyCore extends JavaPlugin {
     private void setupLeaderboard() {
         leaderboardManager = new com.bountysmp.bountyCore.leaderboard.LeaderboardManager(this);
         getLogger().info("Leaderboard system initialized!");
+    }
+
+    private void setupWorth() {
+        worthManager = new com.bountysmp.bountyCore.worth.WorthManager(this);
+        getLogger().info("Worth system initialized!");
+    }
+
+    private void setupInventoryWipe() {
+        inventoryWipeManager = new com.bountysmp.bountyCore.statswipe.InventoryWipeManager(this);
+        getServer().getPluginManager().registerEvents(inventoryWipeManager, this);
+    }
+
+    private void setupScoreboard() {
+        scoreboardManager = new com.bountysmp.bountyCore.scoreboard.ScoreboardManager(this);
+        getServer().getPluginManager().registerEvents(scoreboardManager, this);
+        for (org.bukkit.entity.Player p : getServer().getOnlinePlayers()) {
+            scoreboardManager.setupPlayer(p);
+        }
+        getServer().getScheduler().runTaskTimer(this,
+            scoreboardManager::updateAll, scoreboardManager.getUpdateTicks(), scoreboardManager.getUpdateTicks());
+        getLogger().info("Scoreboard system initialized!");
     }
 
     private void startScheduledTasks() {
@@ -512,15 +521,17 @@ public final class BountyCore extends JavaPlugin {
         getCommand("gmsp").setExecutor(gmspCmd);
         getCommand("gmsp").setTabCompleter(gmspCmd);
 
+        getCommand("eat").setExecutor(new com.bountysmp.bountyCore.commands.EatCommand(this));
+        com.bountysmp.bountyCore.commands.admin.FeedCommand feedCmd = new com.bountysmp.bountyCore.commands.admin.FeedCommand(this);
+        getCommand("feed").setExecutor(feedCmd);
+        getCommand("feed").setTabCompleter(feedCmd);
+
         randomTpCommand = new RandomTpCommand(this);
         getCommand("randomtp").setExecutor(randomTpCommand);
         getCommand("rtp").setExecutor(randomTpCommand);
 
         // Auction House
         getCommand("ah").setExecutor(new com.bountysmp.bountyCore.commands.AhCommand(this));
-
-        // Orders
-        getCommand("orders").setExecutor(new com.bountysmp.bountyCore.commands.OrdersCommand(this));
 
         // Team
         com.bountysmp.bountyCore.commands.TeamCommand teamCmd = new com.bountysmp.bountyCore.commands.TeamCommand(this);
@@ -553,6 +564,10 @@ public final class BountyCore extends JavaPlugin {
         getCommand("warpmanager").setExecutor(warpMgrCmd);
         getCommand("warpmanager").setTabCompleter(warpMgrCmd);
 
+        com.bountysmp.bountyCore.commands.admin.SetWarpCommand setWarpCmd = new com.bountysmp.bountyCore.commands.admin.SetWarpCommand(this);
+        getCommand("setwarp").setExecutor(setWarpCmd);
+        getCommand("setwarp").setTabCompleter(setWarpCmd);
+
         com.bountysmp.bountyCore.commands.admin.ProfileCommand profileCmd = new com.bountysmp.bountyCore.commands.admin.ProfileCommand(this);
         getCommand("profile").setExecutor(profileCmd);
         getCommand("profile").setTabCompleter(profileCmd);
@@ -569,6 +584,10 @@ public final class BountyCore extends JavaPlugin {
 
         getCommand("serverinfo").setExecutor(new com.bountysmp.bountyCore.commands.InfoCommand(this));
         getCommand("rules").setExecutor(new com.bountysmp.bountyCore.commands.RulesCommand(this));
+
+        com.bountysmp.bountyCore.commands.WorthCommand worthCmd = new com.bountysmp.bountyCore.commands.WorthCommand(this);
+        getCommand("worth").setExecutor(worthCmd);
+        getCommand("worth").setTabCompleter(worthCmd);
     }
 
     private void registerListeners() {
@@ -584,9 +603,12 @@ public final class BountyCore extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new RankListener(this), this);
         getServer().getPluginManager().registerEvents(new VanishListener(this), this);
         getServer().getPluginManager().registerEvents(new EnderChestListener(this, enderChestManager), this);
-        getServer().getPluginManager().registerEvents(new TabListener(this), this);
         getServer().getPluginManager().registerEvents(new com.bountysmp.bountyCore.listeners.FastCrystalListener(this), this);
         getServer().getPluginManager().registerEvents(new com.bountysmp.bountyCore.listeners.ChatListener(this), this);
+        getServer().getPluginManager().registerEvents(new com.bountysmp.bountyCore.listeners.WorthTooltipListener(this), this);
+        getServer().getPluginManager().registerEvents(ahOrderSignListener, this);
+        getServer().getPluginManager().registerEvents(ahSearchChatListener, this);
+        getServer().getPluginManager().registerEvents(ahSignSearchListener, this);
     }
 
     public static BountyCore getInstance() {
@@ -672,14 +694,6 @@ public final class BountyCore extends JavaPlugin {
         return randomTpCommand;
     }
 
-    public TabManager getTabManager() {
-        return tabManager;
-    }
-
-    public NametagManager getNametagManager() {
-        return nametagManager;
-    }
-
     public com.zaxxer.hikari.HikariDataSource getSharedDataSource() {
         return sharedDataSource;
     }
@@ -688,8 +702,20 @@ public final class BountyCore extends JavaPlugin {
         return auctionManager;
     }
 
-    public com.bountysmp.bountyCore.orders.OrderManager getOrderManager() {
-        return orderManager;
+    public com.bountysmp.bountyCore.auction.AHOrderSignListener getAhOrderSignListener() {
+        return ahOrderSignListener;
+    }
+
+    public com.bountysmp.bountyCore.auction.AHClaimStore getAhClaimStore() {
+        return ahClaimStore;
+    }
+
+    public com.bountysmp.bountyCore.auction.AHSearchChatListener getAhSearchChatListener() {
+        return ahSearchChatListener;
+    }
+
+    public com.bountysmp.bountyCore.auction.AHSignSearchListener getAhSignSearchListener() {
+        return ahSignSearchListener;
     }
 
     public com.bountysmp.bountyCore.teams.TeamManager getTeamManager() {
@@ -712,6 +738,10 @@ public final class BountyCore extends JavaPlugin {
         return warpManager;
     }
 
+    public com.bountysmp.bountyCore.warp.WarpConfig getWarpConfig() {
+        return warpConfig;
+    }
+
     public com.bountysmp.bountyCore.stats.PlayerStatsManager getPlayerStatsManager() {
         return playerStatsManager;
     }
@@ -730,5 +760,23 @@ public final class BountyCore extends JavaPlugin {
 
     public com.bountysmp.bountyCore.leaderboard.LeaderboardManager getLeaderboardManager() {
         return leaderboardManager;
+    }
+
+    public com.bountysmp.bountyCore.worth.WorthManager getWorthManager() {
+        return worthManager;
+    }
+
+    public com.bountysmp.bountyCore.scoreboard.ScoreboardManager getScoreboardManager() {
+        return scoreboardManager;
+    }
+
+    public com.bountysmp.bountyCore.statswipe.InventoryWipeManager getInventoryWipeManager() {
+        return inventoryWipeManager;
+    }
+
+    public void wipeAllEconomy() {
+        if (economyStorage != null) {
+            economyStorage.wipeAll();
+        }
     }
 }

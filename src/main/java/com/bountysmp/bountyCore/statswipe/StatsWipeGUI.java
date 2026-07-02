@@ -31,7 +31,7 @@ public class StatsWipeGUI {
     /**
      * 27-slot layout:
      * Row 0: [BG][Eco:1][Stats:2][Homes:3][EC:4][Bounty:5][AH:6][Teams:7][BG]
-     * Row 1: [BG][Orders:10][HH:11][BG][BG][BG][WipeAll:15][BG][BG]
+     * Row 1: [BG][Inventories:10][HH:11][BG][BG][BG][WipeAll:15][BG][BG]
      * Row 2: [BG][BG][BG][BG][Close:22][BG][BG][BG][BG]
      */
     public void open(Player player) {
@@ -50,7 +50,7 @@ public class StatsWipeGUI {
         gui.setItem(7,  btn(Material.SHIELD,            "§a§lTeams",          "§7Disband all teams."));
 
         // Row 1 — 2 more + wipe all
-        gui.setItem(10, btn(Material.WRITABLE_BOOK,     "§d§lOrders",         "§7Cancel all buy orders."));
+        gui.setItem(10, btn(Material.CHEST,             "§6§lInventories",    "§7Clear all player inventories.", "§7Offline players are cleared on join."));
         gui.setItem(11, btn(Material.EXPERIENCE_BOTTLE, "§2§lHH Levels/XP",   "§7Reset all HeadHunter levels & XP."));
         gui.setItem(15, btn(Material.BARRIER,           "§c§l⚠ Wipe ALL",     "§7Wipes every category above.", "§4§lTHIS CANNOT BE UNDONE!"));
 

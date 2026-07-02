@@ -4,7 +4,6 @@ import com.bountysmp.bountyCore.BountyCore;
 import com.bountysmp.bountyCore.auction.AuctionListGUI;
 import com.bountysmp.bountyCore.auction.AuctionReturnGUI;
 import com.bountysmp.bountyCore.homes.gui.GUIManager;
-import com.bountysmp.bountyCore.orders.OrderPlaceGUI;
 import com.bountysmp.bountyCore.sell.SellGUI;
 import com.bountysmp.bountyCore.settings.SettingsGUI;
 import com.bountysmp.bountyCore.shop.ShopCategoryGUI;
@@ -16,7 +15,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
 
@@ -42,6 +43,21 @@ public class GUIListener implements Listener {
             return;
         }
 
+        // SellGUI: item area (slots 0-44) must remain interactive; only lock nav row
+        if (event.getInventory().getHolder() instanceof com.bountysmp.bountyCore.sell.SellGUI gui) {
+            boolean isTop = event.getClickedInventory() == event.getView().getTopInventory();
+            if (isTop && event.getSlot() >= 45) {
+                event.setCancelled(true);
+                if (event.getSlot() == 53) {
+                    gui.executeSell();
+                }
+            } else if (isTop) {
+                // Allow item placement; update price display on next tick
+                plugin.getServer().getScheduler().runTaskLater(plugin, gui::updatePriceDisplay, 1L);
+            }
+            return;
+        }
+
         // Check for InventoryHolder-based GUIs first
         if (event.getInventory().getHolder() instanceof com.bountysmp.bountyCore.teams.TeamGUI) {
             event.setCancelled(true);
@@ -50,6 +66,62 @@ public class GUIListener implements Listener {
             }
             com.bountysmp.bountyCore.teams.TeamGUI gui = (com.bountysmp.bountyCore.teams.TeamGUI) event.getInventory().getHolder();
             gui.handleClick(event.getSlot(), player);
+            return;
+        }
+
+        if (event.getInventory().getHolder() instanceof com.bountysmp.bountyCore.auction.AuctionGUI) {
+            event.setCancelled(true);
+            if (event.getClickedInventory() != event.getView().getTopInventory()) return;
+            ((com.bountysmp.bountyCore.auction.AuctionGUI) event.getInventory().getHolder()).handleClick(event.getSlot(), player);
+            return;
+        }
+
+        if (event.getInventory().getHolder() instanceof com.bountysmp.bountyCore.auction.AuctionMyListingsGUI) {
+            event.setCancelled(true);
+            if (event.getClickedInventory() != event.getView().getTopInventory()) return;
+            ((com.bountysmp.bountyCore.auction.AuctionMyListingsGUI) event.getInventory().getHolder()).handleClick(event.getSlot(), player);
+            return;
+        }
+
+        if (event.getInventory().getHolder() instanceof com.bountysmp.bountyCore.auction.AuctionListingDetailGUI) {
+            event.setCancelled(true);
+            if (event.getClickedInventory() != event.getView().getTopInventory()) return;
+            ((com.bountysmp.bountyCore.auction.AuctionListingDetailGUI) event.getInventory().getHolder()).handleClick(event.getSlot(), player);
+            return;
+        }
+
+        if (event.getInventory().getHolder() instanceof com.bountysmp.bountyCore.auction.AHClaimGUI) {
+            event.setCancelled(true);
+            if (event.getClickedInventory() != event.getView().getTopInventory()) return;
+            ((com.bountysmp.bountyCore.auction.AHClaimGUI) event.getInventory().getHolder()).handleClick(event.getSlot(), player);
+            return;
+        }
+
+        if (event.getInventory().getHolder() instanceof com.bountysmp.bountyCore.auction.AuctionReturnGUI) {
+            event.setCancelled(true);
+            if (event.getClickedInventory() != event.getView().getTopInventory()) return;
+            ((com.bountysmp.bountyCore.auction.AuctionReturnGUI) event.getInventory().getHolder()).handleClick(event.getSlot(), player);
+            return;
+        }
+
+        if (event.getInventory().getHolder() instanceof com.bountysmp.bountyCore.profile.ProfileGUI) {
+            event.setCancelled(true);
+            if (event.getClickedInventory() != event.getView().getTopInventory()) return;
+            ((com.bountysmp.bountyCore.profile.ProfileGUI) event.getInventory().getHolder()).handleClick(event.getSlot(), player);
+            return;
+        }
+
+        if (event.getInventory().getHolder() instanceof com.bountysmp.bountyCore.warp.WarpGUI) {
+            event.setCancelled(true);
+            if (event.getClickedInventory() != event.getView().getTopInventory()) return;
+            ((com.bountysmp.bountyCore.warp.WarpGUI) event.getInventory().getHolder()).handleClick(event.getSlot(), player);
+            return;
+        }
+
+        if (event.getInventory().getHolder() instanceof com.bountysmp.bountyCore.worth.WorthGUI gui) {
+            event.setCancelled(true);
+            if (event.getClickedInventory() != event.getView().getTopInventory()) return;
+            gui.handleClick(event.getSlot(), player, event.getClick());
             return;
         }
 
@@ -94,28 +166,14 @@ public class GUIListener implements Listener {
                 handleHomeDeleteGUI(player, slot);
             } else if (title.equals("Random Teleport")) {
                 handleRandomTpGUI(player, slot);
-            } else if (title.contains("Auction House") || title.startsWith(ChatColor.GOLD + "Auction")) {
-                handleAuctionGUI(player, slot, title, event.getInventory());
             } else if (title.contains("List Item")) {
                 handleAuctionListGUI(player, slot);
-            } else if (title.contains("Unclaimed Items") || title.contains("Return")) {
-                handleAuctionReturnGUI(player, slot);
-            } else if (title.contains("Orders") || title.startsWith(ChatColor.BLUE + "Orders")) {
-                handleOrderGUI(player, slot, title);
-            } else if (title.contains("Place Order")) {
-                handleOrderPlaceGUI(player, slot);
             } else if (title.contains("Team") && !title.contains("Info")) {
                 handleTeamGUI(player, slot, title);
             } else if (title.contains("Settings") || title.startsWith(ChatColor.DARK_GRAY + "Settings")) {
                 handleSettingsGUI(player, slot);
             } else if (title.contains("Shop") || title.startsWith(ChatColor.GOLD + "Shop")) {
                 handleShopGUI(player, slot, title);
-            } else if (title.contains("Sell Items") || title.startsWith(ChatColor.DARK_GRAY + "Sell")) {
-                handleSellGUI(player, slot, event);
-            } else if (title.contains("Warp") || title.startsWith(ChatColor.DARK_GRAY + "Warp")) {
-                handleWarpGUI(player, slot, title);
-            } else if (title.contains("Profile") || title.startsWith(ChatColor.BLUE + "Profile")) {
-                handleProfileGUI(player, slot);
             } else if (title.contains("Info") && !title.contains("Profile")) {
                 handleInfoGUI(player, slot);
             } else if (title.contains("Rules")) {
@@ -125,13 +183,13 @@ public class GUIListener implements Listener {
     }
 
     private boolean isBountyCoreGUI(String title) {
-        return title.contains("Auction") || title.contains("Order") || title.contains("Team") ||
-               title.contains("Settings") || title.contains("Shop") || title.contains("Sell") ||
-               title.contains("Warp") || title.contains("Stats Wipe") || title.contains("Confirm Wipe") ||
-               title.contains("Profile") || title.contains("Info") || title.contains("Rules") ||
+        return title.contains("Auction") || title.contains("Team") ||
+               title.contains("Settings") || title.contains("Shop") ||
+               title.contains("Stats Wipe") || title.contains("Confirm Wipe") ||
+               title.contains("Info") || title.contains("Rules") ||
                title.contains("Bounty") || title.contains("Homes") || title.contains("Delete Home") ||
                title.contains("Random Teleport") || title.contains("Unclaimed") ||
-               title.contains("List Item") || title.contains("Place Order");
+               title.contains("List Item");
     }
 
     // =============== HANDLER METHODS ===============
@@ -156,37 +214,6 @@ public class GUIListener implements Listener {
         }
     }
 
-    private void handleAuctionGUI(Player player, int slot, String title, org.bukkit.inventory.Inventory inventory) {
-        if (slot >= 0 && slot < 45) {
-            // Clicked on a listing - buy it
-            plugin.getAuctionManager().getActiveListings().thenAccept(listings -> {
-                int page = extractPage(title);
-                int index = (page * 45) + slot;
-                if (index < listings.size()) {
-                    plugin.getAuctionManager().buyItem(player, listings.get(index).getListingId());
-                }
-            });
-        } else if (slot == 45) {
-            // Refresh button - refresh without closing
-            new com.bountysmp.bountyCore.auction.AuctionGUI(plugin, player, extractPage(title)).refresh(inventory);
-        } else if (slot == 48) {
-            // Previous page
-            int currentPage = extractPage(title);
-            if (currentPage > 0) {
-                player.closeInventory();
-                new com.bountysmp.bountyCore.auction.AuctionGUI(plugin, player, currentPage - 1).open();
-            }
-        } else if (slot == 50) {
-            // Next page
-            int currentPage = extractPage(title);
-            player.closeInventory();
-            new com.bountysmp.bountyCore.auction.AuctionGUI(plugin, player, currentPage + 1).open();
-        } else if (slot == 53) {
-            // Your listings / return
-            player.closeInventory();
-            new AuctionReturnGUI(plugin, player).open();
-        }
-    }
 
     private void handleAuctionListGUI(Player player, int slot) {
         if (slot == 13) {
@@ -200,59 +227,6 @@ public class GUIListener implements Listener {
             AuctionListGUI gui = new AuctionListGUI(plugin, player);
             gui.confirmListing(player);
         } else if (slot == 22) {
-            // Cancel
-            player.closeInventory();
-        }
-    }
-
-    private void handleAuctionReturnGUI(Player player, int slot) {
-        // Use the GUI's own handleClick method
-        AuctionReturnGUI gui = new AuctionReturnGUI(plugin, player);
-        gui.handleClick(slot, player);
-    }
-
-    private void handleOrderGUI(Player player, int slot, String title) {
-        if (slot >= 0 && slot < 45) {
-            // Clicked on an order
-        } else if (slot == 53) {
-            // Place new order (changed from 46 to 53)
-            player.closeInventory();
-            new OrderPlaceGUI(plugin, player).open();
-        } else if (slot == 48) {
-            // Previous page
-            int currentPage = extractPage(title);
-            if (currentPage > 0) {
-                player.closeInventory();
-                new com.bountysmp.bountyCore.orders.OrderGUI(plugin, player, currentPage - 1).open();
-            }
-        } else if (slot == 50) {
-            // Next page
-            int currentPage = extractPage(title);
-            player.closeInventory();
-            new com.bountysmp.bountyCore.orders.OrderGUI(plugin, player, currentPage + 1).open();
-        } else if (slot == 51) {
-            // My orders / cancel
-        }
-    }
-
-    private void handleOrderPlaceGUI(Player player, int slot) {
-        if (slot == 11) {
-            // Select item type
-            player.closeInventory();
-            player.sendMessage(ChatColor.GREEN + "Enter the item material name in chat:");
-        } else if (slot == 13) {
-            // Enter quantity
-            player.closeInventory();
-            player.sendMessage(ChatColor.GREEN + "Enter the quantity in chat:");
-        } else if (slot == 15) {
-            // Enter max price
-            player.closeInventory();
-            player.sendMessage(ChatColor.GREEN + "Enter the max price per item in chat:");
-        } else if (slot == 22) {
-            // Confirm
-            OrderPlaceGUI gui = new OrderPlaceGUI(plugin, player);
-            gui.confirmOrder(player);
-        } else if (slot == 20) {
             // Cancel
             player.closeInventory();
         }
@@ -298,59 +272,6 @@ public class GUIListener implements Listener {
         }
     }
 
-    private void handleSellGUI(Player player, int slot, InventoryClickEvent event) {
-        if (slot == 53) {
-            // Confirm sell
-            SellGUI gui = new SellGUI(plugin, player);
-            gui.sellAllItems(event.getInventory());
-        }
-    }
-
-    private void handleWarpGUI(Player player, int slot, String title) {
-        if (slot >= 0 && slot < 45) {
-            // Calculate actual warp index based on page and slot
-            int currentPage = extractPage(title);
-            int warpIndex = (currentPage * 45) + slot; // 45 items per page
-
-            List<com.bountysmp.bountyCore.warp.Warp> warps = plugin.getWarpManager().getAllWarps();
-            if (warpIndex >= 0 && warpIndex < warps.size()) {
-                com.bountysmp.bountyCore.warp.Warp warp = warps.get(warpIndex);
-                player.closeInventory();
-                player.sendMessage(org.bukkit.ChatColor.YELLOW + "Teleporting to " + warp.getName() + " in 5 seconds...");
-                player.sendMessage(org.bukkit.ChatColor.RED + "Don't move!");
-
-                final org.bukkit.Location startLocation = player.getLocation().clone();
-
-                Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    // Check if player moved
-                    if (player.getLocation().distance(startLocation) > 0.5) {
-                        player.sendMessage(org.bukkit.ChatColor.RED + "Teleport cancelled - you moved!");
-                        return;
-                    }
-
-                    player.teleport(warp.getLocation());
-                    player.sendMessage(org.bukkit.ChatColor.GREEN + "Teleported to " + warp.getName());
-                }, 100L); // 5 seconds = 100 ticks
-            }
-        } else if (slot == 48) {
-            // Previous page
-            int currentPage = extractPage(title);
-            if (currentPage > 0) {
-                player.closeInventory();
-                new com.bountysmp.bountyCore.warp.WarpGUI(plugin, currentPage - 1).open(player);
-            }
-        } else if (slot == 50) {
-            // Next page
-            int currentPage = extractPage(title);
-            com.bountysmp.bountyCore.warp.WarpGUI gui = new com.bountysmp.bountyCore.warp.WarpGUI(plugin, currentPage + 1);
-            // Check if there's actually a next page
-            if (currentPage + 1 < gui.getTotalPages()) {
-                player.closeInventory();
-                gui.open(player);
-            }
-        }
-    }
-
     private void handleStatsWipeGUI(Player player, int slot, String title) {
         if (title.contains("Confirm Wipe")) {
             if (slot == 11) {
@@ -372,7 +293,7 @@ public class GUIListener implements Listener {
                 case 5  -> "Bounties";
                 case 6  -> "Auction House";
                 case 7  -> "Teams";
-                case 10 -> "Orders";
+                case 10 -> "Inventories";
                 case 11 -> "HH Data";
                 case 15 -> "ALL DATA";
                 default -> null;
@@ -395,7 +316,7 @@ public class GUIListener implements Listener {
             case "Bounties"     -> plugin.getBountyManager().wipeAll();
             case "Auction House"-> plugin.getAuctionManager().wipeAll();
             case "Teams"        -> plugin.getTeamManager().wipeAll();
-            case "Orders"       -> plugin.getOrderManager().wipeAll();
+            case "Inventories"  -> plugin.getInventoryWipeManager().wipeAll();
             case "HH Data"      -> wipeHHData();
             case "ALL DATA"     -> {
                 plugin.wipeAllEconomy();
@@ -405,7 +326,7 @@ public class GUIListener implements Listener {
                 plugin.getBountyManager().wipeAll();
                 plugin.getAuctionManager().wipeAll();
                 plugin.getTeamManager().wipeAll();
-                plugin.getOrderManager().wipeAll();
+                plugin.getInventoryWipeManager().wipeAll();
                 wipeHHData();
             }
         }
@@ -428,13 +349,6 @@ public class GUIListener implements Listener {
             online.setLevel(0);
             online.setExp(0f);
             online.setTotalExperience(0);
-        }
-    }
-
-    private void handleProfileGUI(Player player, int slot) {
-        if (slot == 49) {
-            // Close button
-            player.closeInventory();
         }
     }
 
@@ -490,6 +404,19 @@ public class GUIListener implements Listener {
         String stripped = ChatColor.stripColor(title);
         int idx = stripped.indexOf("- ");
         return idx >= 0 ? stripped.substring(idx + 2).trim() : "unknown";
+    }
+
+    @EventHandler
+    public void onInventoryDrag(InventoryDragEvent event) {
+        if (!(event.getInventory().getHolder() instanceof com.bountysmp.bountyCore.sell.SellGUI gui)) return;
+        // Cancel drag if any slot lands in the nav row (45-53)
+        boolean hitsNav = event.getRawSlots().stream().anyMatch(s -> s >= 45 && s < 54);
+        if (hitsNav) {
+            event.setCancelled(true);
+        } else {
+            // Valid drag into item area — update price after
+            plugin.getServer().getScheduler().runTaskLater(plugin, gui::updatePriceDisplay, 1L);
+        }
     }
 
     @EventHandler

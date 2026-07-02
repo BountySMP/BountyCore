@@ -44,7 +44,7 @@ public class ProfileCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        new ProfileGUI(plugin, target).open(player);
+        new ProfileGUI(plugin, target, player).open();
         return true;
     }
 

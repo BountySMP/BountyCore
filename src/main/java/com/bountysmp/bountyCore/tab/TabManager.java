@@ -58,11 +58,6 @@ public class TabManager {
             }
         }
 
-        // Add AFK prefix if player is AFK
-        if (plugin.getAfkManager() != null && plugin.getAfkManager().isAfk(player.getUniqueId())) {
-            prefix = ChatColor.GRAY + "[AFK] " + prefix;
-        }
-
         player.setPlayerListName(prefix + player.getName());
     }
 
